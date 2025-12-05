@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Intimome - Intimacy Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+              serif: ['"DM Serif Display"', 'serif'],
+            },
+            colors: {
+              // Custom "Wellness" Green Palette if standard Tailwind isn't enough
+              emerald: {
+                850: '#064e3b', // Deep Forest
+              }
+            },
+            backgroundImage: {
+              'noise': "url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22 opacity=%220.05%22/%3E%3C/svg%3E')",
+            },
+            animation: {
+              'fade-in': 'fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
+              'slide-up': 'slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
+              'float': 'float 6s ease-in-out infinite',
+              'wiggle': 'wiggle 1s ease-in-out infinite',
+              'bob': 'bob 2s ease-in-out infinite',
+              'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+              'thrust-x': 'thrustX 1s ease-in-out infinite',
+              'thrust-y': 'thrustY 1.2s ease-in-out infinite',
+              'rock': 'rock 2s ease-in-out infinite',
+              'spin-slow': 'spin 8s linear infinite',
+            },
+            keyframes: {
+              fadeIn: {
+                '0%': { opacity: '0' },
+                '100%': { opacity: '1' },
+              },
+              slideUp: {
+                '0%': { opacity: '0', transform: 'translateY(20px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' },
+              },
+              float: {
+                '0%, 100%': { transform: 'translateY(0)' },
+                '50%': { transform: 'translateY(-10px)' },
+              },
+              wiggle: {
+                '0%, 100%': { transform: 'rotate(-6deg)' },
+                '50%': { transform: 'rotate(6deg)' },
+              },
+              bob: {
+                '0%, 100%': { transform: 'translateY(-5px)' },
+                '50%': { transform: 'translateY(5px)' },
+              },
+              thrustX: {
+                '0%, 100%': { transform: 'translateX(0)' },
+                '50%': { transform: 'translateX(6px)' },
+              },
+              thrustY: {
+                '0%, 100%': { transform: 'translateY(0)' },
+                '50%': { transform: 'translateY(-6px)' },
+              },
+              rock: {
+                '0%, 100%': { transform: 'rotate(-5deg)' },
+                '50%': { transform: 'rotate(5deg)' },
+              }
+            }
+          },
+        },
+      };
+    </script>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@300;400;500;600;700&display=swap');
+      
+      body {
+        background-color: #f8fafc;
+        color: #0f172a;
+        font-family: 'Inter', sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      
+      /* Modern Minimal Scrollbar */
+      ::-webkit-scrollbar {
+        width: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "lucide-react": "https://aistudiocdn.com/lucide-react@0.294.0",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0",
+    "recharts": "https://aistudiocdn.com/recharts@2.12.3",
+    "react": "https://aistudiocdn.com/react@18.2.0",
+    "react-dom/client": "https://aistudiocdn.com/react-dom@18.2.0&path=/client",
+    "react-dom": "https://aistudiocdn.com/react-dom@18.2.0",
+    "react/jsx-runtime": "https://aistudiocdn.com/react@18.2.0&path=/jsx-runtime",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/"
+  }
+}
+</script>
+</head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
