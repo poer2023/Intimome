@@ -79,8 +79,10 @@ export const translations = {
       [LocationType.LIVING_ROOM]: "Living Room",
       [LocationType.SHOWER]: "Shower/Bath",
       [LocationType.KITCHEN]: "Kitchen",
-      [LocationType.OUTDOORS]: "Outdoors",
-      [LocationType.OTHER]: "Other"
+      [LocationType.STUDY]: "Study",
+      [LocationType.BALCONY]: "Balcony",
+      [LocationType.HOTEL]: "Hotel",
+      [LocationType.CAR]: "Car"
     },
     mood: {
       [MoodType.PASSIONATE]: "Passionate",
@@ -94,12 +96,19 @@ export const translations = {
       [PositionType.MISSIONARY]: "Missionary",
       [PositionType.DOGGY_STYLE]: "Doggy Style",
       [PositionType.COWGIRL]: "Cowgirl",
-      [PositionType.REVERSE_COWGIRL]: "Reverse Cowgirl",
       [PositionType.SPOONING]: "Spooning",
-      [PositionType.STANDING]: "Standing",
+      [PositionType.REVERSE_COWGIRL]: "Reverse Cowgirl",
       [PositionType.ORAL]: "Oral",
+      [PositionType.LEGS_UP]: "Legs Up",
+      [PositionType.STANDING]: "Standing",
       [PositionType.SIXTY_NINE]: "69",
-      [PositionType.OTHER]: "Other"
+      [PositionType.LOTUS]: "Lotus",
+      [PositionType.SEATED]: "Seated",
+      [PositionType.PRONE_BONE]: "Prone Bone",
+      [PositionType.SIDEWAYS]: "Sideways",
+      [PositionType.TABLETOP]: "Tabletop",
+      [PositionType.SCISSORS]: "Scissors",
+      [PositionType.SUSPENDED]: "Suspended"
     },
     tags: {
       'Music': 'Music',
@@ -189,8 +198,10 @@ export const translations = {
       [LocationType.LIVING_ROOM]: "客厅",
       [LocationType.SHOWER]: "浴室/淋浴",
       [LocationType.KITCHEN]: "厨房",
-      [LocationType.OUTDOORS]: "户外",
-      [LocationType.OTHER]: "其他"
+      [LocationType.STUDY]: "书房",
+      [LocationType.BALCONY]: "阳台",
+      [LocationType.HOTEL]: "酒店",
+      [LocationType.CAR]: "车内"
     },
     mood: {
       [MoodType.PASSIONATE]: "激情",
@@ -204,12 +215,19 @@ export const translations = {
       [PositionType.MISSIONARY]: "传教士",
       [PositionType.DOGGY_STYLE]: "后入式",
       [PositionType.COWGIRL]: "女上位",
-      [PositionType.REVERSE_COWGIRL]: "反向女上位",
       [PositionType.SPOONING]: "侧卧/勺子",
-      [PositionType.STANDING]: "站立",
+      [PositionType.REVERSE_COWGIRL]: "反向女上位",
       [PositionType.ORAL]: "口交",
+      [PositionType.LEGS_UP]: "抬腿式",
+      [PositionType.STANDING]: "站立",
       [PositionType.SIXTY_NINE]: "69式",
-      [PositionType.OTHER]: "其他"
+      [PositionType.LOTUS]: "莲花式",
+      [PositionType.SEATED]: "椅子式",
+      [PositionType.PRONE_BONE]: "俯卧式",
+      [PositionType.SIDEWAYS]: "侧入式",
+      [PositionType.TABLETOP]: "桌面式",
+      [PositionType.SCISSORS]: "剪刀式",
+      [PositionType.SUSPENDED]: "悬空式"
     },
     tags: {
       'Music': '音乐',

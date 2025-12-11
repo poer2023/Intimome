@@ -8,20 +8,30 @@ export enum LocationType {
   LIVING_ROOM = 'Living Room',
   SHOWER = 'Shower/Bath',
   KITCHEN = 'Kitchen',
-  OUTDOORS = 'Outdoors',
-  OTHER = 'Other',
+  STUDY = 'Study',
+  BALCONY = 'Balcony',
+  HOTEL = 'Hotel',
+  CAR = 'Car',
 }
 
 export enum PositionType {
+  // Ordered from most to least commonly used
   MISSIONARY = 'Missionary',
   DOGGY_STYLE = 'Doggy Style',
   COWGIRL = 'Cowgirl',
-  REVERSE_COWGIRL = 'Reverse Cowgirl',
   SPOONING = 'Spooning',
-  STANDING = 'Standing',
+  REVERSE_COWGIRL = 'Reverse Cowgirl',
   ORAL = 'Oral',
+  LEGS_UP = 'Legs Up',
+  STANDING = 'Standing',
   SIXTY_NINE = '69',
-  OTHER = 'Other',
+  LOTUS = 'Lotus',
+  SEATED = 'Seated',
+  PRONE_BONE = 'Prone Bone',
+  SIDEWAYS = 'Sideways',
+  TABLETOP = 'Tabletop',
+  SCISSORS = 'Scissors',
+  SUSPENDED = 'Suspended',
 }
 
 export enum MoodType {

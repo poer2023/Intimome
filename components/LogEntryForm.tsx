@@ -30,10 +30,10 @@ const MissionarySVG = () => (
 
     {/* Top Partner (Active - Emerald) */}
     <g className="animate-thrust-y origin-center">
-      <circle cx="30" cy="60" r="8" fill="#10b981" />
-      <path d="M30 68 L75 68" stroke="#10b981" strokeWidth="6" strokeLinecap="round" />
-      <path d="M35 68 L35 85" stroke="#10b981" strokeWidth="4" strokeLinecap="round" />
-      <path d="M70 68 L70 85" stroke="#10b981" strokeWidth="4" strokeLinecap="round" />
+      <circle cx="30" cy="60" r="8" fill="#f43f5e" />
+      <path d="M30 68 L75 68" stroke="#f43f5e" strokeWidth="6" strokeLinecap="round" />
+      <path d="M35 68 L35 85" stroke="#f43f5e" strokeWidth="4" strokeLinecap="round" />
+      <path d="M70 68 L70 85" stroke="#f43f5e" strokeWidth="4" strokeLinecap="round" />
     </g>
   </svg>
 );
@@ -50,10 +50,10 @@ const DoggySVG = () => (
 
     {/* Top Partner (Behind - Emerald) */}
     <g className="animate-thrust-x origin-bottom">
-      <circle cx="25" cy="50" r="8" fill="#10b981" />
-      <path d="M25 58 L38 73" stroke="#10b981" strokeWidth="6" strokeLinecap="round" />
-      <path d="M20 73 L20 90" stroke="#10b981" strokeWidth="4" strokeLinecap="round" />
-      <path d="M38 73 L45 73" stroke="#10b981" strokeWidth="4" strokeLinecap="round" />
+      <circle cx="25" cy="50" r="8" fill="#f43f5e" />
+      <path d="M25 58 L38 73" stroke="#f43f5e" strokeWidth="6" strokeLinecap="round" />
+      <path d="M20 73 L20 90" stroke="#f43f5e" strokeWidth="4" strokeLinecap="round" />
+      <path d="M38 73 L45 73" stroke="#f43f5e" strokeWidth="4" strokeLinecap="round" />
     </g>
   </svg>
 );
@@ -66,12 +66,12 @@ const CowgirlSVG = () => (
 
     {/* Top Partner (Sitting - Emerald) */}
     <g className="animate-bounce origin-bottom">
-      <circle cx="50" cy="40" r="8" fill="#10b981" />
-      <path d="M50 48 L50 68" stroke="#10b981" strokeWidth="6" strokeLinecap="round" />
+      <circle cx="50" cy="40" r="8" fill="#f43f5e" />
+      <path d="M50 48 L50 68" stroke="#f43f5e" strokeWidth="6" strokeLinecap="round" />
       {/* Legs Straddling */}
-      <path d="M50 68 L30 85" stroke="#10b981" strokeWidth="4" strokeLinecap="round" />
-      <path d="M50 68 L70 85" stroke="#10b981" strokeWidth="4" strokeLinecap="round" />
-      <path d="M35 55 L65 55" stroke="#10b981" strokeWidth="4" strokeLinecap="round" />
+      <path d="M50 68 L30 85" stroke="#f43f5e" strokeWidth="4" strokeLinecap="round" />
+      <path d="M50 68 L70 85" stroke="#f43f5e" strokeWidth="4" strokeLinecap="round" />
+      <path d="M35 55 L65 55" stroke="#f43f5e" strokeWidth="4" strokeLinecap="round" />
     </g>
   </svg>
 );
@@ -84,13 +84,13 @@ const RevCowgirlSVG = () => (
 
     {/* Top Partner (Sitting Backward - Emerald) */}
     <g className="animate-bounce origin-bottom">
-      <circle cx="50" cy="40" r="8" fill="#10b981" />
-      <path d="M50 48 L50 68" stroke="#10b981" strokeWidth="6" strokeLinecap="round" />
+      <circle cx="50" cy="40" r="8" fill="#f43f5e" />
+      <path d="M50 48 L50 68" stroke="#f43f5e" strokeWidth="6" strokeLinecap="round" />
       {/* Legs Straddling */}
-      <path d="M50 68 L30 85" stroke="#10b981" strokeWidth="4" strokeLinecap="round" />
-      <path d="M50 68 L70 85" stroke="#10b981" strokeWidth="4" strokeLinecap="round" />
+      <path d="M50 68 L30 85" stroke="#f43f5e" strokeWidth="4" strokeLinecap="round" />
+      <path d="M50 68 L70 85" stroke="#f43f5e" strokeWidth="4" strokeLinecap="round" />
       {/* Arms back */}
-      <path d="M50 55 L30 50" stroke="#10b981" strokeWidth="3" strokeLinecap="round" />
+      <path d="M50 55 L30 50" stroke="#f43f5e" strokeWidth="3" strokeLinecap="round" />
     </g>
   </svg>
 );
@@ -99,8 +99,8 @@ const SpooningSVG = () => (
   <svg viewBox="0 0 100 100" className="w-full h-full">
     <g className="animate-thrust-x">
       {/* Big Spoon - Emerald */}
-      <path d="M30 80 Q 20 50 40 30" stroke="#10b981" strokeWidth="8" strokeLinecap="round" fill="none" />
-      <circle cx="40" cy="30" r="8" fill="#10b981" />
+      <path d="M30 80 Q 20 50 40 30" stroke="#f43f5e" strokeWidth="8" strokeLinecap="round" fill="none" />
+      <circle cx="40" cy="30" r="8" fill="#f43f5e" />
 
       {/* Little Spoon - Slate */}
       <path d="M50 80 Q 40 50 60 40" stroke="#94a3b8" strokeWidth="8" strokeLinecap="round" fill="none" />
@@ -120,11 +120,11 @@ const StandingSVG = () => (
     </g>
     {/* Partner 2 (Active - Emerald) */}
     <g className="animate-bob">
-      <circle cx="60" cy="35" r="8" fill="#10b981" />
-      <path d="M60 43 L60 70" stroke="#10b981" strokeWidth="6" strokeLinecap="round" />
-      <path d="M60 70 L70 90" stroke="#10b981" strokeWidth="4" strokeLinecap="round" />
-      <path d="M60 70 L55 85" stroke="#10b981" strokeWidth="4" strokeLinecap="round" />
-      <path d="M60 50 L45 50" stroke="#10b981" strokeWidth="4" strokeLinecap="round" />
+      <circle cx="60" cy="35" r="8" fill="#f43f5e" />
+      <path d="M60 43 L60 70" stroke="#f43f5e" strokeWidth="6" strokeLinecap="round" />
+      <path d="M60 70 L70 90" stroke="#f43f5e" strokeWidth="4" strokeLinecap="round" />
+      <path d="M60 70 L55 85" stroke="#f43f5e" strokeWidth="4" strokeLinecap="round" />
+      <path d="M60 50 L45 50" stroke="#f43f5e" strokeWidth="4" strokeLinecap="round" />
     </g>
   </svg>
 );
@@ -137,9 +137,9 @@ const OralSVG = () => (
 
     {/* Giver - Emerald */}
     <g className="animate-bob">
-      <circle cx="60" cy="70" r="8" fill="#10b981" />
-      <path d="M60 78 L80 90" stroke="#10b981" strokeWidth="6" strokeLinecap="round" />
-      <path d="M60 78 L40 78" stroke="#10b981" strokeWidth="4" strokeLinecap="round" />
+      <circle cx="60" cy="70" r="8" fill="#f43f5e" />
+      <path d="M60 78 L80 90" stroke="#f43f5e" strokeWidth="6" strokeLinecap="round" />
+      <path d="M60 78 L40 78" stroke="#f43f5e" strokeWidth="4" strokeLinecap="round" />
     </g>
   </svg>
 );
@@ -148,8 +148,8 @@ const SixtyNineSVG = () => (
   <svg viewBox="0 0 100 100" className="w-full h-full">
     <g className="animate-rock origin-center">
       {/* Top - Emerald */}
-      <path d="M70 30 Q 60 20 50 30 T 30 50" stroke="#10b981" strokeWidth="8" strokeLinecap="round" fill="none" />
-      <circle cx="70" cy="30" r="8" fill="#10b981" />
+      <path d="M70 30 Q 60 20 50 30 T 30 50" stroke="#f43f5e" strokeWidth="8" strokeLinecap="round" fill="none" />
+      <circle cx="70" cy="30" r="8" fill="#f43f5e" />
 
       {/* Bottom - Slate */}
       <path d="M30 70 Q 40 80 50 70 T 70 50" stroke="#94a3b8" strokeWidth="8" strokeLinecap="round" fill="none" />
@@ -158,23 +158,179 @@ const SixtyNineSVG = () => (
   </svg>
 );
 
-const OtherSVG = () => (
+// Lotus - face-to-face seated position
+const LotusSVG = () => (
   <svg viewBox="0 0 100 100" className="w-full h-full">
-    <circle cx="50" cy="50" r="40" stroke="#cbd5e1" strokeWidth="2" fill="none" strokeDasharray="4 4" className="animate-spin-slow" />
-    <text x="50" y="55" textAnchor="middle" fill="#94a3b8" fontSize="30" fontWeight="bold">?</text>
+    <g className="animate-rock origin-center">
+      {/* Bottom Partner seated - Slate */}
+      <circle cx="50" cy="55" r="8" fill="#94a3b8" />
+      <path d="M50 63 L50 80" stroke="#94a3b8" strokeWidth="6" strokeLinecap="round" />
+      <path d="M50 75 L35 90" stroke="#94a3b8" strokeWidth="4" strokeLinecap="round" />
+      <path d="M50 75 L65 90" stroke="#94a3b8" strokeWidth="4" strokeLinecap="round" />
+
+      {/* Top Partner facing - Emerald */}
+      <circle cx="50" cy="35" r="8" fill="#f43f5e" />
+      <path d="M50 43 L50 60" stroke="#f43f5e" strokeWidth="6" strokeLinecap="round" />
+      <path d="M50 55 L35 75" stroke="#f43f5e" strokeWidth="4" strokeLinecap="round" />
+      <path d="M50 55 L65 75" stroke="#f43f5e" strokeWidth="4" strokeLinecap="round" />
+      <path d="M40 50 L60 50" stroke="#f43f5e" strokeWidth="3" strokeLinecap="round" />
+    </g>
+  </svg>
+);
+
+// Prone Bone - lying flat, partner on top from behind
+const ProneBoneSVG = () => (
+  <svg viewBox="0 0 100 100" className="w-full h-full">
+    {/* Bottom Partner lying flat - Slate */}
+    <circle cx="75" cy="75" r="7" fill="#94a3b8" />
+    <path d="M20 80 L70 80" stroke="#94a3b8" strokeWidth="6" strokeLinecap="round" />
+
+    {/* Top Partner on top - Emerald */}
+    <g className="animate-thrust-y origin-center">
+      <circle cx="70" cy="55" r="8" fill="#f43f5e" />
+      <path d="M25 65 L65 65" stroke="#f43f5e" strokeWidth="6" strokeLinecap="round" />
+      <path d="M30 65 L25 80" stroke="#f43f5e" strokeWidth="4" strokeLinecap="round" />
+      <path d="M55 65 L55 80" stroke="#f43f5e" strokeWidth="4" strokeLinecap="round" />
+    </g>
+  </svg>
+);
+
+// Seated - one partner seated, other on lap
+const SeatedSVG = () => (
+  <svg viewBox="0 0 100 100" className="w-full h-full">
+    {/* Chair representation */}
+    <path d="M30 90 L30 60 L70 60 L70 90" stroke="#cbd5e1" strokeWidth="3" fill="none" />
+
+    {/* Seated Partner - Slate */}
+    <circle cx="50" cy="45" r="7" fill="#94a3b8" />
+    <path d="M50 52 L50 70" stroke="#94a3b8" strokeWidth="5" strokeLinecap="round" />
+    <path d="M50 70 L40 90" stroke="#94a3b8" strokeWidth="4" strokeLinecap="round" />
+    <path d="M50 70 L60 90" stroke="#94a3b8" strokeWidth="4" strokeLinecap="round" />
+
+    {/* Partner on lap - Emerald */}
+    <g className="animate-bounce origin-bottom">
+      <circle cx="50" cy="25" r="8" fill="#f43f5e" />
+      <path d="M50 33 L50 50" stroke="#f43f5e" strokeWidth="6" strokeLinecap="round" />
+      <path d="M50 45 L35 60" stroke="#f43f5e" strokeWidth="4" strokeLinecap="round" />
+      <path d="M50 45 L65 60" stroke="#f43f5e" strokeWidth="4" strokeLinecap="round" />
+    </g>
+  </svg>
+);
+
+// Sideways - side-by-side variant
+const SidewaysSVG = () => (
+  <svg viewBox="0 0 100 100" className="w-full h-full">
+    <g className="animate-thrust-x">
+      {/* Front Partner - Slate */}
+      <circle cx="65" cy="50" r="7" fill="#94a3b8" />
+      <path d="M65 57 Q 55 70 50 85" stroke="#94a3b8" strokeWidth="6" strokeLinecap="round" fill="none" />
+
+      {/* Back Partner - Emerald */}
+      <circle cx="35" cy="45" r="8" fill="#f43f5e" />
+      <path d="M35 53 Q 45 65 55 80" stroke="#f43f5e" strokeWidth="6" strokeLinecap="round" fill="none" />
+      <path d="M40 60 L55 55" stroke="#f43f5e" strokeWidth="3" strokeLinecap="round" />
+    </g>
+  </svg>
+);
+
+// Suspended - one partner lifted/held up
+const SuspendedSVG = () => (
+  <svg viewBox="0 0 100 100" className="w-full h-full">
+    {/* Standing Partner holding - Emerald */}
+    <circle cx="40" cy="25" r="8" fill="#f43f5e" />
+    <path d="M40 33 L40 65" stroke="#f43f5e" strokeWidth="6" strokeLinecap="round" />
+    <path d="M40 65 L30 90" stroke="#f43f5e" strokeWidth="4" strokeLinecap="round" />
+    <path d="M40 65 L50 90" stroke="#f43f5e" strokeWidth="4" strokeLinecap="round" />
+
+    {/* Lifted Partner - Slate with bounce animation */}
+    <g className="animate-bob">
+      <circle cx="60" cy="35" r="7" fill="#94a3b8" />
+      <path d="M60 42 L55 55" stroke="#94a3b8" strokeWidth="5" strokeLinecap="round" />
+      <path d="M55 50 L40 45" stroke="#94a3b8" strokeWidth="3" strokeLinecap="round" />
+      <path d="M55 55 L45 70" stroke="#94a3b8" strokeWidth="4" strokeLinecap="round" />
+      <path d="M55 55 L65 70" stroke="#94a3b8" strokeWidth="4" strokeLinecap="round" />
+    </g>
+  </svg>
+);
+
+// Legs Up - Missionary variant with raised legs
+const LegsUpSVG = () => (
+  <svg viewBox="0 0 100 100" className="w-full h-full">
+    {/* Bottom Partner with legs up - Slate */}
+    <circle cx="25" cy="75" r="8" fill="#94a3b8" />
+    <path d="M25 83 L70 83" stroke="#94a3b8" strokeWidth="6" strokeLinecap="round" />
+    <path d="M55 83 L75 55" stroke="#94a3b8" strokeWidth="4" strokeLinecap="round" />
+    <path d="M65 83 L85 60" stroke="#94a3b8" strokeWidth="4" strokeLinecap="round" />
+
+    {/* Top Partner - Emerald */}
+    <g className="animate-thrust-y origin-center">
+      <circle cx="35" cy="55" r="8" fill="#f43f5e" />
+      <path d="M35 63 L70 63" stroke="#f43f5e" strokeWidth="6" strokeLinecap="round" />
+      <path d="M40 63 L40 85" stroke="#f43f5e" strokeWidth="4" strokeLinecap="round" />
+      <path d="M65 63 L65 85" stroke="#f43f5e" strokeWidth="4" strokeLinecap="round" />
+    </g>
+  </svg>
+);
+
+// Tabletop - Partner on edge of table/surface
+const TabletopSVG = () => (
+  <svg viewBox="0 0 100 100" className="w-full h-full">
+    {/* Table surface */}
+    <path d="M15 70 L85 70" stroke="#cbd5e1" strokeWidth="4" strokeLinecap="round" />
+    <path d="M20 70 L20 90" stroke="#cbd5e1" strokeWidth="3" strokeLinecap="round" />
+    <path d="M80 70 L80 90" stroke="#cbd5e1" strokeWidth="3" strokeLinecap="round" />
+
+    {/* Partner on table - Slate */}
+    <circle cx="55" cy="55" r="7" fill="#94a3b8" />
+    <path d="M55 62 L55 70" stroke="#94a3b8" strokeWidth="5" strokeLinecap="round" />
+    <path d="M55 68 L40 80" stroke="#94a3b8" strokeWidth="4" strokeLinecap="round" />
+    <path d="M55 68 L70 80" stroke="#94a3b8" strokeWidth="4" strokeLinecap="round" />
+
+    {/* Standing Partner - Emerald */}
+    <g className="animate-thrust-x">
+      <circle cx="30" cy="45" r="8" fill="#f43f5e" />
+      <path d="M30 53 L40 65" stroke="#f43f5e" strokeWidth="6" strokeLinecap="round" />
+      <path d="M30 60 L25 85" stroke="#f43f5e" strokeWidth="4" strokeLinecap="round" />
+      <path d="M35 60 L40 85" stroke="#f43f5e" strokeWidth="4" strokeLinecap="round" />
+    </g>
+  </svg>
+);
+
+// Scissors - Interlocking legs position
+const ScissorsSVG = () => (
+  <svg viewBox="0 0 100 100" className="w-full h-full">
+    <g className="animate-rock origin-center">
+      {/* Partner 1 - Slate */}
+      <circle cx="25" cy="40" r="7" fill="#94a3b8" />
+      <path d="M25 47 Q 40 60 60 75" stroke="#94a3b8" strokeWidth="6" strokeLinecap="round" fill="none" />
+      <path d="M35 55 L25 80" stroke="#94a3b8" strokeWidth="4" strokeLinecap="round" />
+
+      {/* Partner 2 - Emerald */}
+      <circle cx="75" cy="45" r="8" fill="#10b981" />
+      <path d="M75 53 Q 60 65 40 80" stroke="#10b981" strokeWidth="6" strokeLinecap="round" fill="none" />
+      <path d="M65 60 L75 85" stroke="#10b981" strokeWidth="4" strokeLinecap="round" />
+    </g>
   </svg>
 );
 
 const POSITION_CONFIG: Record<PositionType, { icon: React.FC; color: string }> = {
-  [PositionType.MISSIONARY]: { icon: MissionarySVG, color: 'bg-emerald-50/50' },
+  // Ordered from most to least commonly used
+  [PositionType.MISSIONARY]: { icon: MissionarySVG, color: 'bg-rose-50/50' },
   [PositionType.DOGGY_STYLE]: { icon: DoggySVG, color: 'bg-slate-50' },
-  [PositionType.COWGIRL]: { icon: CowgirlSVG, color: 'bg-emerald-50/50' },
-  [PositionType.REVERSE_COWGIRL]: { icon: RevCowgirlSVG, color: 'bg-slate-50' },
+  [PositionType.COWGIRL]: { icon: CowgirlSVG, color: 'bg-rose-50/50' },
   [PositionType.SPOONING]: { icon: SpooningSVG, color: 'bg-slate-50' },
+  [PositionType.REVERSE_COWGIRL]: { icon: RevCowgirlSVG, color: 'bg-rose-50/50' },
+  [PositionType.ORAL]: { icon: OralSVG, color: 'bg-slate-50' },
+  [PositionType.LEGS_UP]: { icon: LegsUpSVG, color: 'bg-rose-50/50' },
   [PositionType.STANDING]: { icon: StandingSVG, color: 'bg-slate-50' },
-  [PositionType.ORAL]: { icon: OralSVG, color: 'bg-emerald-50/50' },
-  [PositionType.SIXTY_NINE]: { icon: SixtyNineSVG, color: 'bg-slate-50' },
-  [PositionType.OTHER]: { icon: OtherSVG, color: 'bg-slate-50' },
+  [PositionType.SIXTY_NINE]: { icon: SixtyNineSVG, color: 'bg-rose-50/50' },
+  [PositionType.LOTUS]: { icon: LotusSVG, color: 'bg-slate-50' },
+  [PositionType.SEATED]: { icon: SeatedSVG, color: 'bg-rose-50/50' },
+  [PositionType.PRONE_BONE]: { icon: ProneBoneSVG, color: 'bg-slate-50' },
+  [PositionType.SIDEWAYS]: { icon: SidewaysSVG, color: 'bg-rose-50/50' },
+  [PositionType.TABLETOP]: { icon: TabletopSVG, color: 'bg-slate-50' },
+  [PositionType.SCISSORS]: { icon: ScissorsSVG, color: 'bg-rose-50/50' },
+  [PositionType.SUSPENDED]: { icon: SuspendedSVG, color: 'bg-slate-50' },
 };
 
 // Tags Configuration
@@ -226,7 +382,7 @@ export const LogEntryForm: React.FC<LogEntryFormProps> = ({ onSave, onCancel }) 
       type,
       partnerName: undefined, // Partner name field removed from UI
       location,
-      positions: positions.length > 0 ? positions : [PositionType.OTHER],
+      positions: positions.length > 0 ? positions : [PositionType.MISSIONARY],
       mood,
       rating,
       orgasmReached,
@@ -247,20 +403,20 @@ export const LogEntryForm: React.FC<LogEntryFormProps> = ({ onSave, onCancel }) 
           {/* Date & Time */}
           <div className="space-y-2">
             <label className="text-xs font-bold text-slate-500 uppercase tracking-wide flex items-center gap-2">
-              <Calendar size={14} className="text-emerald-600" /> {t.dateTime}
+              <Calendar size={14} className="text-rose-600" /> {t.dateTime}
             </label>
             <input
               type="datetime-local"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="w-full bg-white border border-slate-200 rounded-xl p-3.5 text-sm font-medium text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all"
+              className="w-full bg-white border border-slate-200 rounded-xl p-3.5 text-sm font-medium text-slate-800 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-none transition-all"
             />
           </div>
 
           {/* Duration */}
           <div className="space-y-2">
             <label className="text-xs font-bold text-slate-500 uppercase tracking-wide flex items-center gap-2">
-              <Clock size={14} className="text-emerald-600" /> {t.durationLabel}: <span className="text-emerald-700 font-bold">{duration} {t.min}</span>
+              <Clock size={14} className="text-rose-600" /> {t.durationLabel}: <span className="text-rose-700 font-bold">{duration} {t.min}</span>
             </label>
             <div className="flex items-center gap-4">
               <span className="text-[10px] text-slate-400 font-medium">1m</span>
@@ -271,7 +427,7 @@ export const LogEntryForm: React.FC<LogEntryFormProps> = ({ onSave, onCancel }) 
                 step="5"
                 value={duration}
                 onChange={(e) => setDuration(Number(e.target.value))}
-                className="w-full h-1.5 bg-emerald-100 rounded-lg appearance-none cursor-pointer accent-emerald-600"
+                className="w-full h-1.5 bg-rose-100 rounded-lg appearance-none cursor-pointer accent-rose-600"
               />
               <span className="text-[10px] text-slate-400 font-medium">2h</span>
             </div>
@@ -283,7 +439,7 @@ export const LogEntryForm: React.FC<LogEntryFormProps> = ({ onSave, onCancel }) 
             value={type}
             onChange={(v) => setType(v as ActivityType)}
             options={Object.values(ActivityType).map(v => ({ value: v, label: t.activity[v] }))}
-            icon={<User size={14} className="text-emerald-600" />}
+            icon={<User size={14} className="text-rose-600" />}
           />
 
 
@@ -294,7 +450,7 @@ export const LogEntryForm: React.FC<LogEntryFormProps> = ({ onSave, onCancel }) 
             value={mood}
             onChange={(v) => setMood(v as MoodType)}
             options={Object.values(MoodType).map(v => ({ value: v, label: t.mood[v] }))}
-            icon={<Smile size={14} className="text-emerald-600" />}
+            icon={<Smile size={14} className="text-rose-600" />}
           />
         </div>
 
@@ -302,7 +458,7 @@ export const LogEntryForm: React.FC<LogEntryFormProps> = ({ onSave, onCancel }) 
         <div className="col-span-1 md:col-span-2 space-y-2">
           <ApartmentSelector selectedLocation={location} onChange={setLocation} />
           <div className="flex justify-between items-center px-1">
-            <span className="text-[10px] text-slate-400">Selected: <span className="font-bold text-emerald-600">{t.location[location]}</span></span>
+            <span className="text-[10px] text-slate-400">Selected: <span className="font-bold text-rose-600">{t.location[location]}</span></span>
           </div>
         </div>
 
@@ -327,8 +483,8 @@ export const LogEntryForm: React.FC<LogEntryFormProps> = ({ onSave, onCancel }) 
                 type="button"
                 onClick={() => togglePosition(pos)}
                 className={`group relative overflow-hidden rounded-xl transition-all duration-200 flex flex-col text-left h-40 ${isSelected
-                    ? 'ring-2 ring-emerald-500 bg-white shadow-md'
-                    : 'border border-slate-100 hover:border-slate-300 bg-white hover:shadow-sm'
+                  ? 'ring-2 ring-rose-500 bg-white shadow-md'
+                  : 'border border-slate-100 hover:border-slate-300 bg-white hover:shadow-sm'
                   }`}
               >
                 {/* Visual Area */}
@@ -340,7 +496,7 @@ export const LogEntryForm: React.FC<LogEntryFormProps> = ({ onSave, onCancel }) 
                   {/* Selection Overlay */}
                   {isSelected && (
                     <div className="absolute top-2 right-2">
-                      <div className="bg-emerald-500 rounded-full p-0.5 shadow-sm">
+                      <div className="bg-rose-500 rounded-full p-0.5 shadow-sm">
                         <CheckCircle2 size={12} className="text-white" />
                       </div>
                     </div>
@@ -349,7 +505,7 @@ export const LogEntryForm: React.FC<LogEntryFormProps> = ({ onSave, onCancel }) 
 
                 {/* Text Area */}
                 <div className="h-[25%] w-full px-3 flex flex-col justify-center border-t border-slate-50">
-                  <span className={`text-xs font-bold leading-tight ${isSelected ? 'text-emerald-800' : 'text-slate-700'}`}>
+                  <span className={`text-xs font-bold leading-tight ${isSelected ? 'text-rose-800' : 'text-slate-700'}`}>
                     {t.position[pos]}
                   </span>
                 </div>
@@ -373,11 +529,11 @@ export const LogEntryForm: React.FC<LogEntryFormProps> = ({ onSave, onCancel }) 
                 type="button"
                 onClick={() => toggleTag(tag.id)}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold transition-all ${isSelected
-                    ? 'bg-emerald-100 text-emerald-800 ring-1 ring-emerald-500'
-                    : 'bg-slate-50 text-slate-500 hover:bg-slate-100 border border-slate-200'
+                  ? 'bg-rose-100 text-rose-800 ring-1 ring-rose-500'
+                  : 'bg-slate-50 text-slate-500 hover:bg-slate-100 border border-slate-200'
                   }`}
               >
-                <Icon size={16} className={isSelected ? 'text-emerald-600' : 'text-slate-400'} />
+                <Icon size={16} className={isSelected ? 'text-rose-600' : 'text-slate-400'} />
                 {label}
               </button>
             )
@@ -392,7 +548,7 @@ export const LogEntryForm: React.FC<LogEntryFormProps> = ({ onSave, onCancel }) 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
             <label className="text-xs font-bold text-slate-500 uppercase tracking-wide flex items-center gap-2">
-              <Star size={14} className="text-emerald-600" /> {t.satisfaction}
+              <Star size={14} className="text-rose-600" /> {t.satisfaction}
             </label>
             <div className="flex gap-2">
               {[1, 2, 3, 4, 5].map((r) => (
@@ -401,8 +557,8 @@ export const LogEntryForm: React.FC<LogEntryFormProps> = ({ onSave, onCancel }) 
                   type="button"
                   onClick={() => setRating(r)}
                   className={`flex-1 h-10 rounded-lg flex items-center justify-center transition-all ${rating >= r
-                      ? 'bg-emerald-600 text-white shadow-emerald-200'
-                      : 'bg-slate-100 text-slate-300'
+                    ? 'bg-rose-600 text-white shadow-rose-200'
+                    : 'bg-slate-100 text-slate-300'
                     }`}
                 >
                   <Star size={16} fill={rating >= r ? "currentColor" : "none"} />
@@ -416,11 +572,11 @@ export const LogEntryForm: React.FC<LogEntryFormProps> = ({ onSave, onCancel }) 
               type="button"
               onClick={() => setOrgasmReached(!orgasmReached)}
               className={`flex items-center gap-3 px-6 h-10 rounded-lg border transition-all w-full justify-center font-semibold text-sm ${orgasmReached
-                  ? 'border-teal-500 bg-teal-50 text-teal-700'
-                  : 'border-slate-200 bg-white text-slate-400 hover:bg-slate-50'
+                ? 'border-rose-500 bg-rose-50 text-rose-700'
+                : 'border-slate-200 bg-white text-slate-400 hover:bg-slate-50'
                 }`}
             >
-              <CheckCircle2 size={16} className={orgasmReached ? "text-teal-600" : "text-slate-300"} />
+              <CheckCircle2 size={16} className={orgasmReached ? "text-rose-600" : "text-slate-300"} />
               {orgasmReached ? t.climaxReached : t.noClimax}
             </button>
           </div>
@@ -433,7 +589,7 @@ export const LogEntryForm: React.FC<LogEntryFormProps> = ({ onSave, onCancel }) 
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             rows={3}
-            className="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all"
+            className="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm text-slate-800 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-none transition-all"
             placeholder={t.notesPlaceholder}
           />
         </div>
@@ -450,7 +606,7 @@ export const LogEntryForm: React.FC<LogEntryFormProps> = ({ onSave, onCancel }) 
         </button>
         <button
           type="submit"
-          className="flex-1 py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-emerald-200 transition-all transform active:scale-95"
+          className="flex-1 py-3 px-4 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-rose-200 transition-all transform active:scale-95"
         >
           {t.saveLog}
         </button>
