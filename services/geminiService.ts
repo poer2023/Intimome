@@ -1,63 +1,18 @@
-import { GoogleGenAI, Type } from "@google/genai";
 import { SessionLog, AnalysisResponse, Language } from '../types';
 
-// Initialize Gemini Client
-// Note: In a real production app, this should likely be proxied through a backend
-// to keep the API key secure, but for this Client-side SPA demo, we use env var directly.
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:4000';
 
 export const generateInsights = async (logs: SessionLog[], language: Language): Promise<AnalysisResponse> => {
   try {
-    // Prepare anonymized data for the model
-    const anonymizedData = logs.map(log => ({
-      date: new Date(log.date).getDay(), // Only send day of week for patterns
-      duration: log.durationMinutes,
-      type: log.type,
-      mood: log.mood,
-      rating: log.rating,
-      positions: log.positions,
-    }));
-
-    const langInstruction = language === 'zh' ? 'Simplified Chinese (Mandarin)' : 'English';
-
-    const prompt = `
-      Act as a professional, sexual wellness coach. 
-      Analyze the following anonymous activity data (JSON) and provide a helpful, positive summary.
-      
-      IMPORTANT: Provide all response text in ${langInstruction}.
-
-      Data: ${JSON.stringify(anonymizedData.slice(0, 20))} (Latest 20 entries)
-
-      Return the response in strict JSON format matching this schema:
-      {
-        "summary": "A brief 1-sentence summary of recent activity levels.",
-        "wellnessTip": "A generalized wellness tip based on the patterns (e.g. variety, connection, rest).",
-        "trendInsight": "An observation about preference trends (e.g. 'You seem to prefer weekends' or 'Higher ratings associated with X')."
-      }
-      Keep tone clinical, supportive, and sex-positive.
-    `;
-
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: prompt,
-      config: {
-        responseMimeType: 'application/json',
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            summary: { type: Type.STRING },
-            wellnessTip: { type: Type.STRING },
-            trendInsight: { type: Type.STRING },
-          },
-          required: ['summary', 'wellnessTip', 'trendInsight'],
-        }
-      }
+    const res = await fetch(`${API_BASE}/api/insights`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ logs, language }),
     });
-
-    const text = response.text;
-    if (!text) throw new Error("No response from AI");
-    
-    return JSON.parse(text) as AnalysisResponse;
+    if (!res.ok) throw new Error(`Server ${res.status}`);
+    const data = await res.json();
+    if (!data.success) throw new Error(data.message || 'Failed');
+    return data.data as AnalysisResponse;
   } catch (error) {
     console.error("Error generating insights:", error);
     return {
