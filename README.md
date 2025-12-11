@@ -1,20 +1,44 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# IntimDiary
 
-# Run and deploy your AI Studio app
+私密日记应用，部署在 Cloudflare。
 
-This contains everything you need to run your app locally.
+## 线上地址
 
-View your app in AI Studio: https://ai.studio/apps/drive/1sfQzHkoxABpS3_bZ-20ykAQEGNoqyLUZ
+**生产环境**: https://intimome.pages.dev
 
-## Run Locally
+## 技术栈
 
-**Prerequisites:**  Node.js
+- **前端**: React + Vite + TypeScript
+- **后端**: Cloudflare Workers (Pages Functions)
+- **数据库**: Cloudflare D1 (SQLite)
+- **部署**: Cloudflare Pages
 
+## 部署信息
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+| 服务 | 平台 | 控制台 |
+|------|------|--------|
+| 前端 + API | Cloudflare Pages | [Dashboard](https://dash.cloudflare.com) → Workers & Pages → intimome |
+| 数据库 | Cloudflare D1 | [Dashboard](https://dash.cloudflare.com) → Storage & Databases → D1 → intimome-db |
+
+## 重新部署
+
+```bash
+npm run deploy
+```
+
+## 本地开发
+
+```bash
+npm install
+npm run dev
+```
+
+## 数据库操作
+
+```bash
+# 查看表结构
+npx wrangler d1 execute intimome-db --remote --command "SELECT name FROM sqlite_master WHERE type='table';"
+
+# 查看用户数
+npx wrangler d1 execute intimome-db --remote --command "SELECT COUNT(*) FROM users;"
+```

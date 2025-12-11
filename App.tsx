@@ -5,6 +5,7 @@ import { LogEntryForm } from './components/LogEntryForm';
 import { StatsChart } from './components/StatsChart';
 import { PositionIcon } from './components/PositionIcons';
 import { generateInsights } from './services/geminiService';
+import { fetchLogs, saveLog } from './services/logsService';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import {
@@ -511,36 +512,31 @@ const AppShell = () => {
   const [logs, setLogs] = useState<SessionLog[]>([]);
   const [insight, setInsight] = useState<AnalysisResponse | null>(null);
   const [loadingInsight, setLoadingInsight] = useState(false);
+  const [loadingLogs, setLoadingLogs] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuth();
 
+  // Load logs from D1 database
   useEffect(() => {
     if (!user) {
       setLogs([]);
       return;
     }
-    const key = `intimome_logs_${user.username}`;
-    const saved = localStorage.getItem(key);
-    if (saved) {
-      try {
-        setLogs(JSON.parse(saved));
-      } catch (e) {
-        console.error("Failed to load logs", e);
-      }
-    } else {
-      setLogs([]);
-    }
+    setLoadingLogs(true);
+    fetchLogs(user.username)
+      .then(data => setLogs(data))
+      .catch(e => console.error('Failed to load logs', e))
+      .finally(() => setLoadingLogs(false));
   }, [user]);
 
-  useEffect(() => {
+  // Save log to D1 database
+  const handleSaveLog = async (newLog: SessionLog) => {
     if (!user) return;
-    const key = `intimome_logs_${user.username}`;
-    localStorage.setItem(key, JSON.stringify(logs));
-  }, [logs, user]);
-
-  const handleSaveLog = (newLog: SessionLog) => {
-    setLogs([newLog, ...logs]);
+    const success = await saveLog(user.username, newLog);
+    if (success) {
+      setLogs([newLog, ...logs]);
+    }
     navigate('/');
   };
 

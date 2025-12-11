@@ -9,7 +9,7 @@ pages_build_output_dir = "./dist"
 [[d1_databases]]
 binding = "DB"
 database_name = "intimome-db"
-database_id = "YOUR_DATABASE_ID_HERE"  # Replace after creating database
+database_id = "5c9d987e-3add-45d3-a02c-260b484bc915"
 
 # Environment variables (set in Cloudflare Dashboard for production)
 # GEMINI_API_KEY = "your-api-key"
