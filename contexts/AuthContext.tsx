@@ -10,7 +10,9 @@ type AuthContextValue = {
 };
 
 const CURRENT_USER_KEY = 'intimome_current_user_v1';
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:4000';
+// Use relative path for Cloudflare Pages Functions (production)
+// or VITE_API_BASE for local development with Express
+const API_BASE = import.meta.env.VITE_API_BASE || '';
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
