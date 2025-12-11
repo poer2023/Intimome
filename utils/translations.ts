@@ -2,9 +2,9 @@ import { ActivityType, LocationType, MoodType, PositionType, Language } from '..
 
 export const translations = {
   en: {
-    appTitle: "Intimome",
+    appTitle: "IntimDiary",
     encrypted: "ENCRYPTED",
-    
+
     // Navigation & General
     dashboard: "Dashboard",
     newLog: "New Log",
@@ -13,7 +13,7 @@ export const translations = {
     cancel: "Cancel",
     saveLog: "Save Log",
     loading: "Loading...",
-    
+
     // Dashboard
     heroSubtitle: "Wellness Journey",
     heroTitle1: "Mindful",
@@ -22,7 +22,7 @@ export const translations = {
     avgDuration: "Avg Duration",
     topPosition: "Top Position",
     min: "min",
-    
+
     // AI Section
     aiTitle: "AI Insights",
     updateAnalysis: "Update Analysis",
@@ -33,7 +33,7 @@ export const translations = {
     aiUnlock: "Unlock personalized insights",
     aiDesc: "Analyze your patterns securely to improve your wellness journey.",
     aiBtn: "Generate Analysis",
-    
+
     // Charts
     chartsTitle: "Performance & Trends",
     chartPieTitle: "Positions",
@@ -42,13 +42,13 @@ export const translations = {
     chartBarDesc: "Minutes per recent session",
     noData: "No data available yet.",
     logFirst: "Log your first activity to see charts.",
-    
+
     // History
     noLogs: "No logs yet",
     startTracking: "Start tracking your journey.",
     createFirst: "Create first entry",
     entries: "entries",
-    
+
     // Log Form
     newEntryTitle: "New Entry",
     details: "Details",
@@ -68,7 +68,7 @@ export const translations = {
     noClimax: "No Climax",
     notes: "Notes (Private)",
     notesPlaceholder: "Private thoughts...",
-    
+
     // Enum Labels
     activity: {
       [ActivityType.PARTNER]: "Partner",
@@ -112,9 +112,9 @@ export const translations = {
     }
   },
   zh: {
-    appTitle: "Intimome",
+    appTitle: "IntimDiary",
     encrypted: "已加密",
-    
+
     // Navigation & General
     dashboard: "仪表盘",
     newLog: "新记录",
@@ -123,7 +123,7 @@ export const translations = {
     cancel: "取消",
     saveLog: "保存记录",
     loading: "加载中...",
-    
+
     // Dashboard
     heroSubtitle: "健康旅程",
     heroTitle1: "正念",
@@ -132,7 +132,7 @@ export const translations = {
     avgDuration: "平均时长",
     topPosition: "最爱体位",
     min: "分钟",
-    
+
     // AI Section
     aiTitle: "AI 洞察",
     updateAnalysis: "更新分析",
@@ -143,7 +143,7 @@ export const translations = {
     aiUnlock: "解锁个性化洞察",
     aiDesc: "安全地分析您的行为模式，提升亲密健康。",
     aiBtn: "生成分析报告",
-    
+
     // Charts
     chartsTitle: "表现与趋势",
     chartPieTitle: "体位分布",
@@ -152,13 +152,13 @@ export const translations = {
     chartBarDesc: "近期时长的变化",
     noData: "暂无数据",
     logFirst: "记录第一次活动以查看图表。",
-    
+
     // History
     noLogs: "暂无记录",
     startTracking: "开始记录您的旅程。",
     createFirst: "创建第一条记录",
     entries: "条记录",
-    
+
     // Log Form
     newEntryTitle: "新建记录",
     details: "详细信息",
@@ -178,7 +178,7 @@ export const translations = {
     noClimax: "未达到高潮",
     notes: "备注 (私密)",
     notesPlaceholder: "写下私密的想法...",
-    
+
     // Enum Labels
     activity: {
       [ActivityType.PARTNER]: "伴侣",

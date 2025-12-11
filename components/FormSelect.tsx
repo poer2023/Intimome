@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { ChevronDown, Check } from 'lucide-react';
 
 interface FormSelectProps {
   label: string;
@@ -9,27 +10,67 @@ interface FormSelectProps {
 }
 
 export const FormSelect: React.FC<FormSelectProps> = ({ label, value, onChange, options, icon }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const selectedOption = options.find(opt => opt.value === value);
+
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2 relative" ref={containerRef}>
       <label className="text-xs font-bold text-slate-500 uppercase tracking-wide flex items-center gap-2">
         {icon} {label}
       </label>
-      <div className="relative">
-        <select
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          className="appearance-none bg-white border border-slate-200 text-slate-800 text-sm font-medium rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 block w-full p-3.5 shadow-sm transition-all hover:border-emerald-200"
-        >
-          {options.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
-        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
-          <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
-        </div>
+
+      <div
+        onClick={() => setIsOpen(!isOpen)}
+        className={`bg-white border text-sm font-medium rounded-xl p-3.5 flex items-center justify-between cursor-pointer transition-all shadow-sm
+          ${isOpen ? 'border-emerald-500 ring-2 ring-emerald-500/20' : 'border-slate-200 hover:border-emerald-200'}
+        `}
+      >
+        <span className="text-slate-800 truncate">
+          {selectedOption ? selectedOption.label : 'Select...'}
+        </span>
+        <ChevronDown
+          size={16}
+          className={`text-slate-400 transition-transform duration-200 ${isOpen ? 'rotate-180 text-emerald-500' : ''}`}
+        />
       </div>
+
+      {isOpen && (
+        <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-slate-100 rounded-xl shadow-xl z-50 animate-in fade-in zoom-in-95 duration-200 overflow-hidden">
+          <div className="max-h-60 overflow-y-auto py-1">
+            {options.map((opt) => {
+              const isSelected = opt.value === value;
+              return (
+                <div
+                  key={opt.value}
+                  onClick={() => {
+                    onChange(opt.value);
+                    setIsOpen(false);
+                  }}
+                  className={`px-4 py-3 text-sm font-medium flex items-center justify-between cursor-pointer transition-colors
+                    ${isSelected ? 'bg-emerald-50 text-emerald-700' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'}
+                  `}
+                >
+                  {opt.label}
+                  {isSelected && <Check size={14} className="text-emerald-500" />}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
