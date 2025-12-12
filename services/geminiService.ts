@@ -10,6 +10,7 @@ export const generateInsights = async (logs: SessionLog[], language: Language): 
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ logs, language }),
+      credentials: 'include',
     });
     if (!res.ok) throw new Error(`Server ${res.status}`);
     const data = await res.json();

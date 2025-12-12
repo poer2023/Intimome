@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "dev:server": "node server/index.js",
-    "dev:full": "concurrently \"npm run dev\" \"npm run dev:server\"",
+    "dev:full": "npx concurrently \"npm run dev\" \"npm run dev:server\"",
+    "dev:cf": "npx concurrently \"npm run dev\" \"npx wrangler pages dev ./dist --d1=DB --proxy 3000\"",
     "build": "vite build",
     "preview": "vite preview",
     "pages:dev": "wrangler pages dev ./dist --d1=DB",

@@ -1,6 +1,10 @@
 interface Env {
     DB: D1Database;
+    SESSIONS: KVNamespace;
 }
+
+import { buildSessionCookie, createSession } from '../_auth';
+import { ensureSchema } from '../_schema';
 
 // Hash password using Web Crypto API
 async function hashPassword(password: string): Promise<string> {
@@ -20,6 +24,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     const { env, request } = context;
 
     try {
+        await ensureSchema(env.DB);
         const body = await request.json() as { username?: string; password?: string };
         const { username, password } = body || {};
 
@@ -31,8 +36,8 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
         }
 
         const user = await env.DB.prepare(
-            'SELECT username, password FROM users WHERE username = ?'
-        ).bind(username).first<{ username: string; password: string }>();
+            'SELECT id, username, password FROM users WHERE username = ?'
+        ).bind(username).first<{ id: number; username: string; password: string }>();
 
         if (!user) {
             return new Response(
@@ -49,9 +54,22 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
             );
         }
 
+        const sessionId = await createSession(env, {
+            userId: user.id,
+            username: user.username,
+            displayName: user.username,
+            provider: 'local'
+        });
+
         return new Response(
-            JSON.stringify({ success: true, user: { username: user.username } }),
-            { status: 200, headers: { 'Content-Type': 'application/json' } }
+            JSON.stringify({ success: true, user: { username: user.username, displayName: user.username, provider: 'local' } }),
+            {
+                status: 200,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Set-Cookie': buildSessionCookie(sessionId, request.url),
+                }
+            }
         );
     } catch (error) {
         console.error('Login error:', error);

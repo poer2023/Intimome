@@ -6,6 +6,8 @@
 Frontend (React/Vite) → Cloudflare Pages
 Backend API           → Cloudflare Workers (Functions)
 Database              → Cloudflare D1 (SQLite)
+Sessions/Cache        → Cloudflare KV
+Backups               → Cloudflare R2
 ```
 
 ## 部署步骤
@@ -44,9 +46,23 @@ npx wrangler d1 execute intimome-db --remote --file=./schema.sql
 ### 4. 设置环境变量
 
 在 Cloudflare Dashboard 中设置：
-- `GEMINI_API_KEY` - 你的 Gemini API 密钥
+- `OPENROUTER_API_KEY` - 你的 OpenRouter API 密钥
+- `OPENROUTER_MODEL` - 可选，默认 `openai/gpt-4o-mini`
+- `GOOGLE_CLIENT_ID` - Google OAuth Client ID（同前端）
+- `BACKUP_SECRET` - 触发备份用的密钥（Bearer Token）
 
 路径：Pages → 你的项目 → Settings → Environment variables
+
+### 4.1 创建 KV / R2
+
+```bash
+# KV (sessions)
+npx wrangler kv:namespace create "SESSIONS"
+# 把输出的 id 填到 wrangler.toml 的 kv_namespaces
+
+# R2 (backups)
+npx wrangler r2 bucket create intimome-backups
+```
 
 ### 5. 部署
 
@@ -55,14 +71,24 @@ npx wrangler d1 execute intimome-db --remote --file=./schema.sql
 npm run deploy
 ```
 
+### 6. 自动备份
+
+Pages Functions 不支持 Cron 触发，可用外部定时器（GitHub Actions / cron-job.org / 自建 worker）定时调用：
+
+```
+POST https://<your-domain>/api/backup
+Authorization: Bearer <BACKUP_SECRET>
+```
+
 ## 本地开发
 
 ### 使用 Express (旧方式)
 
 创建 `.env` 文件：
 ```
-GEMINI_API_KEY=your-api-key
 VITE_API_BASE=http://localhost:4000
+VITE_GOOGLE_CLIENT_ID=your-google-client-id
+OPENROUTER_API_KEY=your-openrouter-api-key
 ```
 
 ```bash
@@ -73,7 +99,10 @@ npm run dev:full  # 同时启动前端和后端
 
 创建 `.dev.vars` 文件：
 ```
-GEMINI_API_KEY=your-api-key
+OPENROUTER_API_KEY=your-openrouter-api-key
+OPENROUTER_MODEL=openai/gpt-4o-mini
+GOOGLE_CLIENT_ID=your-google-client-id
+BACKUP_SECRET=your-backup-secret
 ```
 
 ```bash
@@ -103,8 +132,14 @@ intimome/
 ├── functions/              # Cloudflare Workers
 │   ├── api/
 │   │   ├── auth/
-│   │   │   └── [[path]].ts # 登录/注册
-│   │   └── insights.ts     # AI 分析
+│   │   │   ├── login.ts
+│   │   │   ├── register.ts
+│   │   │   ├── google.ts   # Google 登录
+│   │   │   ├── me.ts
+│   │   │   └── logout.ts
+│   │   ├── logs.ts         # 日志 CRUD（需登录）
+│   │   ├── insights.ts     # OpenRouter AI 分析（需登录）
+│   │   └── backup.ts       # 备份到 R2（需密钥）
 │   └── tsconfig.json
 ├── server/                 # (旧) Express 后端 - 可删除
 ├── wrangler.toml           # Cloudflare 配置

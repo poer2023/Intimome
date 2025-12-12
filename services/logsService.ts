@@ -10,9 +10,9 @@ interface ApiResponse<T = unknown> {
     message?: string;
 }
 
-export const fetchLogs = async (username: string): Promise<SessionLog[]> => {
+export const fetchLogs = async (): Promise<SessionLog[]> => {
     try {
-        const res = await fetch(`${API_BASE}/api/logs?username=${encodeURIComponent(username)}`);
+        const res = await fetch(`${API_BASE}/api/logs`, { credentials: 'include' });
         if (!res.ok) {
             console.error('Failed to fetch logs:', res.status);
             return [];
@@ -28,12 +28,13 @@ export const fetchLogs = async (username: string): Promise<SessionLog[]> => {
     }
 };
 
-export const saveLog = async (username: string, log: SessionLog): Promise<boolean> => {
+export const saveLog = async (log: SessionLog): Promise<boolean> => {
     try {
         const res = await fetch(`${API_BASE}/api/logs`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, log }),
+            body: JSON.stringify({ log }),
+            credentials: 'include',
         });
         if (!res.ok) {
             console.error('Failed to save log:', res.status);
@@ -47,12 +48,13 @@ export const saveLog = async (username: string, log: SessionLog): Promise<boolea
     }
 };
 
-export const deleteLog = async (username: string, logId: string): Promise<boolean> => {
+export const deleteLog = async (logId: string): Promise<boolean> => {
     try {
         const res = await fetch(`${API_BASE}/api/logs`, {
             method: 'DELETE',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, logId }),
+            body: JSON.stringify({ logId }),
+            credentials: 'include',
         });
         if (!res.ok) {
             console.error('Failed to delete log:', res.status);

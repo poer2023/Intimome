@@ -241,21 +241,21 @@ const ScissorsSVG = () => (
 );
 
 export const POSITION_CONFIG: Record<PositionType, { icon: React.FC; color: string }> = {
-    [PositionType.MISSIONARY]: { icon: MissionarySVG, color: 'bg-rose-50/50' },
+    [PositionType.MISSIONARY]: { icon: MissionarySVG, color: 'bg-indigo-50/50' },
     [PositionType.DOGGY_STYLE]: { icon: DoggySVG, color: 'bg-slate-50' },
-    [PositionType.COWGIRL]: { icon: CowgirlSVG, color: 'bg-rose-50/50' },
+    [PositionType.COWGIRL]: { icon: CowgirlSVG, color: 'bg-indigo-50/50' },
     [PositionType.SPOONING]: { icon: SpooningSVG, color: 'bg-slate-50' },
-    [PositionType.REVERSE_COWGIRL]: { icon: RevCowgirlSVG, color: 'bg-rose-50/50' },
+    [PositionType.REVERSE_COWGIRL]: { icon: RevCowgirlSVG, color: 'bg-indigo-50/50' },
     [PositionType.ORAL]: { icon: OralSVG, color: 'bg-slate-50' },
-    [PositionType.LEGS_UP]: { icon: LegsUpSVG, color: 'bg-rose-50/50' },
+    [PositionType.LEGS_UP]: { icon: LegsUpSVG, color: 'bg-indigo-50/50' },
     [PositionType.STANDING]: { icon: StandingSVG, color: 'bg-slate-50' },
-    [PositionType.SIXTY_NINE]: { icon: SixtyNineSVG, color: 'bg-rose-50/50' },
+    [PositionType.SIXTY_NINE]: { icon: SixtyNineSVG, color: 'bg-indigo-50/50' },
     [PositionType.LOTUS]: { icon: LotusSVG, color: 'bg-slate-50' },
-    [PositionType.SEATED]: { icon: SeatedSVG, color: 'bg-rose-50/50' },
+    [PositionType.SEATED]: { icon: SeatedSVG, color: 'bg-indigo-50/50' },
     [PositionType.PRONE_BONE]: { icon: ProneBoneSVG, color: 'bg-slate-50' },
-    [PositionType.SIDEWAYS]: { icon: SidewaysSVG, color: 'bg-rose-50/50' },
+    [PositionType.SIDEWAYS]: { icon: SidewaysSVG, color: 'bg-indigo-50/50' },
     [PositionType.TABLETOP]: { icon: TabletopSVG, color: 'bg-slate-50' },
-    [PositionType.SCISSORS]: { icon: ScissorsSVG, color: 'bg-rose-50/50' },
+    [PositionType.SCISSORS]: { icon: ScissorsSVG, color: 'bg-indigo-50/50' },
     [PositionType.SUSPENDED]: { icon: SuspendedSVG, color: 'bg-slate-50' },
 };
 

@@ -1,6 +1,10 @@
 interface Env {
-    GEMINI_API_KEY: string;
+    OPENROUTER_API_KEY: string;
+    OPENROUTER_MODEL?: string;
+    SESSIONS: KVNamespace;
 }
+
+import { requireAuth } from './_auth';
 
 interface InsightsRequest {
     logs: Array<{
@@ -17,9 +21,12 @@ interface InsightsRequest {
 export const onRequestPost: PagesFunction<Env> = async (context) => {
     const { env, request } = context;
 
-    if (!env.GEMINI_API_KEY) {
+    const auth = await requireAuth(env, request);
+    if ('response' in auth) return auth.response;
+
+    if (!env.OPENROUTER_API_KEY) {
         return new Response(
-            JSON.stringify({ success: false, message: '未配置 GEMINI_API_KEY' }),
+            JSON.stringify({ success: false, message: '未配置 OPENROUTER_API_KEY' }),
             { status: 503, headers: { 'Content-Type': 'application/json' } }
         );
     }
@@ -54,29 +61,38 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       Keep tone clinical, supportive, and sex-positive.
     `;
 
-        const geminiResponse = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${env.GEMINI_API_KEY}`,
+        const model = env.OPENROUTER_MODEL || 'openai/gpt-4o-mini';
+        const openrouterResponse = await fetch(
+            'https://openrouter.ai/api/v1/chat/completions',
             {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${env.OPENROUTER_API_KEY}`,
+                    'HTTP-Referer': new URL(request.url).origin,
+                    'X-Title': 'IntimDiary',
+                },
                 body: JSON.stringify({
-                    contents: [{ parts: [{ text: prompt }] }],
-                    generationConfig: {
-                        responseMimeType: 'application/json',
-                    },
+                    model,
+                    messages: [
+                        { role: 'system', content: 'You are a professional, clinical, supportive, sex-positive sexual wellness coach.' },
+                        { role: 'user', content: prompt }
+                    ],
+                    temperature: 0.7,
                 }),
             }
         );
 
-        if (!geminiResponse.ok) {
-            throw new Error(`Gemini API error: ${geminiResponse.status}`);
+        if (!openrouterResponse.ok) {
+            const errText = await openrouterResponse.text().catch(() => '');
+            throw new Error(`OpenRouter API error: ${openrouterResponse.status} ${errText}`);
         }
 
-        const geminiData = await geminiResponse.json() as {
-            candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+        const openrouterData = await openrouterResponse.json() as {
+            choices?: Array<{ message?: { content?: string } }>;
         };
 
-        const text = geminiData?.candidates?.[0]?.content?.parts?.[0]?.text;
+        const text = openrouterData?.choices?.[0]?.message?.content;
         if (!text) throw new Error('Empty AI response');
 
         const parsed = JSON.parse(text);

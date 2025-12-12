@@ -35,7 +35,7 @@ export const FormSelect: React.FC<FormSelectProps> = ({ label, value, onChange, 
       <div
         onClick={() => setIsOpen(!isOpen)}
         className={`bg-white border text-sm font-medium rounded-xl p-3.5 flex items-center justify-between cursor-pointer transition-all shadow-sm
-          ${isOpen ? 'border-rose-500 ring-2 ring-rose-500/20' : 'border-slate-200 hover:border-rose-200'}
+          ${isOpen ? 'border-indigo-500 ring-2 ring-indigo-500/20' : 'border-slate-200 hover:border-indigo-200'}
         `}
       >
         <span className="text-slate-800 truncate">
@@ -43,7 +43,7 @@ export const FormSelect: React.FC<FormSelectProps> = ({ label, value, onChange, 
         </span>
         <ChevronDown
           size={16}
-          className={`text-slate-400 transition-transform duration-200 ${isOpen ? 'rotate-180 text-rose-500' : ''}`}
+          className={`text-slate-400 transition-transform duration-200 ${isOpen ? 'rotate-180 text-indigo-500' : ''}`}
         />
       </div>
 
@@ -61,12 +61,12 @@ export const FormSelect: React.FC<FormSelectProps> = ({ label, value, onChange, 
                   }}
                   className={`
                   w-full text-left px-4 py-3 text-sm font-medium flex items-center justify-between
-                  hover:bg-rose-50 transition-colors first:rounded-t-xl last:rounded-b-xl
-                  ${value === opt.value ? 'bg-rose-50 text-rose-700' : 'text-slate-700'}
+                  hover:bg-indigo-50 transition-colors first:rounded-t-xl last:rounded-b-xl
+                  ${value === opt.value ? 'bg-indigo-50 text-indigo-700' : 'text-slate-700'}
                 `}
                 >
                   {opt.label}
-                  {value === opt.value && <Check size={16} className="text-rose-600" />}
+                  {value === opt.value && <Check size={16} className="text-indigo-600" />}
                 </div>
               );
             })}

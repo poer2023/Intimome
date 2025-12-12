@@ -315,21 +315,21 @@ const ScissorsSVG = () => (
 
 const POSITION_CONFIG: Record<PositionType, { icon: React.FC; color: string }> = {
   // Ordered from most to least commonly used
-  [PositionType.MISSIONARY]: { icon: MissionarySVG, color: 'bg-rose-50/50' },
+  [PositionType.MISSIONARY]: { icon: MissionarySVG, color: 'bg-indigo-50/50' },
   [PositionType.DOGGY_STYLE]: { icon: DoggySVG, color: 'bg-slate-50' },
-  [PositionType.COWGIRL]: { icon: CowgirlSVG, color: 'bg-rose-50/50' },
+  [PositionType.COWGIRL]: { icon: CowgirlSVG, color: 'bg-indigo-50/50' },
   [PositionType.SPOONING]: { icon: SpooningSVG, color: 'bg-slate-50' },
-  [PositionType.REVERSE_COWGIRL]: { icon: RevCowgirlSVG, color: 'bg-rose-50/50' },
+  [PositionType.REVERSE_COWGIRL]: { icon: RevCowgirlSVG, color: 'bg-indigo-50/50' },
   [PositionType.ORAL]: { icon: OralSVG, color: 'bg-slate-50' },
-  [PositionType.LEGS_UP]: { icon: LegsUpSVG, color: 'bg-rose-50/50' },
+  [PositionType.LEGS_UP]: { icon: LegsUpSVG, color: 'bg-indigo-50/50' },
   [PositionType.STANDING]: { icon: StandingSVG, color: 'bg-slate-50' },
-  [PositionType.SIXTY_NINE]: { icon: SixtyNineSVG, color: 'bg-rose-50/50' },
+  [PositionType.SIXTY_NINE]: { icon: SixtyNineSVG, color: 'bg-indigo-50/50' },
   [PositionType.LOTUS]: { icon: LotusSVG, color: 'bg-slate-50' },
-  [PositionType.SEATED]: { icon: SeatedSVG, color: 'bg-rose-50/50' },
+  [PositionType.SEATED]: { icon: SeatedSVG, color: 'bg-indigo-50/50' },
   [PositionType.PRONE_BONE]: { icon: ProneBoneSVG, color: 'bg-slate-50' },
-  [PositionType.SIDEWAYS]: { icon: SidewaysSVG, color: 'bg-rose-50/50' },
+  [PositionType.SIDEWAYS]: { icon: SidewaysSVG, color: 'bg-indigo-50/50' },
   [PositionType.TABLETOP]: { icon: TabletopSVG, color: 'bg-slate-50' },
-  [PositionType.SCISSORS]: { icon: ScissorsSVG, color: 'bg-rose-50/50' },
+  [PositionType.SCISSORS]: { icon: ScissorsSVG, color: 'bg-indigo-50/50' },
   [PositionType.SUSPENDED]: { icon: SuspendedSVG, color: 'bg-slate-50' },
 };
 
@@ -403,20 +403,20 @@ export const LogEntryForm: React.FC<LogEntryFormProps> = ({ onSave, onCancel }) 
           {/* Date & Time */}
           <div className="space-y-2">
             <label className="text-xs font-bold text-slate-500 uppercase tracking-wide flex items-center gap-2">
-              <Calendar size={14} className="text-rose-600" /> {t.dateTime}
+              <Calendar size={14} className="text-indigo-600" /> {t.dateTime}
             </label>
             <input
               type="datetime-local"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="w-full bg-white border border-slate-200 rounded-xl p-3.5 text-sm font-medium text-slate-800 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-none transition-all"
+              className="w-full bg-white border border-slate-200 rounded-xl p-3.5 text-sm font-medium text-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
             />
           </div>
 
           {/* Duration */}
           <div className="space-y-2">
             <label className="text-xs font-bold text-slate-500 uppercase tracking-wide flex items-center gap-2">
-              <Clock size={14} className="text-rose-600" /> {t.durationLabel}: <span className="text-rose-700 font-bold">{duration} {t.min}</span>
+              <Clock size={14} className="text-indigo-600" /> {t.durationLabel}: <span className="text-indigo-700 font-bold">{duration} {t.min}</span>
             </label>
             <div className="flex items-center gap-4">
               <span className="text-[10px] text-slate-400 font-medium">1m</span>
@@ -427,7 +427,7 @@ export const LogEntryForm: React.FC<LogEntryFormProps> = ({ onSave, onCancel }) 
                 step="5"
                 value={duration}
                 onChange={(e) => setDuration(Number(e.target.value))}
-                className="w-full h-1.5 bg-rose-100 rounded-lg appearance-none cursor-pointer accent-rose-600"
+                className="w-full h-1.5 bg-indigo-100 rounded-lg appearance-none cursor-pointer accent-indigo-600"
               />
               <span className="text-[10px] text-slate-400 font-medium">2h</span>
             </div>
@@ -439,7 +439,7 @@ export const LogEntryForm: React.FC<LogEntryFormProps> = ({ onSave, onCancel }) 
             value={type}
             onChange={(v) => setType(v as ActivityType)}
             options={Object.values(ActivityType).map(v => ({ value: v, label: t.activity[v] }))}
-            icon={<User size={14} className="text-rose-600" />}
+            icon={<User size={14} className="text-indigo-600" />}
           />
 
 
@@ -450,7 +450,7 @@ export const LogEntryForm: React.FC<LogEntryFormProps> = ({ onSave, onCancel }) 
             value={mood}
             onChange={(v) => setMood(v as MoodType)}
             options={Object.values(MoodType).map(v => ({ value: v, label: t.mood[v] }))}
-            icon={<Smile size={14} className="text-rose-600" />}
+            icon={<Smile size={14} className="text-indigo-600" />}
           />
         </div>
 
@@ -458,7 +458,7 @@ export const LogEntryForm: React.FC<LogEntryFormProps> = ({ onSave, onCancel }) 
         <div className="col-span-1 md:col-span-2 space-y-2">
           <ApartmentSelector selectedLocation={location} onChange={setLocation} />
           <div className="flex justify-between items-center px-1">
-            <span className="text-[10px] text-slate-400">Selected: <span className="font-bold text-rose-600">{t.location[location]}</span></span>
+            <span className="text-[10px] text-slate-400">Selected: <span className="font-bold text-indigo-600">{t.location[location]}</span></span>
           </div>
         </div>
 
@@ -483,7 +483,7 @@ export const LogEntryForm: React.FC<LogEntryFormProps> = ({ onSave, onCancel }) 
                 type="button"
                 onClick={() => togglePosition(pos)}
                 className={`group relative overflow-hidden rounded-xl transition-all duration-200 flex flex-col text-left h-40 ${isSelected
-                  ? 'ring-2 ring-rose-500 bg-white shadow-md'
+                  ? 'ring-2 ring-indigo-500 bg-white shadow-md'
                   : 'border border-slate-100 hover:border-slate-300 bg-white hover:shadow-sm'
                   }`}
               >
@@ -496,7 +496,7 @@ export const LogEntryForm: React.FC<LogEntryFormProps> = ({ onSave, onCancel }) 
                   {/* Selection Overlay */}
                   {isSelected && (
                     <div className="absolute top-2 right-2">
-                      <div className="bg-rose-500 rounded-full p-0.5 shadow-sm">
+                      <div className="bg-indigo-500 rounded-full p-0.5 shadow-sm">
                         <CheckCircle2 size={12} className="text-white" />
                       </div>
                     </div>
@@ -505,7 +505,7 @@ export const LogEntryForm: React.FC<LogEntryFormProps> = ({ onSave, onCancel }) 
 
                 {/* Text Area */}
                 <div className="h-[25%] w-full px-3 flex flex-col justify-center border-t border-slate-50">
-                  <span className={`text-xs font-bold leading-tight ${isSelected ? 'text-rose-800' : 'text-slate-700'}`}>
+                  <span className={`text-xs font-bold leading-tight ${isSelected ? 'text-indigo-800' : 'text-slate-700'}`}>
                     {t.position[pos]}
                   </span>
                 </div>
@@ -529,11 +529,11 @@ export const LogEntryForm: React.FC<LogEntryFormProps> = ({ onSave, onCancel }) 
                 type="button"
                 onClick={() => toggleTag(tag.id)}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold transition-all ${isSelected
-                  ? 'bg-rose-100 text-rose-800 ring-1 ring-rose-500'
+                  ? 'bg-indigo-100 text-indigo-800 ring-1 ring-indigo-500'
                   : 'bg-slate-50 text-slate-500 hover:bg-slate-100 border border-slate-200'
                   }`}
               >
-                <Icon size={16} className={isSelected ? 'text-rose-600' : 'text-slate-400'} />
+                <Icon size={16} className={isSelected ? 'text-indigo-600' : 'text-slate-400'} />
                 {label}
               </button>
             )
@@ -548,7 +548,7 @@ export const LogEntryForm: React.FC<LogEntryFormProps> = ({ onSave, onCancel }) 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
             <label className="text-xs font-bold text-slate-500 uppercase tracking-wide flex items-center gap-2">
-              <Star size={14} className="text-rose-600" /> {t.satisfaction}
+              <Star size={14} className="text-indigo-600" /> {t.satisfaction}
             </label>
             <div className="flex gap-2">
               {[1, 2, 3, 4, 5].map((r) => (
@@ -557,7 +557,7 @@ export const LogEntryForm: React.FC<LogEntryFormProps> = ({ onSave, onCancel }) 
                   type="button"
                   onClick={() => setRating(r)}
                   className={`flex-1 h-10 rounded-lg flex items-center justify-center transition-all ${rating >= r
-                    ? 'bg-rose-600 text-white shadow-rose-200'
+                    ? 'bg-indigo-600 text-white shadow-indigo-200'
                     : 'bg-slate-100 text-slate-300'
                     }`}
                 >
@@ -572,11 +572,11 @@ export const LogEntryForm: React.FC<LogEntryFormProps> = ({ onSave, onCancel }) 
               type="button"
               onClick={() => setOrgasmReached(!orgasmReached)}
               className={`flex items-center gap-3 px-6 h-10 rounded-lg border transition-all w-full justify-center font-semibold text-sm ${orgasmReached
-                ? 'border-rose-500 bg-rose-50 text-rose-700'
+                ? 'border-indigo-500 bg-indigo-50 text-indigo-700'
                 : 'border-slate-200 bg-white text-slate-400 hover:bg-slate-50'
                 }`}
             >
-              <CheckCircle2 size={16} className={orgasmReached ? "text-rose-600" : "text-slate-300"} />
+              <CheckCircle2 size={16} className={orgasmReached ? "text-indigo-600" : "text-slate-300"} />
               {orgasmReached ? t.climaxReached : t.noClimax}
             </button>
           </div>
@@ -589,7 +589,7 @@ export const LogEntryForm: React.FC<LogEntryFormProps> = ({ onSave, onCancel }) 
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             rows={3}
-            className="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm text-slate-800 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-none transition-all"
+            className="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm text-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
             placeholder={t.notesPlaceholder}
           />
         </div>
@@ -606,7 +606,7 @@ export const LogEntryForm: React.FC<LogEntryFormProps> = ({ onSave, onCancel }) 
         </button>
         <button
           type="submit"
-          className="flex-1 py-3 px-4 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-rose-200 transition-all transform active:scale-95"
+          className="flex-1 py-3 px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-indigo-200 transition-all transform active:scale-95"
         >
           {t.saveLog}
         </button>

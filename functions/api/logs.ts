@@ -1,6 +1,10 @@
 interface Env {
     DB: D1Database;
+    SESSIONS: KVNamespace;
 }
+
+import { requireAuth } from './_auth';
+import { ensureSchema } from './_schema';
 
 interface SessionLogRow {
     id: string;
@@ -53,33 +57,16 @@ function rowToLog(row: SessionLogRow): SessionLog {
 // GET: Fetch all logs for authenticated user
 export const onRequestGet: PagesFunction<Env> = async (context) => {
     const { env, request } = context;
-    const url = new URL(request.url);
-    const username = url.searchParams.get('username');
-
-    if (!username) {
-        return new Response(
-            JSON.stringify({ success: false, message: '缺少用户名' }),
-            { status: 400, headers: { 'Content-Type': 'application/json' } }
-        );
-    }
+    const auth = await requireAuth(env, request);
+    if ('response' in auth) return auth.response;
+    const { userId } = auth.session;
 
     try {
-        // Get user ID
-        const user = await env.DB.prepare(
-            'SELECT id FROM users WHERE username = ?'
-        ).bind(username).first<{ id: number }>();
-
-        if (!user) {
-            return new Response(
-                JSON.stringify({ success: false, message: '用户不存在' }),
-                { status: 404, headers: { 'Content-Type': 'application/json' } }
-            );
-        }
-
+        await ensureSchema(env.DB);
         // Get all logs for this user
         const result = await env.DB.prepare(
             'SELECT * FROM session_logs WHERE user_id = ? ORDER BY date DESC'
-        ).bind(user.id).all<SessionLogRow>();
+        ).bind(userId).all<SessionLogRow>();
 
         const logs = (result.results || []).map(rowToLog);
 
@@ -99,27 +86,19 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
 // POST: Create a new log
 export const onRequestPost: PagesFunction<Env> = async (context) => {
     const { env, request } = context;
+    const auth = await requireAuth(env, request);
+    if ('response' in auth) return auth.response;
+    const { userId } = auth.session;
 
     try {
-        const body = await request.json() as { username: string; log: SessionLog };
-        const { username, log } = body;
+        await ensureSchema(env.DB);
+        const body = await request.json() as { log: SessionLog };
+        const { log } = body;
 
-        if (!username || !log) {
+        if (!log) {
             return new Response(
                 JSON.stringify({ success: false, message: '缺少必要参数' }),
                 { status: 400, headers: { 'Content-Type': 'application/json' } }
-            );
-        }
-
-        // Get user ID
-        const user = await env.DB.prepare(
-            'SELECT id FROM users WHERE username = ?'
-        ).bind(username).first<{ id: number }>();
-
-        if (!user) {
-            return new Response(
-                JSON.stringify({ success: false, message: '用户不存在' }),
-                { status: 404, headers: { 'Content-Type': 'application/json' } }
             );
         }
 
@@ -129,7 +108,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).bind(
             log.id,
-            user.id,
+            userId,
             log.date,
             log.durationMinutes,
             log.type,
@@ -159,34 +138,26 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 // DELETE: Delete a log by ID
 export const onRequestDelete: PagesFunction<Env> = async (context) => {
     const { env, request } = context;
+    const auth = await requireAuth(env, request);
+    if ('response' in auth) return auth.response;
+    const { userId } = auth.session;
 
     try {
-        const body = await request.json() as { username: string; logId: string };
-        const { username, logId } = body;
+        await ensureSchema(env.DB);
+        const body = await request.json() as { logId: string };
+        const { logId } = body;
 
-        if (!username || !logId) {
+        if (!logId) {
             return new Response(
                 JSON.stringify({ success: false, message: '缺少必要参数' }),
                 { status: 400, headers: { 'Content-Type': 'application/json' } }
             );
         }
 
-        // Get user ID
-        const user = await env.DB.prepare(
-            'SELECT id FROM users WHERE username = ?'
-        ).bind(username).first<{ id: number }>();
-
-        if (!user) {
-            return new Response(
-                JSON.stringify({ success: false, message: '用户不存在' }),
-                { status: 404, headers: { 'Content-Type': 'application/json' } }
-            );
-        }
-
         // Delete log (only if it belongs to this user)
         await env.DB.prepare(
             'DELETE FROM session_logs WHERE id = ? AND user_id = ?'
-        ).bind(logId, user.id).run();
+        ).bind(logId, userId).run();
 
         return new Response(
             JSON.stringify({ success: true }),

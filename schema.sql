@@ -6,6 +6,10 @@ CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL,
+    google_sub TEXT UNIQUE, -- Google OIDC subject
+    email TEXT,
+    picture_url TEXT,
+    provider TEXT DEFAULT 'local',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 

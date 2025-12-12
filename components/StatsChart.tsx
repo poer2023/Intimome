@@ -19,8 +19,8 @@ interface StatsChartProps {
   data: SessionLog[];
 }
 
-// Wellness Palette: Rose, Pink, Orange, Slate
-const COLORS = ['#f43f5e', '#e11d48', '#fb7185', '#f472b6', '#fb923c', '#64748b'];
+// Diverse Palette: Indigo, Emerald, Amber, Violet, Pink, Cyan
+const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4'];
 
 export const StatsChart: React.FC<StatsChartProps> = ({ data }) => {
   const { t } = useLanguage();
@@ -60,7 +60,7 @@ export const StatsChart: React.FC<StatsChartProps> = ({ data }) => {
       {/* Pie Chart */}
       <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
         <h3 className="text-lg font-bold text-slate-800 mb-1 flex items-center gap-2 font-serif">
-          <PieIcon size={18} className="text-rose-600" />
+          <PieIcon size={18} className="text-indigo-600" />
           {t.chartPieTitle}
         </h3>
         <p className="text-xs text-slate-400 mb-6 font-medium">{t.chartPieDesc}</p>
@@ -102,7 +102,7 @@ export const StatsChart: React.FC<StatsChartProps> = ({ data }) => {
       {/* Bar Chart */}
       <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
         <h3 className="text-lg font-bold text-slate-800 mb-1 flex items-center gap-2 font-serif">
-          <BarChartIcon size={18} className="text-rose-600" />
+          <BarChartIcon size={18} className="text-indigo-600" />
           {t.chartBarTitle}
         </h3>
         <p className="text-xs text-slate-400 mb-6 font-medium">{t.chartBarDesc}</p>
@@ -117,7 +117,7 @@ export const StatsChart: React.FC<StatsChartProps> = ({ data }) => {
                 cursor={{ fill: '#f8fafc' }}
                 contentStyle={{ backgroundColor: '#ffffff', borderColor: '#f1f5f9', borderRadius: '8px', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.05)', color: '#0f172a' }}
               />
-              <Bar dataKey="duration" fill="#f43f5e" radius={[4, 4, 0, 0]} barSize={24} />
+              <Bar dataKey="duration" fill="#6366f1" radius={[4, 4, 0, 0]} barSize={24} />
             </BarChart>
           </ResponsiveContainer>
         </div>

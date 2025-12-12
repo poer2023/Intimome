@@ -11,5 +11,18 @@ binding = "DB"
 database_name = "intimome-db"
 database_id = "5c9d987e-3add-45d3-a02c-260b484bc915"
 
+# KV for sessions / cache
+[[kv_namespaces]]
+binding = "SESSIONS"
+id = "your-kv-namespace-id"
+
+# R2 for automated backups
+[[r2_buckets]]
+binding = "BACKUPS"
+bucket_name = "intimome-backups"
+
 # Environment variables (set in Cloudflare Dashboard for production)
-# GEMINI_API_KEY = "your-api-key"
+# OPENROUTER_API_KEY = "your-api-key"
+# OPENROUTER_MODEL = "openai/gpt-4o-mini"
+# GOOGLE_CLIENT_ID = "your-google-client-id"
+# BACKUP_SECRET = "your-backup-secret"
