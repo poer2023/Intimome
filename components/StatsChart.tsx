@@ -13,22 +13,21 @@ import {
 } from 'recharts';
 import { SessionLog } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
-import { PieChart as PieIcon, BarChart as BarChartIcon } from 'lucide-react';
 
 interface StatsChartProps {
   data: SessionLog[];
 }
 
-// Diverse Palette: Indigo, Emerald, Amber, Violet, Pink, Cyan
-const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4'];
+// Diverse Palette matching reference design
+const COLORS = ['#c084fc', '#60a5fa', '#fda4af', '#f43f5e', '#a78bfa'];
 
 export const StatsChart: React.FC<StatsChartProps> = ({ data }) => {
   const { t } = useLanguage();
 
   if (data.length === 0) {
     return (
-      <div className="text-slate-400 text-center py-16 bg-white/50 rounded-2xl border border-slate-200 border-dashed">
-        <p>{t.noData}</p>
+      <div className="text-slate-400 text-center py-16 bg-slate-50 rounded-2xl border border-slate-200 border-dashed">
+        <p className="font-medium">{t.noData}</p>
         <p className="text-sm mt-2">{t.logFirst}</p>
       </div>
     );
@@ -38,7 +37,6 @@ export const StatsChart: React.FC<StatsChartProps> = ({ data }) => {
   const positionCounts: Record<string, number> = {};
   data.forEach(log => {
     log.positions.forEach(pos => {
-      // Map to translated name
       const translatedPos = t.position[pos] || pos;
       positionCounts[translatedPos] = (positionCounts[translatedPos] || 0) + 1;
     });
@@ -48,78 +46,104 @@ export const StatsChart: React.FC<StatsChartProps> = ({ data }) => {
     value: positionCounts[key]
   }));
 
-  // Process Data for Rating Trend
+  // Process Data for Duration Trend
   const trendData = data.slice(-7).map(log => ({
-    date: new Date(log.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
-    rating: log.rating,
+    date: new Date(log.date).toLocaleDateString(undefined, { month: 'numeric', day: 'numeric' }),
     duration: log.durationMinutes
   }));
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-      {/* Pie Chart */}
-      <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
-        <h3 className="text-lg font-bold text-slate-800 mb-1 flex items-center gap-2 font-serif">
-          <PieIcon size={18} className="text-indigo-600" />
-          {t.chartPieTitle}
-        </h3>
-        <p className="text-xs text-slate-400 mb-6 font-medium">{t.chartPieDesc}</p>
+    <div className="space-y-6">
+      {/* Duration Trends Card */}
+      <div className="bg-white rounded-[20px] p-6 shadow-subtle border border-slate-100">
+        <h3 className="text-base font-semibold text-slate-900 mb-6">Duration Trends</h3>
+        <div className="h-56 w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={trendData} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="0" stroke="#f1f5f9" vertical={false} />
+              <XAxis
+                dataKey="date"
+                stroke="#cbd5e1"
+                tick={{ fontSize: 11, fill: '#94a3b8', fontWeight: 500 }}
+                axisLine={false}
+                tickLine={false}
+                dy={8}
+              />
+              <YAxis
+                stroke="#cbd5e1"
+                tick={{ fontSize: 11, fill: '#94a3b8', fontWeight: 500 }}
+                axisLine={false}
+                tickLine={false}
+                tickCount={5}
+              />
+              <Tooltip
+                cursor={{ fill: 'rgba(244, 63, 94, 0.05)' }}
+                contentStyle={{
+                  backgroundColor: '#ffffff',
+                  borderColor: '#f1f5f9',
+                  borderRadius: '12px',
+                  boxShadow: '0 4px 12px -2px rgb(0 0 0 / 0.08)',
+                  padding: '8px 12px'
+                }}
+                labelStyle={{ fontWeight: 600, color: '#1e293b', marginBottom: 4 }}
+                itemStyle={{ color: '#64748b', fontSize: 12 }}
+              />
+              <Bar
+                dataKey="duration"
+                fill="#f43f5e"
+                radius={[6, 6, 6, 6]}
+                barSize={28}
+              />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
 
-        <div className="h-64 w-full">
+      {/* Position Breakdown Card */}
+      <div className="bg-white rounded-[20px] p-6 shadow-subtle border border-slate-100">
+        <h3 className="text-base font-semibold text-slate-900 mb-4">Position Breakdown</h3>
+        <div className="h-56 w-full flex items-center justify-center">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
                 data={pieData}
                 cx="50%"
                 cy="50%"
-                innerRadius={60}
-                outerRadius={80}
-                paddingAngle={5}
+                innerRadius={65}
+                outerRadius={90}
+                paddingAngle={3}
                 dataKey="value"
                 stroke="none"
+                cornerRadius={4}
               >
                 {pieData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
               <Tooltip
-                contentStyle={{ backgroundColor: '#ffffff', borderColor: '#f1f5f9', borderRadius: '8px', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.05)' }}
-                itemStyle={{ color: '#0f172a', fontWeight: 600, fontSize: '12px' }}
+                contentStyle={{
+                  backgroundColor: '#ffffff',
+                  borderColor: '#f1f5f9',
+                  borderRadius: '12px',
+                  boxShadow: '0 4px 12px -2px rgb(0 0 0 / 0.08)',
+                  padding: '8px 12px'
+                }}
+                itemStyle={{ color: '#0f172a', fontWeight: 600, fontSize: 12 }}
               />
             </PieChart>
           </ResponsiveContainer>
         </div>
-        <div className="flex flex-wrap justify-center gap-3 mt-4">
+        {/* Legend */}
+        <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 mt-4">
           {pieData.map((entry, index) => (
-            <div key={entry.name} className="flex items-center gap-1.5 text-[10px] uppercase tracking-wide text-slate-500 font-bold bg-slate-50 px-2 py-1 rounded-md border border-slate-100">
-              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }}></div>
-              {entry.name}
+            <div key={entry.name} className="flex items-center gap-2">
+              <div
+                className="w-2.5 h-2.5 rounded-full"
+                style={{ backgroundColor: COLORS[index % COLORS.length] }}
+              />
+              <span className="text-sm font-medium text-slate-600">{entry.name}</span>
             </div>
           ))}
-        </div>
-      </div>
-
-      {/* Bar Chart */}
-      <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
-        <h3 className="text-lg font-bold text-slate-800 mb-1 flex items-center gap-2 font-serif">
-          <BarChartIcon size={18} className="text-indigo-600" />
-          {t.chartBarTitle}
-        </h3>
-        <p className="text-xs text-slate-400 mb-6 font-medium">{t.chartBarDesc}</p>
-
-        <div className="h-64 w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={trendData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
-              <XAxis dataKey="date" stroke="#94a3b8" tick={{ fontSize: 10, fontWeight: 500 }} axisLine={false} tickLine={false} dy={10} />
-              <YAxis stroke="#94a3b8" tick={{ fontSize: 10, fontWeight: 500 }} axisLine={false} tickLine={false} />
-              <Tooltip
-                cursor={{ fill: '#f8fafc' }}
-                contentStyle={{ backgroundColor: '#ffffff', borderColor: '#f1f5f9', borderRadius: '8px', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.05)', color: '#0f172a' }}
-              />
-              <Bar dataKey="duration" fill="#6366f1" radius={[4, 4, 0, 0]} barSize={24} />
-            </BarChart>
-          </ResponsiveContainer>
         </div>
       </div>
     </div>

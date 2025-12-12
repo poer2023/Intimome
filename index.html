@@ -3,117 +3,153 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>IntimDiary</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script>
     tailwind.config = {
       theme: {
         extend: {
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-            serif: ['"DM Serif Display"', 'serif'],
-          },
           colors: {
-            // Custom "Wellness" Green Palette if standard Tailwind isn't enough
-            rose: {
-              850: '#9f1239', // Deep Rose
+            brand: {
+              50: '#fff1f2',
+              100: '#ffe4e6',
+              200: '#fecdd3',
+              300: '#fda4af',
+              400: '#fb7185',
+              500: '#f43f5e',
+              600: '#e11d48',
+              700: '#be123c',
+              900: '#881337',
+            },
+            slate: {
+              850: '#1e293b',
             }
           },
-          backgroundImage: {
-            'noise': "url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22 opacity=%220.05%22/%3E%3C/svg%3E')",
+          fontFamily: {
+            sans: ['Outfit', 'sans-serif'],
+          },
+          boxShadow: {
+            'subtle': '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+            'elevation': '0 10px 40px -10px rgba(0, 0, 0, 0.05)',
+            'glow-sm': '0 0 10px rgba(244, 63, 94, 0.15)',
           },
           animation: {
-            'fade-in': 'fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
-            'slide-up': 'slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
-            'float': 'float 6s ease-in-out infinite',
-            'wiggle': 'wiggle 1s ease-in-out infinite',
-            'bob': 'bob 2s ease-in-out infinite',
-            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'fade-in': 'fadeIn 0.5s ease-out forwards',
+            'slide-up': 'slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+            'scale-in': 'scaleIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+            'pop': 'pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards',
+            'breathe': 'breathe 3s ease-in-out infinite',
+            'thrust-y': 'thrustY 1s ease-in-out infinite',
             'thrust-x': 'thrustX 1s ease-in-out infinite',
-            'thrust-y': 'thrustY 1.2s ease-in-out infinite',
+            'bob': 'bob 2s ease-in-out infinite',
             'rock': 'rock 2s ease-in-out infinite',
-            'spin-slow': 'spin 8s linear infinite',
+            'modal-slide-up': 'modalSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards',
           },
           keyframes: {
             fadeIn: {
-              '0%': { opacity: '0' },
-              '100%': { opacity: '1' },
+              'from': { opacity: '0' },
+              'to': { opacity: '1' },
             },
-            slideUp: {
-              '0%': { opacity: '0', transform: 'translateY(20px)' },
-              '100%': { opacity: '1', transform: 'translateY(0)' },
+            slideUpFade: {
+              'from': { transform: 'translateY(10px)', opacity: '0' },
+              'to': { transform: 'translateY(0)', opacity: '1' },
             },
-            float: {
+            scaleIn: {
+              'from': { transform: 'scale(0.95)', opacity: '0' },
+              'to': { transform: 'scale(1)', opacity: '1' },
+            },
+            modalSlideUp: {
+              'from': { transform: 'translateY(20px) scale(0.95)', opacity: '0' },
+              'to': { transform: 'translateY(0) scale(1)', opacity: '1' },
+            },
+            pop: {
+              '0%': { transform: 'scale(0.95)' },
+              '40%': { transform: 'scale(1.02)' },
+              '100%': { transform: 'scale(1)' },
+            },
+            breathe: {
+              '0%, 100%': { transform: 'scale(1)' },
+              '50%': { transform: 'scale(1.05)' },
+            },
+            thrustY: {
               '0%, 100%': { transform: 'translateY(0)' },
-              '50%': { transform: 'translateY(-10px)' },
-            },
-            wiggle: {
-              '0%, 100%': { transform: 'rotate(-6deg)' },
-              '50%': { transform: 'rotate(6deg)' },
-            },
-            bob: {
-              '0%, 100%': { transform: 'translateY(-5px)' },
-              '50%': { transform: 'translateY(5px)' },
+              '50%': { transform: 'translateY(-6px)' },
             },
             thrustX: {
               '0%, 100%': { transform: 'translateX(0)' },
               '50%': { transform: 'translateX(6px)' },
             },
-            thrustY: {
+            bob: {
               '0%, 100%': { transform: 'translateY(0)' },
-              '50%': { transform: 'translateY(-6px)' },
+              '50%': { transform: 'translateY(-3px)' },
             },
             rock: {
               '0%, 100%': { transform: 'rotate(-5deg)' },
               '50%': { transform: 'rotate(5deg)' },
             }
           }
-        },
-      },
-    };
+        }
+      }
+    }
   </script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@300;400;500;600;700&display=swap');
+    /* Custom scrollbar hiding for clean UI */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
 
     body {
-      background-color: #f8fafc;
-      color: #0f172a;
-      font-family: 'Inter', sans-serif;
+      background-color: #fafafa;
       -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overscroll-behavior-y: none;
+      /* Prevent elastic scrolling on body */
     }
 
-    /* Modern Minimal Scrollbar */
-    ::-webkit-scrollbar {
-      width: 6px;
+    .delay-75 {
+      animation-delay: 75ms;
     }
 
-    ::-webkit-scrollbar-track {
-      background: transparent;
+    .delay-100 {
+      animation-delay: 100ms;
     }
 
-    ::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
-      border-radius: 10px;
+    .delay-150 {
+      animation-delay: 150ms;
     }
 
-    ::-webkit-scrollbar-thumb:hover {
-      background: #94a3b8;
+    .delay-200 {
+      animation-delay: 200ms;
+    }
+
+    .delay-300 {
+      animation-delay: 300ms;
+    }
+
+    /* Tap highlight color removal for mobile feel */
+    * {
+      -webkit-tap-highlight-color: transparent;
     }
   </style>
   <script type="importmap">
 {
   "imports": {
-    "lucide-react": "https://aistudiocdn.com/lucide-react@0.294.0",
-    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0",
-    "recharts": "https://aistudiocdn.com/recharts@2.12.3",
-    "react": "https://aistudiocdn.com/react@18.2.0",
-    "react-dom/client": "https://aistudiocdn.com/react-dom@18.2.0&path=/client",
-    "react-dom": "https://aistudiocdn.com/react-dom@18.2.0",
-    "react/jsx-runtime": "https://aistudiocdn.com/react@18.2.0&path=/jsx-runtime",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-    "react/": "https://aistudiocdn.com/react@^19.2.0/"
+    "react": "https://esm.sh/react@^19.2.1",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.1/",
+    "react/": "https://esm.sh/react@^19.2.1/",
+    "@google/genai": "https://esm.sh/@google/genai@^1.33.0",
+    "recharts": "https://esm.sh/recharts@^3.5.1",
+    "lucide-react": "https://esm.sh/lucide-react@^0.560.0"
   }
 }
 </script>

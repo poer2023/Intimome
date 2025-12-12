@@ -30,7 +30,7 @@ export const ApartmentSelector: React.FC<ApartmentSelectorProps> = ({ selectedLo
         </label>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+      <div className="grid grid-cols-4 gap-3">
         {Object.values(LocationType).map((loc) => {
           const Icon = LOCATION_ICONS[loc] || Home;
           const isSelected = selectedLocation === loc;
@@ -48,7 +48,7 @@ export const ApartmentSelector: React.FC<ApartmentSelectorProps> = ({ selectedLo
               <div className={`p-3 rounded-full mb-3 transition-colors ${isSelected ? 'bg-indigo-100 text-indigo-600' : 'bg-slate-50 text-slate-400 group-hover:bg-white group-hover:text-indigo-500'}`}>
                 <Icon size={24} />
               </div>
-              <span className={`text-xs font-bold text-center ${isSelected ? 'text-indigo-900' : 'text-slate-600'}`}>
+              <span className={`text-xs font-bold text-center h-8 flex items-center justify-center leading-tight ${isSelected ? 'text-indigo-900' : 'text-slate-600'}`}>
                 {t.location[loc]}
               </span>
             </button>

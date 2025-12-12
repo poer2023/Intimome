@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { ActivityType, LocationType, MoodType, PositionType, SessionLog } from '../types';
-import { FormSelect } from './FormSelect';
 import { ApartmentSelector } from './ApartmentSelector';
 import { useLanguage } from '../contexts/LanguageContext';
-import { Calendar, Clock, Heart, MapPin, User, Star, Smile, CheckCircle2, X, PlayCircle, Music, Zap, Droplets, Hand, Sparkles, Flame, EyeOff } from 'lucide-react';
+import { Calendar, Clock, Heart, User, Star, Smile, CheckCircle2, X, Music, Zap, Droplets, Hand, Sparkles, Flame, EyeOff } from 'lucide-react';
+import { DateTimePickerModal } from './DateTimePicker';
 
 interface LogEntryFormProps {
   onSave: (log: SessionLog) => void;
@@ -306,9 +306,9 @@ const ScissorsSVG = () => (
       <path d="M35 55 L25 80" stroke="#94a3b8" strokeWidth="4" strokeLinecap="round" />
 
       {/* Partner 2 - Emerald */}
-      <circle cx="75" cy="45" r="8" fill="#10b981" />
-      <path d="M75 53 Q 60 65 40 80" stroke="#10b981" strokeWidth="6" strokeLinecap="round" fill="none" />
-      <path d="M65 60 L75 85" stroke="#10b981" strokeWidth="4" strokeLinecap="round" />
+      <circle cx="75" cy="45" r="8" fill="#f43f5e" />
+      <path d="M75 53 Q 60 65 40 80" stroke="#f43f5e" strokeWidth="6" strokeLinecap="round" fill="none" />
+      <path d="M65 60 L75 85" stroke="#f43f5e" strokeWidth="4" strokeLinecap="round" />
     </g>
   </svg>
 );
@@ -347,6 +347,7 @@ const TAGS = [
 export const LogEntryForm: React.FC<LogEntryFormProps> = ({ onSave, onCancel }) => {
   const { t } = useLanguage();
   const [date, setDate] = useState(new Date().toISOString().slice(0, 16));
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [duration, setDuration] = useState(20);
   const [type, setType] = useState(ActivityType.PARTNER);
   const [location, setLocation] = useState(LocationType.BEDROOM);
@@ -380,98 +381,145 @@ export const LogEntryForm: React.FC<LogEntryFormProps> = ({ onSave, onCancel }) 
       date: new Date(date).toISOString(),
       durationMinutes: Number(duration),
       type,
-      partnerName: undefined, // Partner name field removed from UI
+      partnerName: undefined,
       location,
       positions: positions.length > 0 ? positions : [PositionType.MISSIONARY],
       mood,
       rating,
       orgasmReached,
-      tags: selectedTags, // Store original IDs
+      tags: selectedTags,
       notes,
     };
     onSave(newLog);
   };
 
+  const MOOD_EMOJIS: Record<MoodType, string> = {
+    [MoodType.PASSIONATE]: '🔥',
+    [MoodType.TENDER]: '🥰',
+    [MoodType.ROUGH]: '🤠',
+    [MoodType.PLAYFUL]: '😜',
+    [MoodType.TIRED]: '😴',
+    [MoodType.QUICKIE]: '⚡',
+  };
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 animate-slide-up pb-20 md:pb-0">
+    <form onSubmit={handleSubmit} className="space-y-6 animate-slide-up pb-32">
 
-      {/* Top Section */}
-      <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-6">
-        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">{t.details}</h3>
+      {/* Main Info Card */}
+      <div className="bg-white p-6 rounded-[32px] shadow-subtle border border-slate-100 space-y-8">
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Date & Time */}
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-500 uppercase tracking-wide flex items-center gap-2">
-              <Calendar size={14} className="text-indigo-600" /> {t.dateTime}
-            </label>
-            <input
-              type="datetime-local"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              className="w-full bg-white border border-slate-200 rounded-xl p-3.5 text-sm font-medium text-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
-            />
-          </div>
-
-          {/* Duration */}
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-500 uppercase tracking-wide flex items-center gap-2">
-              <Clock size={14} className="text-indigo-600" /> {t.durationLabel}: <span className="text-indigo-700 font-bold">{duration} {t.min}</span>
-            </label>
-            <div className="flex items-center gap-4">
-              <span className="text-[10px] text-slate-400 font-medium">1m</span>
-              <input
-                type="range"
-                min="5"
-                max="120"
-                step="5"
-                value={duration}
-                onChange={(e) => setDuration(Number(e.target.value))}
-                className="w-full h-1.5 bg-indigo-100 rounded-lg appearance-none cursor-pointer accent-indigo-600"
-              />
-              <span className="text-[10px] text-slate-400 font-medium">2h</span>
-            </div>
-          </div>
-
-          {/* Type */}
-          <FormSelect
-            label={t.whoWith}
-            value={type}
-            onChange={(v) => setType(v as ActivityType)}
-            options={Object.values(ActivityType).map(v => ({ value: v, label: t.activity[v] }))}
-            icon={<User size={14} className="text-indigo-600" />}
-          />
-
-
-
-          {/* Mood */}
-          <FormSelect
-            label={t.theVibe}
-            value={mood}
-            onChange={(v) => setMood(v as MoodType)}
-            options={Object.values(MoodType).map(v => ({ value: v, label: t.mood[v] }))}
-            icon={<Smile size={14} className="text-indigo-600" />}
-          />
+        {/* Type Toggle (Segmented Control) */}
+        <div className="bg-slate-50 p-1.5 rounded-2xl flex relative">
+          {Object.values(ActivityType).map((activityType) => {
+            const isActive = type === activityType;
+            return (
+              <button
+                key={activityType}
+                type="button"
+                onClick={() => setType(activityType)}
+                className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all duration-200 relative z-10 flex items-center justify-center gap-2 ${isActive
+                  ? 'bg-white text-brand-600 shadow-sm ring-1 ring-slate-100'
+                  : 'text-slate-400 hover:text-slate-600'
+                  }`}
+              >
+                {activityType === ActivityType.SOLO ? <Zap size={16} /> : <Heart size={16} />}
+                {t.activity[activityType]}
+              </button>
+            );
+          })}
         </div>
 
-        {/* 3D Location Selector (Full Width) */}
-        <div className="col-span-1 md:col-span-2 space-y-2">
-          <ApartmentSelector selectedLocation={location} onChange={setLocation} />
-          <div className="flex justify-between items-center px-1">
-            <span className="text-[10px] text-slate-400">Selected: <span className="font-bold text-indigo-600">{t.location[location]}</span></span>
+        {/* Date & Duration Grid */}
+        <div className="grid grid-cols-1 gap-4">
+          {/* Date Picker Trigger */}
+          <button
+            type="button"
+            onClick={() => setShowDatePicker(true)}
+            className="bg-slate-50 border border-slate-100 rounded-[20px] p-4 text-left hover:bg-slate-100 transition-colors group"
+          >
+            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+              <Calendar size={12} /> Date
+            </div>
+            <div className="text-sm font-bold text-slate-800">
+              {new Date(date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+            </div>
+            <div className="text-xs font-semibold text-slate-400">
+              {new Date(date).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false })}
+            </div>
+          </button>
+
+          <DateTimePickerModal
+            isOpen={showDatePicker}
+            onClose={() => setShowDatePicker(false)}
+            onConfirm={(d) => {
+              const offset = d.getTimezoneOffset() * 60000;
+              const localISOTime = (new Date(d.getTime() - offset)).toISOString().slice(0, 16);
+              setDate(localISOTime);
+              setShowDatePicker(false);
+            }}
+            initialDate={new Date(date)}
+            title="Date & Time"
+          />
+
+          {/* Duration Slider Compact */}
+          <div className="bg-slate-50 border border-slate-100 rounded-[20px] p-4 flex flex-col justify-between">
+            <div className="flex justify-between items-center mb-2">
+              <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                <Clock size={12} /> Duration
+              </div>
+              <div className="text-sm font-bold text-brand-600">{duration}m</div>
+            </div>
+            <input
+              type="range"
+              min="5"
+              max="120"
+              step="5"
+              value={duration}
+              onChange={(e) => setDuration(Number(e.target.value))}
+              className="w-full h-1.5 bg-slate-200 rounded-full appearance-none cursor-pointer accent-brand-500"
+            />
           </div>
+        </div>
+
+        {/* Mood Scroller */}
+        <div>
+          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3 block px-1">{t.theVibe}</label>
+          <div className="flex gap-3 overflow-x-auto pb-2 -mx-2 px-2 no-scrollbar snap-x">
+            {Object.values(MoodType).map(m => {
+              const isActive = mood === m;
+              return (
+                <button
+                  key={m}
+                  type="button"
+                  onClick={() => setMood(m)}
+                  className={`snap-start flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-full border transition-all ${isActive
+                    ? 'bg-brand-50 border-brand-200 text-brand-700 shadow-sm ring-1 ring-brand-100'
+                    : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                    }`}
+                >
+                  <span className="text-base">{MOOD_EMOJIS[m]}</span>
+                  <span className="text-xs font-bold whitespace-nowrap">{t.mood[m]}</span>
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Location - Full width but styled simpler */}
+        <div>
+          <ApartmentSelector selectedLocation={location} onChange={setLocation} />
         </div>
 
       </div>
 
-      {/* Positions Section - Enhanced Visuals */}
-      <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
-        <div className="flex justify-between items-end border-b border-slate-100 pb-3">
-          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">{t.positions}</h3>
-          <span className="text-[10px] text-slate-400 font-medium">{t.selectMultiple}</span>
-        </div>
+      {/* Positions Grid - Compact */}
+      <div className="space-y-3">
+        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider px-2 flex justify-between">
+          <span>{t.positions}</span>
+          <span className="text-[10px] text-brand-500 bg-brand-50 px-2 py-0.5 rounded-full">{positions.length} selected</span>
+        </h3>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 gap-3">
           {Object.values(PositionType).map((pos) => {
             const isSelected = positions.includes(pos);
             const config = POSITION_CONFIG[pos];
@@ -482,131 +530,113 @@ export const LogEntryForm: React.FC<LogEntryFormProps> = ({ onSave, onCancel }) 
                 key={pos}
                 type="button"
                 onClick={() => togglePosition(pos)}
-                className={`group relative overflow-hidden rounded-xl transition-all duration-200 flex flex-col text-left h-40 ${isSelected
-                  ? 'ring-2 ring-indigo-500 bg-white shadow-md'
-                  : 'border border-slate-100 hover:border-slate-300 bg-white hover:shadow-sm'
+                className={`group relative overflow-hidden rounded-2xl transition-all duration-200 flex flex-col text-left aspect-square ${isSelected
+                  ? 'ring-2 ring-brand-500 bg-white shadow-md'
+                  : 'bg-white hover:bg-slate-50 border border-slate-100 shadow-sm'
                   }`}
               >
-                {/* Visual Area */}
-                <div className={`h-[75%] w-full ${config.color} flex items-center justify-center relative overflow-hidden p-2`}>
-                  <div className={`w-20 h-20 transition-transform duration-500 ${isSelected ? 'scale-110' : 'scale-95 opacity-70 group-hover:scale-100 group-hover:opacity-90'}`}>
+                <div className={`flex-1 w-full ${isSelected ? 'bg-brand-50/30' : 'bg-slate-50/30'} flex items-center justify-center p-2`}>
+                  <div className={`w-full h-full text-slate-700 ${isSelected ? 'scale-110' : 'scale-90 opacity-60'}`}>
                     <IconComponent />
                   </div>
-
-                  {/* Selection Overlay */}
-                  {isSelected && (
-                    <div className="absolute top-2 right-2">
-                      <div className="bg-indigo-500 rounded-full p-0.5 shadow-sm">
-                        <CheckCircle2 size={12} className="text-white" />
-                      </div>
-                    </div>
-                  )}
                 </div>
-
-                {/* Text Area */}
-                <div className="h-[25%] w-full px-3 flex flex-col justify-center border-t border-slate-50">
-                  <span className={`text-xs font-bold leading-tight ${isSelected ? 'text-indigo-800' : 'text-slate-700'}`}>
+                <div className="w-full py-1.5 border-t border-slate-50 text-center bg-white/50 backdrop-blur-sm absolute bottom-0">
+                  <span className={`text-[9px] font-bold leading-none truncate block px-1 ${isSelected ? 'text-brand-600' : 'text-slate-500'}`}>
                     {t.position[pos]}
                   </span>
                 </div>
+                {isSelected && (
+                  <div className="absolute top-1 right-1 bg-brand-500 rounded-full p-[2px]">
+                    <CheckCircle2 size={8} className="text-white" />
+                  </div>
+                )}
               </button>
             );
           })}
         </div>
       </div>
 
-      {/* Context / Props Tags */}
-      <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
-        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">{t.highlights}</h3>
-        <div className="flex flex-wrap gap-3">
-          {TAGS.map((tag) => {
-            const isSelected = selectedTags.includes(tag.id);
-            const Icon = tag.icon;
-            const label = t.tags[tag.id as keyof typeof t.tags] || tag.id;
-            return (
-              <button
-                key={tag.id}
-                type="button"
-                onClick={() => toggleTag(tag.id)}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold transition-all ${isSelected
-                  ? 'bg-indigo-100 text-indigo-800 ring-1 ring-indigo-500'
-                  : 'bg-slate-50 text-slate-500 hover:bg-slate-100 border border-slate-200'
-                  }`}
-              >
-                <Icon size={16} className={isSelected ? 'text-indigo-600' : 'text-slate-400'} />
-                {label}
-              </button>
-            )
-          })}
-        </div>
-      </div>
-
-      {/* Rating & Orgasm */}
-      <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-6">
-        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">{t.outcome}</h3>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-500 uppercase tracking-wide flex items-center gap-2">
-              <Star size={14} className="text-indigo-600" /> {t.satisfaction}
-            </label>
-            <div className="flex gap-2">
-              {[1, 2, 3, 4, 5].map((r) => (
+      {/* Highlights & Outcome */}
+      <div className="bg-white p-6 rounded-[32px] shadow-subtle border border-slate-100 space-y-8">
+        {/* Tags */}
+        <div>
+          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">{t.highlights}</h3>
+          <div className="flex flex-wrap gap-2">
+            {TAGS.map((tag) => {
+              const isSelected = selectedTags.includes(tag.id);
+              const label = t.tags[tag.id as keyof typeof t.tags] || tag.id;
+              return (
                 <button
-                  key={r}
+                  key={tag.id}
                   type="button"
-                  onClick={() => setRating(r)}
-                  className={`flex-1 h-10 rounded-lg flex items-center justify-center transition-all ${rating >= r
-                    ? 'bg-indigo-600 text-white shadow-indigo-200'
-                    : 'bg-slate-100 text-slate-300'
+                  onClick={() => toggleTag(tag.id)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${isSelected
+                    ? 'bg-brand-50 text-brand-700 border-brand-200'
+                    : 'bg-slate-50 text-slate-500 border-slate-100 hover:border-slate-200'
                     }`}
                 >
-                  <Star size={16} fill={rating >= r ? "currentColor" : "none"} />
+                  {label}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Rating & Orgasm Grid */}
+        <div className="grid grid-cols-2 gap-4">
+          {/* Rating */}
+          <div className="bg-slate-50 rounded-[20px] p-4 flex flex-col items-center justify-center gap-2">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t.satisfaction}</span>
+            <div className="flex gap-1">
+              {[1, 2, 3, 4, 5].map((r) => (
+                <button key={r} type="button" onClick={() => setRating(r)} className="focus:outline-none transition-transform active:scale-90">
+                  <Star size={20} className={`${rating >= r ? 'text-amber-400 fill-amber-400' : 'text-slate-200'}`} />
                 </button>
               ))}
             </div>
           </div>
 
-          <div className="flex items-end">
-            <button
-              type="button"
-              onClick={() => setOrgasmReached(!orgasmReached)}
-              className={`flex items-center gap-3 px-6 h-10 rounded-lg border transition-all w-full justify-center font-semibold text-sm ${orgasmReached
-                ? 'border-indigo-500 bg-indigo-50 text-indigo-700'
-                : 'border-slate-200 bg-white text-slate-400 hover:bg-slate-50'
-                }`}
-            >
-              <CheckCircle2 size={16} className={orgasmReached ? "text-indigo-600" : "text-slate-300"} />
-              {orgasmReached ? t.climaxReached : t.noClimax}
-            </button>
-          </div>
+          {/* Orgasm Toggle */}
+          <button
+            type="button"
+            onClick={() => setOrgasmReached(!orgasmReached)}
+            className={`rounded-[20px] p-4 flex flex-col items-center justify-center gap-2 border transition-all ${orgasmReached
+              ? 'bg-rose-50 border-rose-100 text-rose-600'
+              : 'bg-white border-slate-200 text-slate-400 hover:border-slate-300'
+              }`}
+          >
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${orgasmReached ? 'bg-rose-100 text-rose-500' : 'bg-slate-100 text-slate-300'}`}>
+              {orgasmReached ? <Heart size={16} fill="currentColor" /> : <X size={16} />}
+            </div>
+            <span className="text-xs font-bold">{orgasmReached ? t.climaxReached : t.noClimax}</span>
+          </button>
         </div>
 
         {/* Notes */}
-        <div className="space-y-2">
-          <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">{t.notes}</label>
+        <div>
           <textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             rows={3}
-            className="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm text-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
+            className="w-full bg-slate-50 border border-slate-100 rounded-2xl p-4 text-sm text-slate-800 placeholder:text-slate-400 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all resize-none"
             placeholder={t.notesPlaceholder}
           />
         </div>
+
       </div>
 
       {/* Actions */}
-      <div className="flex gap-4 pt-2">
+      <div className="flex gap-4 pt-2 pb-6 px-1">
         <button
           type="button"
           onClick={onCancel}
-          className="flex-1 py-3 px-4 bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 rounded-xl font-bold text-sm transition-colors"
+          className="flex-1 py-4 bg-slate-100 text-slate-600 rounded-[20px] font-bold text-sm transition-colors hover:bg-slate-200"
         >
           {t.cancel}
         </button>
         <button
           type="submit"
-          className="flex-1 py-3 px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-indigo-200 transition-all transform active:scale-95"
+          className="flex-[2] py-4 bg-slate-900 text-white rounded-[20px] font-bold text-sm shadow-xl shadow-slate-900/20 transition-all transform active:scale-[0.98] hover:bg-black"
         >
           {t.saveLog}
         </button>

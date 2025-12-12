@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { BrowserRouter, Routes, Route, useNavigate, useLocation, Link, Navigate, Outlet } from 'react-router-dom';
 import { ActivityType, SessionLog, AnalysisResponse } from './types';
 import { LogEntryForm } from './components/LogEntryForm';
@@ -8,6 +8,8 @@ import { generateInsights } from './services/geminiService';
 import { fetchLogs, saveLog } from './services/logsService';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { BottomNav } from './components/BottomNav';
+import { DateTimePickerModal } from './components/DateTimePicker';
 import {
   Plus,
   Activity,
@@ -19,17 +21,159 @@ import {
   Heart,
   Zap,
   TrendingUp,
-  ShieldCheck,
-  Leaf,
   Trophy,
   Globe,
   Clock,
   Star,
   X,
-  Smile
+  Smile,
+  Timer,
+  CalendarClock,
+  ArrowRight,
+  ChevronRight
 } from 'lucide-react';
 
 type NavTarget = 'dashboard' | 'log' | 'history';
+
+// --- Animation Components ---
+const CountUp: React.FC<{ end: number; duration?: number; suffix?: string }> = ({ end, duration = 1500, suffix = '' }) => {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    let startTime: number | null = null;
+    let animationFrameId: number;
+    const animate = (currentTime: number) => {
+      if (!startTime) startTime = currentTime;
+      const progress = Math.min((currentTime - startTime) / duration, 1);
+      const ease = 1 - Math.pow(1 - progress, 4);
+      setCount(Math.floor(ease * end));
+      if (progress < 1) {
+        animationFrameId = requestAnimationFrame(animate);
+      } else {
+        setCount(end);
+      }
+    };
+    animationFrameId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [end, duration]);
+  return <>{count}{suffix}</>;
+};
+
+// --- Shared Components ---
+const Card: React.FC<{
+  children: React.ReactNode;
+  className?: string;
+  title?: string;
+  action?: React.ReactNode;
+  onClick?: () => void
+}> = ({ children, className = '', title, action, onClick }) => (
+  <div
+    onClick={onClick}
+    className={`bg-white rounded-[24px] p-6 shadow-subtle border border-slate-100 ${className} ${onClick ? 'cursor-pointer active:scale-[0.98] active:bg-slate-50 hover:border-brand-100 hover:shadow-elevation transition-all duration-200 ease-out' : ''}`}
+  >
+    {(title || action) && (
+      <div className="flex justify-between items-center mb-6">
+        {title && <h3 className="text-slate-900 font-semibold text-base tracking-tight">{title}</h3>}
+        {action}
+      </div>
+    )}
+    {children}
+  </div>
+);
+
+const StatCard: React.FC<{ label: string; value: string | number; sub?: string; icon: React.ReactNode; delay?: string }> = ({ label, value, sub, icon, delay = '' }) => {
+  const isNumber = typeof value === 'number';
+  return (
+    <Card className={`flex flex-col justify-between h-32 relative group animate-slide-up ${delay}`}>
+      <div className="flex justify-between items-start">
+        <div className="text-slate-400 group-hover:text-brand-400 transition-colors duration-300">
+          {React.cloneElement(icon as React.ReactElement<{ className?: string }>, { className: "w-5 h-5" })}
+        </div>
+        {sub && <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 bg-slate-50 px-2 py-1 rounded-full">{sub}</div>}
+      </div>
+      <div className="mt-2">
+        <div className="text-3xl font-medium text-slate-800 tracking-tight mb-0.5">
+          {isNumber ? <CountUp end={value as number} /> : value}
+        </div>
+        <div className="text-slate-500 text-xs font-medium">{label}</div>
+      </div>
+    </Card>
+  );
+};
+
+const TimerWidget: React.FC<{
+  logs: SessionLog[];
+  targetDate: string | null;
+  onEdit: () => void;
+  t: ReturnType<typeof useLanguage>['t'];
+}> = ({ logs, targetDate, onEdit, t }) => {
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => {
+    const interval = setInterval(() => setNow(Date.now()), 60000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const displayData = useMemo(() => {
+    if (targetDate) {
+      const target = new Date(targetDate).getTime();
+      const diff = target - now;
+      if (diff > 0) {
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        return { label: t.countdown || 'Countdown', mainValue: days, unit: t.days || 'Days', subValue: `${hours}h`, icon: <CalendarClock className="w-5 h-5" />, accentClass: 'text-brand-500 bg-brand-50 border-brand-100' };
+      }
+      return { label: t.happeningNow || 'Now', mainValue: 0, unit: t.days || 'Days', subValue: t.timeUp || "Time's up", icon: <Sparkles className="w-5 h-5" />, accentClass: 'text-amber-500 bg-amber-50 border-amber-100' };
+    }
+    const latestLog = [...logs].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
+    if (latestLog) {
+      const last = new Date(latestLog.date).getTime();
+      const diff = now - last;
+      const days = diff < 0 ? 0 : Math.floor(diff / (1000 * 60 * 60 * 24));
+      return { label: t.lastSession || 'Last Session', mainValue: days, unit: t.days || 'Days', subValue: days === 0 ? t.today || 'Today' : t.ago || 'Ago', icon: <Timer className="w-5 h-5" />, accentClass: 'text-brand-500 bg-brand-50 border-brand-100' };
+    }
+    return { label: t.welcome || 'Welcome', mainValue: '-', unit: '', subValue: t.tapToStart || 'Tap to start', icon: <Activity className="w-5 h-5" />, accentClass: 'text-slate-400 bg-slate-50 border-slate-100' };
+  }, [logs, targetDate, now, t]);
+
+  return (
+    <div onClick={onEdit} className="relative w-full rounded-[28px] p-6 mb-6 cursor-pointer group transition-all duration-300 bg-white border border-slate-100 shadow-elevation hover:border-brand-200 active:scale-[0.98]">
+      <div className="flex items-center justify-between">
+        <div className="flex flex-col">
+          <span className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-1">{displayData.label}</span>
+          <div className="flex items-baseline gap-2 text-slate-900">
+            <span className="text-5xl font-light tracking-tighter">
+              {typeof displayData.mainValue === 'number' ? <CountUp end={displayData.mainValue} /> : displayData.mainValue}
+            </span>
+            <span className="text-lg font-normal text-slate-500">{displayData.unit}</span>
+          </div>
+          <div className="text-sm font-medium text-slate-400 mt-1 flex items-center gap-2">
+            <span className={`w-2 h-2 rounded-full ${displayData.accentClass.split(' ')[0].replace('text', 'bg')}`}></span>
+            {displayData.subValue}
+          </div>
+        </div>
+        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110 ${displayData.accentClass}`}>
+          {displayData.icon}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const TargetDateModal: React.FC<{ currentDate: string | null; onSave: (date: string | null) => void; onClose: () => void; t: ReturnType<typeof useLanguage>['t'] }> = ({ currentDate, onSave, onClose, t }) => {
+  return (
+    <DateTimePickerModal
+      isOpen={true}
+      onClose={onClose}
+      onConfirm={(d) => {
+        const offset = d.getTimezoneOffset() * 60000;
+        const localISOTime = (new Date(d.getTime() - offset)).toISOString().slice(0, 16);
+        onSave(localISOTime);
+      }}
+      onClear={currentDate ? () => onSave(null) : undefined}
+      initialDate={currentDate ? new Date(currentDate) : new Date(Date.now() + 86400000)}
+      title={t.setTimer || "Set Timer"}
+    />
+  );
+};
+
 
 const DashboardView = ({
   logs,
@@ -39,7 +183,13 @@ const DashboardView = ({
   loadingInsight,
   insight,
   onLogClick,
-  onHistoryClick
+  onHistoryClick,
+  targetDate,
+  setTargetDate,
+  user,
+  onLogout,
+  language,
+  setLanguage
 }: {
   logs: SessionLog[];
   t: ReturnType<typeof useLanguage>['t'];
@@ -49,108 +199,129 @@ const DashboardView = ({
   insight: AnalysisResponse | null;
   onLogClick: () => void;
   onHistoryClick: () => void;
-}) => (
-  <div className="space-y-6 animate-slide-up pb-24 max-w-2xl mx-auto">
+  targetDate: string | null;
+  setTargetDate: (d: string | null) => void;
+  user: { username: string; displayName?: string } | null;
+  onLogout: () => void;
+  language: string;
+  setLanguage: (lang: 'en' | 'zh') => void;
+}) => {
+  const [showTimerModal, setShowTimerModal] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
 
-    {/* Quick Actions Component */}
-    <div className="grid grid-cols-2 gap-4">
-      <button
-        onClick={onLogClick}
-        className="bg-indigo-600 hover:bg-indigo-700 text-white p-5 rounded-2xl shadow-lg shadow-indigo-200 transition-all transform hover:-translate-y-1 active:scale-95 flex flex-col items-center justify-center gap-2 group"
-      >
-        <div className="bg-white/20 p-3 rounded-full group-hover:scale-110 transition-transform">
-          <Plus size={24} className="text-white" />
-        </div>
-        <span className="font-bold text-sm">{t.newLog}</span>
-      </button>
+  const stats = useMemo(() => {
+    const total = logs.length;
+    const avgDuration = total > 0 ? Math.round(logs.reduce((acc, curr) => acc + curr.durationMinutes, 0) / total) : 0;
+    return { total, avgDuration };
+  }, [logs]);
 
-      <button
-        onClick={onHistoryClick}
-        className="bg-white border border-slate-200 hover:border-indigo-200 hover:bg-indigo-50 text-slate-700 p-5 rounded-2xl shadow-sm transition-all flex flex-col items-center justify-center gap-2 group"
-      >
-        <div className="bg-slate-100 p-3 rounded-full group-hover:bg-indigo-100 transition-colors">
-          <History size={24} className="text-slate-500 group-hover:text-indigo-600 transition-colors" />
-        </div>
-        <span className="font-bold text-sm">{t.history}</span>
-      </button>
-    </div>
+  const userInitials = user?.displayName?.slice(0, 2).toUpperCase() || user?.username?.slice(0, 2).toUpperCase() || 'JD';
 
-    {/* Refined Stats Row */}
-    <div className="grid grid-cols-3 gap-3">
-      <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm text-center flex flex-col justify-center items-center">
-        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{t.totalEntries}</span>
-        <span className="text-2xl font-serif font-medium text-slate-800">{logs.length}</span>
-      </div>
-      <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm text-center flex flex-col justify-center items-center">
-        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{t.avgDuration}</span>
-        <span className="text-2xl font-serif font-medium text-slate-800 flex items-baseline gap-1">
-          {logs.length > 0 ? Math.round(logs.reduce((a, b) => a + b.durationMinutes, 0) / logs.length) : 0}
-          <span className="text-xs font-sans font-medium text-slate-400">{t.min}</span>
-        </span>
-      </div>
-      <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm text-center flex flex-col justify-center items-center relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-8 h-8 bg-indigo-50 rounded-bl-xl"></div>
-        <Trophy size={14} className="absolute top-1.5 right-1.5 text-indigo-200" />
-        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{t.topPosition}</span>
-        <span className="text-sm font-bold text-indigo-700 truncate w-full px-1">{getFavoritePosition()}</span>
-      </div>
-    </div>
-
-    {/* Enhanced AI Insight Section */}
-    <div className="bg-gradient-to-br from-indigo-50 via-pink-50 to-white rounded-3xl p-6 shadow-sm border border-indigo-100/50 relative overflow-hidden">
-      {/* Decorative Elements */}
-      <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-100 rounded-full blur-3xl opacity-50 -translate-y-1/2 translate-x-1/3"></div>
-      <div className="absolute bottom-0 left-0 w-24 h-24 bg-pink-100 rounded-full blur-2xl opacity-50 translate-y-1/3 -translate-x-1/3"></div>
-
-      <div className="relative z-10">
-        <div className="flex justify-between items-center mb-5">
-          <div className="flex items-center gap-2">
-            <div className="bg-white p-1.5 rounded-lg shadow-sm">
-              <BrainCircuit size={18} className="text-indigo-600" />
-            </div>
-            <h3 className="text-sm font-bold text-slate-800">{t.aiTitle}</h3>
-          </div>
+  return (
+    <div className="space-y-6 animate-fade-in pb-40 px-1 max-w-lg mx-auto">
+      {/* Header */}
+      <header className="flex justify-between items-center py-4 px-1 animate-slide-up relative z-30">
+        <h1 className="text-2xl font-semibold text-slate-900 tracking-tight">IntimDiary.</h1>
+        <div className="flex items-center gap-2 relative">
+          {/* Language Toggle */}
           <button
-            onClick={handleGenerateInsight}
-            disabled={loadingInsight}
-            className="text-[10px] font-bold bg-white text-indigo-600 hover:text-indigo-700 px-3 py-1.5 rounded-full shadow-sm hover:shadow transition-all flex items-center gap-1"
+            onClick={() => setLanguage(language === 'en' ? 'zh' : 'en')}
+            className="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-all active:scale-95 shadow-subtle text-xs font-bold"
           >
-            {loadingInsight ? <Sparkles size={12} className="animate-spin" /> : <Sparkles size={12} />}
-            {loadingInsight ? t.analyzing : t.updateAnalysis}
+            {language === 'en' ? 'EN' : '中'}
           </button>
+          {/* User Avatar */}
+          <div className="relative z-40">
+            <button
+              onClick={() => setShowUserMenu(!showUserMenu)}
+              className="w-10 h-10 rounded-full bg-brand-50 border border-brand-200 flex items-center justify-center text-brand-600 hover:bg-brand-100 transition-all active:scale-95 shadow-subtle relative z-10"
+            >
+              <span className="text-xs font-bold">{userInitials}</span>
+            </button>
+            {/* Dropdown Menu */}
+            {showUserMenu && (
+              <>
+                {/* Backdrop to close on click outside */}
+                <div
+                  className="fixed inset-0 z-40"
+                  onClick={() => setShowUserMenu(false)}
+                />
+                <div className="absolute top-12 right-0 bg-white rounded-2xl shadow-elevation border border-slate-100 p-2 min-w-[160px] animate-scale-in z-50">
+                  <div className="px-3 py-2 text-xs text-slate-400 font-medium border-b border-slate-100 mb-1">
+                    @{user?.displayName || user?.username}
+                  </div>
+                  <button
+                    onClick={() => { setShowUserMenu(false); onLogout(); }}
+                    className="w-full text-left px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-xl transition-colors font-medium"
+                  >
+                    退出登录
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
         </div>
+      </header>
 
-        {insight ? (
-          <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-4 border border-white/50 space-y-3">
-            <p className="text-sm text-slate-700 leading-relaxed font-medium">
-              {insight.summary}
-            </p>
-            <div className="h-px bg-indigo-100/50 w-full"></div>
-            <div className="flex gap-3 items-start">
-              <Zap size={16} className="text-amber-500 shrink-0 mt-0.5" />
-              <p className="text-xs font-semibold text-slate-600 italic">"{insight.wellnessTip}"</p>
+      {/* Timer Widget */}
+      <div className="animate-slide-up">
+        <TimerWidget logs={logs} targetDate={targetDate} onEdit={() => setShowTimerModal(true)} t={t} />
+      </div>
+
+      {/* Stats Grid using StatCard */}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <StatCard label={t.totalEntries} value={stats.total} icon={<Activity />} delay="delay-100" />
+        <StatCard label={t.avgDuration} value={stats.avgDuration} sub={t.min} icon={<Clock />} delay="delay-150" />
+        <div className="col-span-2 md:col-span-1">
+          <StatCard label={t.topPosition} value={getFavoritePosition()} icon={<Heart />} delay="delay-200" />
+        </div>
+      </div>
+
+      {/* AI Insights Card */}
+      <div className="animate-slide-up delay-300">
+        <Card className="bg-gradient-to-br from-brand-50/50 via-white to-white">
+          <div className="flex justify-between items-start mb-3">
+            <div className="flex items-center gap-2 text-brand-700 font-semibold text-sm">
+              <Sparkles className="w-4 h-4" />
+              <h3>{t.aiTitle}</h3>
             </div>
           </div>
-        ) : (
-          <div className="text-center py-6">
-            <p className="text-slate-500 text-xs mb-3 max-w-[200px] mx-auto leading-relaxed">
-              {t.aiDesc}
-            </p>
+          {insight ? (
+            <div className="space-y-3">
+              <p className="text-slate-600 text-sm leading-relaxed">{insight.summary}</p>
+              <div className="flex gap-3 items-start">
+                <Zap size={16} className="text-amber-500 shrink-0 mt-0.5" />
+                <p className="text-xs font-semibold text-slate-600 italic">"{insight.wellnessTip}"</p>
+              </div>
+            </div>
+          ) : (
+            <p className="text-slate-500 text-sm leading-relaxed">{t.aiDesc}</p>
+          )}
+          <div className="flex justify-end mt-4">
+            <button onClick={handleGenerateInsight} disabled={loadingInsight} className="text-xs flex items-center gap-1 text-slate-400 hover:text-brand-600 font-medium transition-colors active:scale-95">
+              {loadingInsight ? t.analyzing : t.updateAnalysis} <ArrowRight className="w-3 h-3" />
+            </button>
           </div>
-        )}
+        </Card>
       </div>
-    </div>
 
-    {/* Charts Section */}
-    <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
-      <div className="flex items-center gap-2 mb-6">
-        <TrendingUp size={18} className="text-indigo-600" />
-        <h3 className="text-sm font-bold text-slate-800">{t.chartsTitle}</h3>
+      {/* Analytics Section */}
+      <div className="space-y-5 pt-6 animate-slide-up delay-300">
+        <div className="flex items-center gap-2 px-1">
+          <TrendingUp className="w-4 h-4 text-brand-400" />
+          <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Analytics</h2>
+        </div>
+        <StatsChart data={logs} />
       </div>
-      <StatsChart data={logs} />
+
+      {/* Timer Modal */}
+      {showTimerModal && (
+        <TargetDateModal currentDate={targetDate} onSave={setTargetDate} onClose={() => setShowTimerModal(false)} t={t} />
+      )}
     </div>
-  </div>
-);
+  );
+};
+
 
 const HistoryView = ({
   logs,
@@ -165,33 +336,47 @@ const HistoryView = ({
 
   const formatTime = (dateStr: string) => {
     const date = new Date(dateStr);
-    return date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+    return date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
   };
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
-    return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+    return date.toLocaleDateString(undefined, { month: 'numeric', day: 'numeric', weekday: 'long' });
+  };
+
+  const formatShortDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    return `${date.getMonth() + 1}月${date.getDate()}日`;
+  };
+
+  const getLogIcon = (log: SessionLog) => {
+    if (log.type === ActivityType.SOLO) return <Zap className="w-6 h-6" />;
+    if (log.partnerName) return <Heart className="w-6 h-6" />;
+    return <Activity className="w-6 h-6" />;
+  };
+
+  const getLogColor = (log: SessionLog) => {
+    if (log.type === ActivityType.SOLO) return 'text-amber-500 bg-amber-50';
+    if (log.partnerName) return 'text-brand-500 bg-brand-50';
+    return 'text-indigo-500 bg-indigo-50';
   };
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6 animate-slide-up pb-24">
-      <div className="flex justify-between items-end mb-4">
-        <h2 className="text-3xl font-bold text-slate-800 font-serif flex items-center gap-3">
-          {t.history}
-        </h2>
-        <span className="text-slate-400 font-medium text-xs uppercase tracking-wide">{logs.length} {t.entries}</span>
-      </div>
+    <div className="space-y-6 animate-fade-in pb-40 px-1">
+      {/* Header */}
+      <header className="flex justify-between items-center py-4 px-1 animate-slide-up relative z-30">
+        <h1 className="text-2xl font-semibold text-slate-900 tracking-tight">History</h1>
+      </header>
 
       {logs.length === 0 ? (
-        <div className="text-slate-400 text-center py-20 bg-white rounded-xl border border-slate-200 border-dashed">
+        <div className="text-slate-400 text-center py-20 bg-white rounded-[24px] border border-slate-100 border-dashed">
           <div className="bg-slate-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
             <Calendar size={24} className="text-slate-300" />
           </div>
           <p className="text-base font-medium text-slate-600">{t.noLogs}</p>
-          <p className="text-sm">{t.startTracking}</p>
           <button
             onClick={onCreateFirst}
-            className="mt-6 text-indigo-600 font-bold hover:text-indigo-700 text-sm"
+            className="mt-6 text-brand-600 font-bold hover:text-brand-700 text-sm"
           >
             {t.createFirst} &rarr;
           </button>
@@ -202,64 +387,28 @@ const HistoryView = ({
             <div
               key={log.id}
               onClick={() => setSelectedLog(log)}
-              className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-200 transition-all group cursor-pointer"
+              className="bg-white p-4 rounded-[20px] shadow-subtle border border-slate-100 hover:shadow-elevation hover:border-brand-100 transition-all cursor-pointer flex items-center gap-4 group"
             >
-              <div className="flex justify-between items-start">
-                <div className="flex items-start gap-4">
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-lg font-bold ${log.type === ActivityType.SOLO ? 'bg-indigo-50 text-indigo-600' : 'bg-slate-100 text-slate-600'}`}>
-                    {log.type === ActivityType.SOLO ? 'S' : 'P'}
-                  </div>
-                  <div>
-                    <div className="text-slate-800 text-base font-bold font-serif">
-                      {log.type === ActivityType.SOLO ? t.activity[ActivityType.SOLO] : `${log.partnerName || t.activity[ActivityType.PARTNER]}`}
-                    </div>
-                    <div className="text-slate-400 text-xs font-medium mt-1 flex items-center gap-2 flex-wrap">
-                      <span className="flex items-center gap-1">
-                        <Calendar size={10} />
-                        {formatDate(log.date)}
-                      </span>
-                      <span className="w-1 h-1 rounded-full bg-slate-300"></span>
-                      <span className="flex items-center gap-1">
-                        <Clock size={10} />
-                        {formatTime(log.date)}
-                      </span>
-                      <span className="w-1 h-1 rounded-full bg-slate-300"></span>
-                      <span>{log.durationMinutes} {t.min}</span>
-                    </div>
-                  </div>
+              {/* Icon Container */}
+              <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 ${getLogColor(log)} transition-transform group-hover:scale-105`}>
+                {getLogIcon(log)}
+              </div>
+
+              {/* Content */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-baseline gap-2 mb-1">
+                  <span className="text-lg font-bold text-slate-800 tracking-tight">{formatShortDate(log.date)}</span>
+                  <span className="text-sm font-medium text-slate-400">at {formatTime(log.date)}</span>
                 </div>
-                <div className="flex flex-col items-end gap-2">
-                  <div className="flex gap-0.5">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} size={12} className={i < log.rating ? "text-indigo-400 fill-indigo-400" : "text-slate-200"} />
-                    ))}
-                  </div>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider bg-slate-50 px-2 py-0.5 rounded">
-                    {t.mood[log.mood]}
-                  </span>
+                <div className="flex items-center gap-2 text-sm text-slate-500 font-medium">
+                  <span className="text-slate-700">{t.mood[log.mood]}</span>
+                  <span className="w-1 h-1 rounded-full bg-slate-300"></span>
+                  <span>{log.durationMinutes} {t.min}</span>
                 </div>
               </div>
 
-              <div className="mt-4 pt-3 border-t border-slate-50 flex flex-wrap gap-2">
-                <div className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-slate-500 bg-slate-50 px-2 py-1 rounded border border-slate-100">
-                  <MapPin size={10} /> {t.location[log.location]}
-                </div>
-                {log.positions.slice(0, 2).map(p => (
-                  <span key={p} className="text-[10px] font-bold uppercase tracking-wider bg-indigo-50 text-indigo-600 px-2 py-1 rounded border border-indigo-100">{t.position[p]}</span>
-                ))}
-                {log.positions.length > 2 && (
-                  <span className="text-[10px] font-bold uppercase tracking-wider bg-slate-50 text-slate-500 px-2 py-1 rounded border border-slate-100">+{log.positions.length - 2}</span>
-                )}
-                {log.orgasmReached && (
-                  <span className="text-[10px] font-bold uppercase tracking-wider bg-pink-50 text-pink-600 px-2 py-1 rounded border border-pink-100 flex items-center gap-1">
-                    <Heart size={10} fill="currentColor" /> {t.climaxReached}
-                  </span>
-                )}
-              </div>
-
-              {log.notes && (
-                <p className="mt-3 text-xs text-slate-400 italic truncate">"{log.notes}"</p>
-              )}
+              {/* Arrow */}
+              <ChevronRight className="w-5 h-5 text-slate-300 group-hover:text-slate-400 group-hover:translate-x-1 transition-all" />
             </div>
           ))}
         </div>
@@ -268,130 +417,84 @@ const HistoryView = ({
       {/* Detail Modal */}
       {selectedLog && (
         <div
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in"
           onClick={() => setSelectedLog(null)}
         >
           <div
-            className="bg-white rounded-2xl max-w-lg w-full max-h-[85vh] overflow-y-auto shadow-2xl animate-slide-up"
+            className="bg-white rounded-[32px] w-full max-w-[360px] shadow-2xl animate-modal-slide-up relative overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Header */}
-            <div className="bg-gradient-to-r from-indigo-500 to-pink-500 p-6 rounded-t-2xl text-white relative">
-              <button
-                onClick={() => setSelectedLog(null)}
-                className="absolute top-4 right-4 bg-white/20 hover:bg-white/30 p-2 rounded-full transition-colors"
+            {/* Close Button */}
+            <button
+              onClick={() => setSelectedLog(null)}
+              className="absolute top-4 right-4 bg-slate-50 hover:bg-slate-100 p-2 rounded-full transition-colors active:scale-90 z-10"
+            >
+              <X size={18} className="text-slate-500" />
+            </button>
+
+            <div className="pt-10 pb-8 px-6 text-center">
+              {/* Header Icon */}
+              <div
+                className={`w-16 h-16 rounded-[20px] flex items-center justify-center mx-auto mb-4 bg-white shadow-elevation border border-slate-100 ${getLogColor(selectedLog).replace('bg-', 'text-').replace('text-', 'text-')} animate-slide-up delay-100 opacity-0`}
+                style={{ animationFillMode: 'forwards' }}
               >
-                <X size={16} />
-              </button>
-              <div className="flex items-center gap-4">
-                <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center text-2xl font-bold">
-                  {selectedLog.type === ActivityType.SOLO ? 'S' : 'P'}
+                {getLogIcon(selectedLog)}
+              </div>
+
+              {/* Title & Date */}
+              <h2 className="text-2xl font-bold text-slate-900 mb-1 font-serif tracking-tight">
+                {selectedLog.type === ActivityType.SOLO ? 'Solo' : 'Partner'}
+              </h2>
+              <p className="text-sm font-medium text-slate-500 mb-8">
+                {formatDate(selectedLog.date)}
+              </p>
+
+              {/* Stats Grid */}
+              <div className="grid grid-cols-3 divide-x divide-slate-100 border-y border-slate-100 py-6 mb-8 animate-slide-up delay-200 opacity-0" style={{ animationFillMode: 'forwards' }}>
+                <div>
+                  <div className="text-xl font-bold text-slate-900 tracking-tight">{selectedLog.durationMinutes}m</div>
+                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1">Duration</div>
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold font-serif">
-                    {selectedLog.type === ActivityType.SOLO ? t.activity[ActivityType.SOLO] : `${selectedLog.partnerName || t.activity[ActivityType.PARTNER]}`}
-                  </h3>
-                  <p className="text-white/80 text-sm mt-1">
-                    {formatDate(selectedLog.date)} • {formatTime(selectedLog.date)}
-                  </p>
+                  <div className="text-lg font-bold text-slate-900 tracking-tight truncate px-1">{t.mood[selectedLog.mood]}</div>
+                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1">Vibe</div>
+                </div>
+                <div>
+                  <div className="text-xl font-bold text-slate-900 tracking-tight">{selectedLog.rating}/5</div>
+                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1">Rating</div>
                 </div>
               </div>
-            </div>
 
-            {/* Content */}
-            <div className="p-6 space-y-6">
-              {/* Stats Row */}
-              <div className="grid grid-cols-3 gap-3">
-                <div className="bg-slate-50 p-3 rounded-xl text-center">
-                  <Clock size={16} className="text-indigo-500 mx-auto mb-1" />
-                  <span className="text-lg font-bold text-slate-800">{selectedLog.durationMinutes}</span>
-                  <span className="text-[10px] text-slate-400 uppercase tracking-wider block">{t.min}</span>
+              {/* Info Sections */}
+              <div className="space-y-4 text-left animate-slide-up delay-300 opacity-0" style={{ animationFillMode: 'forwards' }}>
+                {/* Location */}
+                <div className="bg-slate-50 rounded-[20px] p-4 flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-slate-400 shadow-sm">
+                    <MapPin size={18} />
+                  </div>
+                  <div>
+                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Location</div>
+                    <div className="text-sm font-bold text-slate-800">{t.location[selectedLog.location]}</div>
+                  </div>
                 </div>
-                <div className="bg-slate-50 p-3 rounded-xl text-center">
-                  <Smile size={16} className="text-indigo-500 mx-auto mb-1" />
-                  <span className="text-sm font-bold text-slate-800">{t.mood[selectedLog.mood]}</span>
-                  <span className="text-[10px] text-slate-400 uppercase tracking-wider block">{t.theVibe}</span>
-                </div>
-                <div className="bg-slate-50 p-3 rounded-xl text-center">
-                  <div className="flex justify-center gap-0.5 mb-1">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} size={10} className={i < selectedLog.rating ? "text-indigo-400 fill-indigo-400" : "text-slate-200"} />
+
+                {/* Positions */}
+                <div>
+                  <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3 px-1">{t.positions}</h4>
+                  <div className="grid grid-cols-3 gap-3">
+                    {selectedLog.positions.map(p => (
+                      <div key={p} className="flex flex-col items-center justify-center p-3 rounded-2xl bg-slate-50 border border-slate-100/50">
+                        <div className="w-12 h-12 mb-2">
+                          <PositionIcon position={p} className="w-full h-full" />
+                        </div>
+                        <span className="text-[10px] font-bold text-slate-600 text-center leading-tight">
+                          {t.position[p]}
+                        </span>
+                      </div>
                     ))}
                   </div>
-                  <span className="text-lg font-bold text-slate-800">{selectedLog.rating}/5</span>
-                  <span className="text-[10px] text-slate-400 uppercase tracking-wider block">{t.satisfaction}</span>
                 </div>
               </div>
-
-              {/* Location & Positions with Animations */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Left: Text Info */}
-                <div className="space-y-4">
-                  {/* Location */}
-                  <div>
-                    <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">{t.where}</h4>
-                    <div className="flex items-center gap-2 text-slate-700">
-                      <MapPin size={16} className="text-indigo-500" />
-                      <span className="font-medium">{t.location[selectedLog.location]}</span>
-                    </div>
-                  </div>
-
-                  {/* Positions */}
-                  <div>
-                    <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">{t.positions}</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {selectedLog.positions.map(p => (
-                        <span key={p} className="text-xs font-bold bg-indigo-50 text-indigo-600 px-3 py-1.5 rounded-full border border-indigo-100">{t.position[p]}</span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Right: Position Animations */}
-                <div className="flex flex-wrap gap-3 justify-center md:justify-end items-start">
-                  {selectedLog.positions.map(p => (
-                    <div key={p} className="flex flex-col items-center gap-1">
-                      <PositionIcon position={p} className="w-16 h-16" />
-                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider text-center">{t.position[p]}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Tags */}
-              {selectedLog.tags && selectedLog.tags.length > 0 && (
-                <div>
-                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">{t.highlights}</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedLog.tags.map(tagId => {
-                      const label = t.tags[tagId as keyof typeof t.tags] || tagId;
-                      return (
-                        <span key={tagId} className="text-xs font-bold bg-pink-50 text-pink-600 px-3 py-1.5 rounded-full border border-pink-100">
-                          {label}
-                        </span>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-
-              {/* Orgasm Status */}
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${selectedLog.orgasmReached ? 'bg-pink-100 text-pink-600' : 'bg-slate-200 text-slate-400'}`}>
-                  <Heart size={18} fill={selectedLog.orgasmReached ? "currentColor" : "none"} />
-                </div>
-                <span className="font-medium text-slate-700">
-                  {selectedLog.orgasmReached ? t.climaxReached : t.noClimax}
-                </span>
-              </div>
-
-              {/* Notes */}
-              {selectedLog.notes && (
-                <div>
-                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">{t.notes}</h4>
-                  <p className="text-slate-600 text-sm bg-slate-50 p-4 rounded-xl italic">"{selectedLog.notes}"</p>
-                </div>
-              )}
             </div>
           </div>
         </div>
@@ -409,12 +512,21 @@ const LogView = ({
   onSave: (log: SessionLog) => void;
   onCancel: () => void;
 }) => (
-  <div className="max-w-2xl mx-auto">
-    <div className="flex items-center gap-4 mb-6 animate-fade-in">
-      <h2 className="text-3xl font-bold text-slate-800 font-serif">{t.newEntryTitle}</h2>
+  <div className="pb-32 animate-slide-up px-1">
+    <div className="py-4 px-1 mb-2">
+      <h1 className="text-2xl font-semibold text-slate-900 tracking-tight">{t.newEntryTitle}</h1>
     </div>
     <LogEntryForm onSave={onSave} onCancel={onCancel} />
   </div>
+);
+
+const GoogleSVG = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
+    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+  </svg>
 );
 
 const AuthPage = ({ mode }: { mode: 'login' | 'register' }) => {
@@ -458,6 +570,8 @@ const AuthPage = ({ mode }: { mode: 'login' | 'register' }) => {
     });
   }, [googleClientId, loginWithGoogle, navigate, from]);
 
+
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const action = mode === 'login' ? login : register;
@@ -471,66 +585,91 @@ const AuthPage = ({ mode }: { mode: 'login' | 'register' }) => {
   };
 
   return (
-    <div className="max-w-md mx-auto bg-white border border-slate-200 rounded-2xl p-8 shadow-sm">
-      <h2 className="text-2xl font-serif font-bold text-slate-800 mb-3">
-        {mode === 'login' ? '登录' : '注册'}
-      </h2>
-      <p className="text-slate-500 text-sm mb-6">
-        仅支持用户名和密码，暂无邮箱验证。
-      </p>
-      {googleClientId && (
-        <div className="mb-4">
-          <div ref={googleBtnRef} className="flex justify-center"></div>
-          <div className="text-center text-xs text-slate-400 mt-3">或使用用户名密码</div>
-        </div>
-      )}
-      <form className="space-y-4" onSubmit={handleSubmit}>
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">用户名</label>
-          <input
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            className="w-full border border-slate-200 rounded-lg px-3 py-2 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none"
-            placeholder="输入用户名"
-            required
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">密码</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full border border-slate-200 rounded-lg px-3 py-2 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none"
-            placeholder="至少 6 位"
-            minLength={6}
-            required
-          />
-        </div>
-        {message && <div className="text-sm text-indigo-500">{message}</div>}
-        <button
-          type="submit"
-          className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 rounded-lg font-bold transition-colors"
-        >
+    <div className="space-y-6 animate-fade-in pt-4 px-1 pb-40 max-w-lg mx-auto">
+      <div className="py-4 px-1">
+        <h1 className="text-2xl font-semibold text-slate-900 tracking-tight">IntimDiary.</h1>
+      </div>
+      <div className="bg-white rounded-[24px] p-8 shadow-subtle border border-slate-100">
+        <h2 className="text-xl font-semibold text-slate-900 mb-2">
           {mode === 'login' ? '登录' : '注册'}
-        </button>
-      </form>
-      <div className="mt-4 text-sm text-slate-500">
-        {mode === 'login' ? (
-          <>
-            没有账号？{' '}
-            <Link to="/auth/register" className="text-indigo-600 font-bold hover:text-indigo-700">
-              去注册
-            </Link>
-          </>
-        ) : (
-          <>
-            已有账号？{' '}
-            <Link to="/auth/login" className="text-indigo-600 font-bold hover:text-indigo-700">
-              去登录
-            </Link>
-          </>
+        </h2>
+        <p className="text-slate-400 text-sm mb-6">
+          仅支持用户名和密码，暂无邮箱验证。
+        </p>
+
+        {googleClientId && (
+          <div className="mb-6">
+            <div className="relative w-full h-[48px] rounded-xl overflow-hidden group hover:border-slate-300 transition-colors">
+              {/* Custom Visual Button */}
+              <div className="absolute inset-0 w-full h-full bg-white border border-slate-200 rounded-xl flex items-center justify-center gap-3 shadow-sm pointer-events-none group-hover:bg-slate-50 transition-colors">
+                <GoogleSVG />
+                <span className="text-sm font-bold text-slate-700">通过 Google 继续</span>
+              </div>
+
+              {/* Functional Invisible Overlay */}
+              <div
+                ref={googleBtnRef}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                style={{ transform: 'scale(1.05)' }} // Slight scale to ensure edge clicks are caught
+              ></div>
+            </div>
+
+            <div className="flex items-center gap-4 my-6">
+              <div className="h-px bg-slate-100 flex-1"></div>
+              <div className="text-xs font-bold text-slate-300 uppercase tracking-wider">OR</div>
+              <div className="h-px bg-slate-100 flex-1"></div>
+            </div>
+          </div>
         )}
+
+        <form className="space-y-4" onSubmit={handleSubmit}>
+          <div>
+            <label className="block text-[10px] font-bold text-slate-400 mb-2 uppercase tracking-wider">用户名</label>
+            <input
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="w-full bg-slate-50 border border-transparent hover:border-slate-200 rounded-xl p-3 text-slate-800 font-medium focus:bg-white focus:border-brand-500 outline-none transition-all"
+              placeholder="输入用户名"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-[10px] font-bold text-slate-400 mb-2 uppercase tracking-wider">密码</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full bg-slate-50 border border-transparent hover:border-slate-200 rounded-xl p-3 text-slate-800 font-medium focus:bg-white focus:border-brand-500 outline-none transition-all"
+              placeholder="至少 6 位"
+              minLength={6}
+              required
+            />
+          </div>
+          {message && <div className="text-sm text-brand-500 font-medium">{message}</div>}
+          <button
+            type="submit"
+            className="w-full py-3 bg-slate-900 text-white rounded-xl font-semibold hover:bg-slate-800 transition-all shadow-lg shadow-slate-900/10 active:scale-[0.98]"
+          >
+            {mode === 'login' ? '登录' : '注册'}
+          </button>
+        </form>
+        <div className="mt-6 text-sm text-slate-500 text-center">
+          {mode === 'login' ? (
+            <>
+              没有账号？{' '}
+              <Link to="/auth/register" className="text-brand-600 font-semibold hover:text-brand-700">
+                去注册
+              </Link>
+            </>
+          ) : (
+            <>
+              已有账号？{' '}
+              <Link to="/auth/login" className="text-brand-600 font-semibold hover:text-brand-700">
+                去登录
+              </Link>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -551,6 +690,7 @@ const AppShell = () => {
   const [insight, setInsight] = useState<AnalysisResponse | null>(null);
   const [loadingInsight, setLoadingInsight] = useState(false);
   const [loadingLogs, setLoadingLogs] = useState(false);
+  const [targetDate, setTargetDate] = useState<string | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuth();
@@ -616,41 +756,8 @@ const AppShell = () => {
   const current = activeNav(location.pathname);
 
   return (
-    <div className="min-h-screen bg-slate-50 bg-noise text-slate-900 selection:bg-indigo-100 selection:text-indigo-900 pb-20">
-      <header className="bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-50">
-        <div className="max-w-2xl mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-indigo-600 rounded-xl flex items-center justify-center shadow-md shadow-indigo-200">
-              <Activity size={16} className="text-white" />
-            </div>
-            <h1 className="text-xl font-serif font-bold text-slate-800 tracking-tight">
-              {t.appTitle}
-            </h1>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setLanguage(language === 'en' ? 'zh' : 'en')}
-              className="flex items-center gap-1 text-xs font-bold text-slate-500 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-full border border-slate-200 transition-colors"
-            >
-              <Globe size={12} /> {language === 'en' ? 'EN' : '中文'}
-            </button>
-            {user && (
-              <div className="flex items-center gap-2 bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-full border border-indigo-100">
-                <span className="text-xs font-semibold">@{user.displayName || user.username}</span>
-                <button
-                  onClick={handleLogout}
-                  className="text-xs font-bold hover:text-indigo-900"
-                >
-                  退出
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      </header>
-
-      <main className="max-w-5xl mx-auto px-4 py-8">
+    <div className="min-h-screen bg-[#fafafa] text-slate-900 selection:bg-brand-100 selection:text-brand-900 pb-32">
+      <main className="max-w-lg mx-auto px-5 pt-6 pb-8 no-scrollbar h-full overflow-y-auto">
         <Routes>
           <Route path="/auth/login" element={<AuthPage mode="login" />} />
           <Route path="/auth/register" element={<AuthPage mode="register" />} />
@@ -668,6 +775,12 @@ const AppShell = () => {
                   insight={insight}
                   onLogClick={() => navigate('/log')}
                   onHistoryClick={() => navigate('/history')}
+                  targetDate={targetDate}
+                  setTargetDate={setTargetDate}
+                  user={user}
+                  onLogout={handleLogout}
+                  language={language}
+                  setLanguage={setLanguage}
                 />
               }
             />
@@ -683,30 +796,7 @@ const AppShell = () => {
         </Routes>
       </main>
 
-      {user && (
-        <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-xl border border-slate-200 rounded-full px-2 py-2 shadow-2xl shadow-slate-300/50 flex items-center gap-2 z-50">
-          <Link
-            to="/"
-            className={`p-3 rounded-full transition-all ${current === 'dashboard' ? 'bg-indigo-50 text-indigo-600' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'}`}
-          >
-            <Activity size={20} />
-          </Link>
-
-          <Link
-            to="/log"
-            className="bg-indigo-600 hover:bg-indigo-700 text-white p-3.5 rounded-full shadow-lg shadow-indigo-200 transition-transform hover:scale-105 active:scale-95 mx-2"
-          >
-            <Plus size={22} />
-          </Link>
-
-          <Link
-            to="/history"
-            className={`p-3 rounded-full transition-all ${current === 'history' ? 'bg-indigo-50 text-indigo-600' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'}`}
-          >
-            <History size={20} />
-          </Link>
-        </nav>
-      )}
+      {user && <BottomNav />}
     </div>
   );
 };
