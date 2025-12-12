@@ -5,7 +5,7 @@ import { LogEntryForm } from './components/LogEntryForm';
 import { StatsChart } from './components/StatsChart';
 import { PositionIcon } from './components/PositionIcons';
 import { generateInsights } from './services/geminiService';
-import { fetchLogs, saveLog } from './services/logsService';
+import { fetchLogs, saveLog, deleteLog } from './services/logsService';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { BottomNav } from './components/BottomNav';
@@ -30,7 +30,8 @@ import {
   Timer,
   CalendarClock,
   ArrowRight,
-  ChevronRight
+  ChevronRight,
+  Trash2
 } from 'lucide-react';
 
 type NavTarget = 'dashboard' | 'log' | 'history';
@@ -91,7 +92,7 @@ const StatCard: React.FC<{ label: string; value: string | number; sub?: string; 
         {sub && <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 bg-slate-50 px-2 py-1 rounded-full">{sub}</div>}
       </div>
       <div className="mt-2">
-        <div className="text-3xl font-medium text-slate-800 tracking-tight mb-0.5">
+        <div className={`font-medium text-slate-800 tracking-tight mb-0.5 truncate ${isNumber ? 'text-3xl' : 'text-xl'}`}>
           {isNumber ? <CountUp end={value as number} /> : value}
         </div>
         <div className="text-slate-500 text-xs font-medium">{label}</div>
@@ -107,48 +108,131 @@ const TimerWidget: React.FC<{
   t: ReturnType<typeof useLanguage>['t'];
 }> = ({ logs, targetDate, onEdit, t }) => {
   const [now, setNow] = useState(Date.now());
+
+  // Update every second if countdown active, otherwise every minute
   useEffect(() => {
-    const interval = setInterval(() => setNow(Date.now()), 60000);
+    const interval = setInterval(() => setNow(Date.now()), targetDate ? 1000 : 60000);
     return () => clearInterval(interval);
-  }, []);
+  }, [targetDate]);
 
   const displayData = useMemo(() => {
+    // COUNTDOWN MODE: show days, hours, minutes, seconds
     if (targetDate) {
       const target = new Date(targetDate).getTime();
       const diff = target - now;
+
       if (diff > 0) {
         const days = Math.floor(diff / (1000 * 60 * 60 * 24));
         const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        return { label: t.countdown || 'Countdown', mainValue: days, unit: t.days || 'Days', subValue: `${hours}h`, icon: <CalendarClock className="w-5 h-5" />, accentClass: 'text-brand-500 bg-brand-50 border-brand-100' };
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+        return {
+          mode: 'countdown' as const,
+          label: t.countdown || 'Countdown',
+          days,
+          hours,
+          minutes,
+          seconds,
+          icon: <CalendarClock className="w-5 h-5" />,
+          accentClass: 'text-brand-500 bg-brand-50 border-brand-100'
+        };
       }
-      return { label: t.happeningNow || 'Now', mainValue: 0, unit: t.days || 'Days', subValue: t.timeUp || "Time's up", icon: <Sparkles className="w-5 h-5" />, accentClass: 'text-amber-500 bg-amber-50 border-amber-100' };
+
+      // Time's up
+      return {
+        mode: 'timesup' as const,
+        label: t.happeningNow || 'Now',
+        days: 0,
+        hours: 0,
+        minutes: 0,
+        seconds: 0,
+        icon: <Sparkles className="w-5 h-5" />,
+        accentClass: 'text-amber-500 bg-amber-50 border-amber-100'
+      };
     }
+
+    // LAST SESSION MODE: show only days
     const latestLog = [...logs].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
     if (latestLog) {
       const last = new Date(latestLog.date).getTime();
       const diff = now - last;
       const days = diff < 0 ? 0 : Math.floor(diff / (1000 * 60 * 60 * 24));
-      return { label: t.lastSession || 'Last Session', mainValue: days, unit: t.days || 'Days', subValue: days === 0 ? t.today || 'Today' : t.ago || 'Ago', icon: <Timer className="w-5 h-5" />, accentClass: 'text-brand-500 bg-brand-50 border-brand-100' };
+
+      return {
+        mode: 'lastSession' as const,
+        label: t.lastSession || 'Last Session',
+        days,
+        subText: days === 0 ? (t.today || 'Today') : '',
+        icon: <Timer className="w-5 h-5" />,
+        accentClass: 'text-brand-500 bg-brand-50 border-brand-100'
+      };
     }
-    return { label: t.welcome || 'Welcome', mainValue: '-', unit: '', subValue: t.tapToStart || 'Tap to start', icon: <Activity className="w-5 h-5" />, accentClass: 'text-slate-400 bg-slate-50 border-slate-100' };
+
+    // NO DATA
+    return {
+      mode: 'empty' as const,
+      label: t.welcome || 'Welcome',
+      subText: t.tapToStart || 'Tap to set timer',
+      icon: <Activity className="w-5 h-5" />,
+      accentClass: 'text-slate-400 bg-slate-50 border-slate-100'
+    };
   }, [logs, targetDate, now, t]);
 
   return (
     <div onClick={onEdit} className="relative w-full rounded-[28px] p-6 mb-6 cursor-pointer group transition-all duration-300 bg-white border border-slate-100 shadow-elevation hover:border-brand-200 active:scale-[0.98]">
       <div className="flex items-center justify-between">
         <div className="flex flex-col">
-          <span className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-1">{displayData.label}</span>
-          <div className="flex items-baseline gap-2 text-slate-900">
-            <span className="text-5xl font-light tracking-tighter">
-              {typeof displayData.mainValue === 'number' ? <CountUp end={displayData.mainValue} /> : displayData.mainValue}
-            </span>
-            <span className="text-lg font-normal text-slate-500">{displayData.unit}</span>
-          </div>
-          <div className="text-sm font-medium text-slate-400 mt-1 flex items-center gap-2">
-            <span className={`w-2 h-2 rounded-full ${displayData.accentClass.split(' ')[0].replace('text', 'bg')}`}></span>
-            {displayData.subValue}
-          </div>
+          <span className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">{displayData.label}</span>
+
+          {displayData.mode === 'countdown' || displayData.mode === 'timesup' ? (
+            // Countdown display: D H M S
+            <div className="flex items-baseline gap-3 text-slate-900">
+              <div className="text-center">
+                <span className="text-4xl font-light tracking-tighter">{displayData.days}</span>
+                <span className="text-xs text-slate-400 ml-1">{t.days || 'd'}</span>
+              </div>
+              <span className="text-slate-300">:</span>
+              <div className="text-center">
+                <span className="text-4xl font-light tracking-tighter">{String(displayData.hours).padStart(2, '0')}</span>
+                <span className="text-xs text-slate-400 ml-1">h</span>
+              </div>
+              <span className="text-slate-300">:</span>
+              <div className="text-center">
+                <span className="text-4xl font-light tracking-tighter">{String(displayData.minutes).padStart(2, '0')}</span>
+                <span className="text-xs text-slate-400 ml-1">m</span>
+              </div>
+              <span className="text-slate-300">:</span>
+              <div className="text-center">
+                <span className="text-4xl font-light tracking-tighter">{String(displayData.seconds).padStart(2, '0')}</span>
+                <span className="text-xs text-slate-400 ml-1">s</span>
+              </div>
+            </div>
+          ) : displayData.mode === 'lastSession' ? (
+            // Last session: only days
+            <div className="flex items-baseline gap-2 text-slate-900">
+              <span className="text-5xl font-light tracking-tighter">
+                <CountUp end={displayData.days} />
+              </span>
+              <span className="text-lg font-normal text-slate-500">{t.days || 'Days'}</span>
+            </div>
+          ) : (
+            // Empty state
+            <div className="text-lg text-slate-400">{displayData.subText}</div>
+          )}
+
+          {displayData.mode === 'lastSession' && displayData.subText && (
+            <div className="text-sm font-medium text-slate-400 mt-1 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-brand-500"></span>
+              {displayData.subText}
+            </div>
+          )}
+
+          {displayData.mode === 'timesup' && (
+            <div className="text-sm font-medium text-amber-500 mt-1">{t.timeUp || "Time's up!"}</div>
+          )}
         </div>
+
         <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110 ${displayData.accentClass}`}>
           {displayData.icon}
         </div>
@@ -326,13 +410,28 @@ const DashboardView = ({
 const HistoryView = ({
   logs,
   t,
-  onCreateFirst
+  onCreateFirst,
+  onDeleteLog
 }: {
   logs: SessionLog[];
   t: ReturnType<typeof useLanguage>['t'];
   onCreateFirst: () => void;
+  onDeleteLog: (logId: string) => Promise<boolean>;
 }) => {
   const [selectedLog, setSelectedLog] = useState<SessionLog | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDelete = async () => {
+    if (!selectedLog) return;
+    setIsDeleting(true);
+    const success = await onDeleteLog(selectedLog.id);
+    setIsDeleting(false);
+    if (success) {
+      setSelectedLog(null);
+      setShowDeleteConfirm(false);
+    }
+  };
 
   const formatTime = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -421,9 +520,18 @@ const HistoryView = ({
           onClick={() => setSelectedLog(null)}
         >
           <div
-            className="bg-white rounded-[32px] w-full max-w-[360px] shadow-2xl animate-modal-slide-up relative overflow-hidden"
+            className="bg-white rounded-[32px] w-full max-w-[360px] max-h-[85vh] shadow-2xl animate-modal-slide-up relative overflow-hidden flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
+            {/* Delete Button - small, in header */}
+            <button
+              onClick={() => setShowDeleteConfirm(true)}
+              className="absolute top-4 left-4 bg-slate-50 hover:bg-red-50 p-2 rounded-full transition-colors active:scale-90 z-10 group"
+              title={t.deleteEntry}
+            >
+              <Trash2 size={16} className="text-slate-400 group-hover:text-red-500 transition-colors" />
+            </button>
+
             {/* Close Button */}
             <button
               onClick={() => setSelectedLog(null)}
@@ -432,7 +540,7 @@ const HistoryView = ({
               <X size={18} className="text-slate-500" />
             </button>
 
-            <div className="pt-10 pb-8 px-6 text-center">
+            <div className="pt-10 pb-8 px-6 text-center overflow-y-auto flex-1">
               {/* Header Icon */}
               <div
                 className={`w-16 h-16 rounded-[20px] flex items-center justify-center mx-auto mb-4 bg-white shadow-elevation border border-slate-100 ${getLogColor(selectedLog).replace('bg-', 'text-').replace('text-', 'text-')} animate-slide-up delay-100 opacity-0`}
@@ -443,7 +551,7 @@ const HistoryView = ({
 
               {/* Title & Date */}
               <h2 className="text-2xl font-bold text-slate-900 mb-1 font-serif tracking-tight">
-                {selectedLog.type === ActivityType.SOLO ? 'Solo' : 'Partner'}
+                {selectedLog.type === ActivityType.SOLO ? t.solo : t.partner}
               </h2>
               <p className="text-sm font-medium text-slate-500 mb-8">
                 {formatDate(selectedLog.date)}
@@ -453,15 +561,15 @@ const HistoryView = ({
               <div className="grid grid-cols-3 divide-x divide-slate-100 border-y border-slate-100 py-6 mb-8 animate-slide-up delay-200 opacity-0" style={{ animationFillMode: 'forwards' }}>
                 <div>
                   <div className="text-xl font-bold text-slate-900 tracking-tight">{selectedLog.durationMinutes}m</div>
-                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1">Duration</div>
+                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1">{t.duration}</div>
                 </div>
                 <div>
                   <div className="text-lg font-bold text-slate-900 tracking-tight truncate px-1">{t.mood[selectedLog.mood]}</div>
-                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1">Vibe</div>
+                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1">{t.vibe}</div>
                 </div>
                 <div>
                   <div className="text-xl font-bold text-slate-900 tracking-tight">{selectedLog.rating}/5</div>
-                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1">Rating</div>
+                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1">{t.rating}</div>
                 </div>
               </div>
 
@@ -473,7 +581,7 @@ const HistoryView = ({
                     <MapPin size={18} />
                   </div>
                   <div>
-                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Location</div>
+                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">{t.locationLabel}</div>
                     <div className="text-sm font-bold text-slate-800">{t.location[selectedLog.location]}</div>
                   </div>
                 </div>
@@ -499,7 +607,40 @@ const HistoryView = ({
           </div>
         </div>
       )}
-    </div>
+
+      {/* Delete Confirmation Dialog */}
+      {showDeleteConfirm && (
+        <div
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4 animate-fade-in"
+          onClick={() => setShowDeleteConfirm(false)}
+        >
+          <div
+            className="bg-white rounded-[24px] w-full max-w-[320px] p-6 shadow-2xl animate-scale-in"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-lg font-bold text-slate-900 mb-2 text-center">{t.deleteConfirmTitle}</h3>
+            <p className="text-sm text-slate-500 mb-6 text-center">{t.deleteConfirmMessage}</p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                disabled={isDeleting}
+                className="flex-1 py-3 bg-slate-100 text-slate-600 rounded-xl font-semibold hover:bg-slate-200 transition-colors disabled:opacity-50"
+              >
+                {t.deleteNo}
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="flex-1 py-3 bg-red-500 text-white rounded-xl font-semibold hover:bg-red-600 transition-colors disabled:opacity-50"
+              >
+                {isDeleting ? t.deleting : t.deleteYes}
+              </button>
+            </div>
+          </div>
+        </div>
+      )
+      }
+    </div >
   );
 };
 
@@ -530,6 +671,7 @@ const GoogleSVG = () => (
 );
 
 const AuthPage = ({ mode }: { mode: 'login' | 'register' }) => {
+  const { t } = useLanguage();
   const { login, register, loginWithGoogle } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -537,37 +679,64 @@ const AuthPage = ({ mode }: { mode: 'login' | 'register' }) => {
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState<string | null>(null);
   const from = (location.state as { from?: string } | undefined)?.from || '/';
+  const [googleReady, setGoogleReady] = useState(false);
   const googleBtnRef = useRef<HTMLDivElement | null>(null);
   const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined;
 
   useEffect(() => {
-    if (!googleClientId || !googleBtnRef.current) return;
-    const w = window as any;
-    if (!w.google?.accounts?.id) return;
+    if (!googleClientId) return;
 
-    w.google.accounts.id.initialize({
-      client_id: googleClientId,
-      callback: async (resp: { credential?: string }) => {
-        if (!resp.credential) {
-          setMessage('Google 登录失败');
-          return;
-        }
-        const result = await loginWithGoogle(resp.credential);
-        if (!result.success) {
-          setMessage(result.message || 'Google 登录失败');
-          return;
-        }
-        setMessage(null);
-        navigate(from, { replace: true });
+    const initGoogle = () => {
+      const w = window as any;
+      if (!w.google?.accounts?.id || !googleBtnRef.current) return false;
+
+      w.google.accounts.id.initialize({
+        client_id: googleClientId,
+        callback: async (resp: { credential?: string }) => {
+          if (!resp.credential) {
+            setMessage('Google 登录失败');
+            return;
+          }
+          const result = await loginWithGoogle(resp.credential);
+          if (!result.success) {
+            setMessage(result.message || 'Google 登录失败');
+            return;
+          }
+          setMessage(null);
+          navigate(from, { replace: true });
+        },
+        // Use popup mode for better mobile support
+        ux_mode: 'popup',
+      });
+
+      // Render the Google SDK button. We keep it invisible and place our
+      // styled UI on top, while letting clicks go through to the SDK button.
+      w.google.accounts.id.renderButton(googleBtnRef.current, {
+        type: 'standard',
+        theme: 'outline',
+        size: 'large',
+        text: 'continue_with',
+        width: 400,
+      });
+
+      setGoogleReady(true);
+      return true;
+    };
+
+    // Try immediately
+    if (initGoogle()) return;
+
+    // Retry with interval until Google SDK loads
+    let attempts = 0;
+    const maxAttempts = 30;
+    const interval = setInterval(() => {
+      attempts++;
+      if (initGoogle() || attempts >= maxAttempts) {
+        clearInterval(interval);
       }
-    });
+    }, 200);
 
-    w.google.accounts.id.renderButton(googleBtnRef.current, {
-      theme: 'outline',
-      size: 'large',
-      text: 'continue_with',
-      width: '100%',
-    });
+    return () => clearInterval(interval);
   }, [googleClientId, loginWithGoogle, navigate, from]);
 
 
@@ -599,24 +768,27 @@ const AuthPage = ({ mode }: { mode: 'login' | 'register' }) => {
 
         {googleClientId && (
           <div className="mb-6">
-            <div className="relative w-full h-[48px] rounded-xl overflow-hidden group hover:border-slate-300 transition-colors">
-              {/* Custom Visual Button */}
-              <div className="absolute inset-0 w-full h-full bg-white border border-slate-200 rounded-xl flex items-center justify-center gap-3 shadow-sm pointer-events-none group-hover:bg-slate-50 transition-colors">
-                <GoogleSVG />
-                <span className="text-sm font-bold text-slate-700">通过 Google 继续</span>
+            {/* Google Login Button - Styled overlay with invisible SDK button underneath */}
+            <div className="w-full min-h-[48px] flex justify-center items-center">
+              <div className="relative w-full max-w-[400px] h-[48px] group">
+                {/* Invisible but clickable Google SDK button */}
+                <div
+                  ref={googleBtnRef}
+                  aria-hidden="true"
+                  className={`absolute inset-0 z-20 flex justify-center items-center opacity-0 ${!googleReady ? 'pointer-events-none' : ''} [&>div]:w-full [&>div>div]:w-full [&>div>div>div]:justify-center`}
+                />
+                {/* Visible custom UI (no pointer events so clicks reach SDK button) */}
+                <div className="absolute inset-0 z-10 pointer-events-none w-full h-full bg-white border border-slate-200 rounded-xl flex items-center justify-center gap-3 shadow-sm transition-colors group-hover:bg-slate-50">
+                  <GoogleSVG />
+                  <span className="text-sm font-bold text-slate-700">{t.continueWithGoogle}</span>
+                  {!googleReady && <span className="text-xs text-slate-400">{t.loadingGoogleBtn}</span>}
+                </div>
               </div>
-
-              {/* Functional Invisible Overlay */}
-              <div
-                ref={googleBtnRef}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                style={{ transform: 'scale(1.05)' }} // Slight scale to ensure edge clicks are caught
-              ></div>
             </div>
 
             <div className="flex items-center gap-4 my-6">
               <div className="h-px bg-slate-100 flex-1"></div>
-              <div className="text-xs font-bold text-slate-300 uppercase tracking-wider">OR</div>
+              <div className="text-xs font-bold text-slate-300 uppercase tracking-wider">{t.or}</div>
               <div className="h-px bg-slate-100 flex-1"></div>
             </div>
           </div>
@@ -624,23 +796,23 @@ const AuthPage = ({ mode }: { mode: 'login' | 'register' }) => {
 
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div>
-            <label className="block text-[10px] font-bold text-slate-400 mb-2 uppercase tracking-wider">用户名</label>
+            <label className="block text-[10px] font-bold text-slate-400 mb-2 uppercase tracking-wider">{t.username}</label>
             <input
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               className="w-full bg-slate-50 border border-transparent hover:border-slate-200 rounded-xl p-3 text-slate-800 font-medium focus:bg-white focus:border-brand-500 outline-none transition-all"
-              placeholder="输入用户名"
+              placeholder={t.enterUsername}
               required
             />
           </div>
           <div>
-            <label className="block text-[10px] font-bold text-slate-400 mb-2 uppercase tracking-wider">密码</label>
+            <label className="block text-[10px] font-bold text-slate-400 mb-2 uppercase tracking-wider">{t.password}</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full bg-slate-50 border border-transparent hover:border-slate-200 rounded-xl p-3 text-slate-800 font-medium focus:bg-white focus:border-brand-500 outline-none transition-all"
-              placeholder="至少 6 位"
+              placeholder={t.atLeast6Chars}
               minLength={6}
               required
             />
@@ -650,22 +822,22 @@ const AuthPage = ({ mode }: { mode: 'login' | 'register' }) => {
             type="submit"
             className="w-full py-3 bg-slate-900 text-white rounded-xl font-semibold hover:bg-slate-800 transition-all shadow-lg shadow-slate-900/10 active:scale-[0.98]"
           >
-            {mode === 'login' ? '登录' : '注册'}
+            {mode === 'login' ? t.loginTitle : t.registerTitle}
           </button>
         </form>
         <div className="mt-6 text-sm text-slate-500 text-center">
           {mode === 'login' ? (
             <>
-              没有账号？{' '}
+              {t.noAccountYet}{' '}
               <Link to="/auth/register" className="text-brand-600 font-semibold hover:text-brand-700">
-                去注册
+                {t.goRegister}
               </Link>
             </>
           ) : (
             <>
-              已有账号？{' '}
+              {t.alreadyHaveAccount}{' '}
               <Link to="/auth/login" className="text-brand-600 font-semibold hover:text-brand-700">
-                去登录
+                {t.goLogin}
               </Link>
             </>
           )}
@@ -716,6 +888,16 @@ const AppShell = () => {
       setLogs([newLog, ...logs]);
     }
     navigate('/');
+  };
+
+  // Delete log from D1 database
+  const handleDeleteLog = async (logId: string): Promise<boolean> => {
+    if (!user) return false;
+    const success = await deleteLog(logId);
+    if (success) {
+      setLogs(logs.filter(log => log.id !== logId));
+    }
+    return success;
   };
 
   const handleGenerateInsight = async () => {
@@ -790,7 +972,7 @@ const AppShell = () => {
             />
             <Route
               path="/history"
-              element={<HistoryView logs={logs} t={t} onCreateFirst={() => navigate('/log')} />}
+              element={<HistoryView logs={logs} t={t} onCreateFirst={() => navigate('/log')} onDeleteLog={handleDeleteLog} />}
             />
           </Route>
         </Routes>

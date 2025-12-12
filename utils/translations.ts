@@ -118,7 +118,61 @@ export const translations = {
       'Candles': 'Candles',
       'Blindfold': 'Blindfold',
       'Spontaneous': 'Spontaneous'
-    }
+    },
+
+    // DateTimePicker
+    time: "TIME",
+    clear: "Clear",
+    today: "Today",
+    confirm: "Confirm",
+    selectDate: "Select Date",
+
+    // Auth
+    loginTitle: "Login",
+    registerTitle: "Register",
+    username: "Username",
+    password: "Password",
+    enterUsername: "Enter username",
+    atLeast6Chars: "At least 6 characters",
+    continueWithGoogle: "Continue with Google",
+    noAccountYet: "Don't have an account?",
+    alreadyHaveAccount: "Already have an account?",
+    goRegister: "Sign up",
+    goLogin: "Login",
+    usernamePasswordOnly: "Username and password only, no email verification.",
+
+    // History Delete
+    deleteEntry: "Delete",
+    deleteConfirmTitle: "Confirm Delete",
+    deleteConfirmMessage: "Are you sure you want to delete this entry? This action cannot be undone.",
+    deleteYes: "Delete",
+    deleteNo: "Cancel",
+    deleting: "Deleting...",
+
+    // Timer Widget
+    countdown: "Countdown",
+    lastSession: "Last Session",
+    days: "Days",
+    ago: "Ago",
+    happeningNow: "Now",
+    timeUp: "Time's up!",
+    welcome: "Welcome",
+    tapToStart: "Tap to set timer",
+    setTimer: "Set Timer",
+
+    // History Modal
+    duration: "Duration",
+    vibe: "Vibe",
+    rating: "Rating",
+    locationLabel: "Location",
+    solo: "Solo",
+    partner: "Partner",
+
+    // Alerts
+    needMoreLogs: "Please log at least 3 sessions to generate insights.",
+    logout: "Logout",
+    or: "OR",
+    loadingGoogleBtn: "Loading..."
   },
   zh: {
     appTitle: "IntimDiary",
@@ -237,6 +291,60 @@ export const translations = {
       'Candles': '蜡烛',
       'Blindfold': '眼罩',
       'Spontaneous': '即兴'
-    }
+    },
+
+    // DateTimePicker
+    time: "时间",
+    clear: "清除",
+    today: "今天",
+    confirm: "确认",
+    selectDate: "选择日期",
+
+    // Auth
+    loginTitle: "登录",
+    registerTitle: "注册",
+    username: "用户名",
+    password: "密码",
+    enterUsername: "输入用户名",
+    atLeast6Chars: "至少6位",
+    continueWithGoogle: "通过 Google 继续",
+    noAccountYet: "没有账号？",
+    alreadyHaveAccount: "已有账号？",
+    goRegister: "去注册",
+    goLogin: "去登录",
+    usernamePasswordOnly: "仅支持用户名和密码，暂无邮箱验证。",
+
+    // History Delete
+    deleteEntry: "删除",
+    deleteConfirmTitle: "确认删除",
+    deleteConfirmMessage: "确定要删除这条记录吗？此操作无法撤销。",
+    deleteYes: "删除",
+    deleteNo: "取消",
+    deleting: "删除中...",
+
+    // Timer Widget
+    countdown: "倒计时",
+    lastSession: "上次记录",
+    days: "天",
+    ago: "前",
+    happeningNow: "进行中",
+    timeUp: "时间到！",
+    welcome: "欢迎",
+    tapToStart: "点击设置计时器",
+    setTimer: "设置计时器",
+
+    // History Modal
+    duration: "时长",
+    vibe: "氛围",
+    rating: "评分",
+    locationLabel: "地点",
+    solo: "独处",
+    partner: "伴侣",
+
+    // Alerts
+    needMoreLogs: "请至少记录3次活动后再生成分析。",
+    logout: "退出登录",
+    or: "或",
+    loadingGoogleBtn: "加载中..."
   }
 };

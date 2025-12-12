@@ -115,8 +115,9 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     );
   } catch (error) {
     console.error('Google login error:', error);
+    const errMsg = error instanceof Error ? error.message : String(error);
     return new Response(
-      JSON.stringify({ success: false, message: 'Google 登录失败' }),
+      JSON.stringify({ success: false, message: `Google 登录失败: ${errMsg}` }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
   }

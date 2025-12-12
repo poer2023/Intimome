@@ -14,7 +14,7 @@ database_id = "5c9d987e-3add-45d3-a02c-260b484bc915"
 # KV for sessions / cache
 [[kv_namespaces]]
 binding = "SESSIONS"
-id = "your-kv-namespace-id"
+id = "e8bef1cc9d4040d5846d11cc165a592e"
 
 # R2 for automated backups
 [[r2_buckets]]
