@@ -58,12 +58,12 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
     let user = await env.DB.prepare(
       'SELECT id, username FROM users WHERE google_sub = ?'
-    ).bind(googleSub).first<{ id: number; username: string }>();
+    ).bind(googleSub).first() as { id: number; username: string } | null;
 
     if (!user && email) {
       const existing = await env.DB.prepare(
         'SELECT id, username FROM users WHERE username = ?'
-      ).bind(email).first<{ id: number; username: string }>();
+      ).bind(email).first() as { id: number; username: string } | null;
       if (existing) {
         await env.DB.prepare(
           'UPDATE users SET google_sub = ?, email = COALESCE(email, ?), picture_url = COALESCE(picture_url, ?) WHERE id = ?'
@@ -90,7 +90,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
       user = await env.DB.prepare(
         'SELECT id, username FROM users WHERE google_sub = ?'
-      ).bind(googleSub).first<{ id: number; username: string }>();
+      ).bind(googleSub).first() as { id: number; username: string } | null;
     }
 
     if (!user) throw new Error('Failed to create or find user');

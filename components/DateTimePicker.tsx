@@ -93,8 +93,8 @@ const ScrollWheel: React.FC<{
                     <div
                         key={item}
                         className={`h-12 flex items-center justify-center snap-center transition-all duration-150 ${isSelected
-                                ? 'text-3xl font-bold text-slate-900'
-                                : 'text-lg text-slate-300'
+                            ? 'text-3xl font-bold text-slate-900'
+                            : 'text-lg text-slate-300'
                             }`}
                         style={{ scrollSnapAlign: 'center' }}
                     >
@@ -191,7 +191,7 @@ export const DateTimePickerModal: React.FC<DateTimePickerModalProps> = ({
                             {currentDate.toLocaleTimeString(language === 'zh' ? 'zh-CN' : 'en-US', { hour: '2-digit', minute: '2-digit', hour12: false })}
                         </div>
                     </div>
-                    <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full text-slate-400 transition-colors">
+                    <button type="button" onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full text-slate-400 transition-colors">
                         <X size={20} />
                     </button>
                 </div>
@@ -200,13 +200,13 @@ export const DateTimePickerModal: React.FC<DateTimePickerModalProps> = ({
                     {/* Calendar */}
                     <div className="p-5 pb-2">
                         <div className="flex justify-between items-center mb-4">
-                            <button onClick={handlePrevMonth} className="p-2 hover:bg-slate-50 rounded-full text-slate-400">
+                            <button type="button" onClick={handlePrevMonth} className="p-2 hover:bg-slate-50 rounded-full text-slate-400">
                                 <ChevronLeft size={20} />
                             </button>
                             <h4 className="text-base font-bold text-slate-800">
                                 {viewMonth.toLocaleDateString(language === 'zh' ? 'zh-CN' : 'en-US', { month: 'long', year: 'numeric' })}
                             </h4>
-                            <button onClick={handleNextMonth} className="p-2 hover:bg-slate-50 rounded-full text-slate-400">
+                            <button type="button" onClick={handleNextMonth} className="p-2 hover:bg-slate-50 rounded-full text-slate-400">
                                 <ChevronRight size={20} />
                             </button>
                         </div>
@@ -227,6 +227,7 @@ export const DateTimePickerModal: React.FC<DateTimePickerModalProps> = ({
 
                                 return (
                                     <button
+                                        type="button"
                                         key={day}
                                         onClick={() => {
                                             const newDate = new Date(currentDate);
@@ -282,6 +283,7 @@ export const DateTimePickerModal: React.FC<DateTimePickerModalProps> = ({
                 <div className="p-5 pt-2 bg-white flex gap-3 border-t border-slate-50">
                     {onClear && (
                         <button
+                            type="button"
                             onClick={() => { onClear(); onClose(); }}
                             className="py-3 px-4 bg-slate-50 text-slate-400 rounded-xl font-semibold hover:bg-slate-100 hover:text-slate-600 transition-colors"
                         >
@@ -289,6 +291,7 @@ export const DateTimePickerModal: React.FC<DateTimePickerModalProps> = ({
                         </button>
                     )}
                     <button
+                        type="button"
                         onClick={() => {
                             const now = new Date();
                             setCurrentDate(now);
@@ -299,6 +302,7 @@ export const DateTimePickerModal: React.FC<DateTimePickerModalProps> = ({
                         {language === 'zh' ? '今天' : 'Today'}
                     </button>
                     <button
+                        type="button"
                         onClick={handleConfirm}
                         className="flex-[2] py-3 bg-brand-600 text-white rounded-xl font-semibold hover:bg-brand-700 transition-all shadow-lg shadow-brand-200 active:scale-95"
                     >
