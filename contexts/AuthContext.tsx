@@ -4,6 +4,7 @@ type AuthUser = { username: string; displayName?: string; email?: string; provid
 
 type AuthContextValue = {
   user: AuthUser | null;
+  loading: boolean;
   login: (username: string, password: string) => Promise<{ success: boolean; message?: string }>;
   register: (username: string, password: string) => Promise<{ success: boolean; message?: string }>;
   loginWithGoogle: (credential: string) => Promise<{ success: boolean; message?: string }>;
@@ -17,6 +18,7 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<AuthUser | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetch(`${API_BASE}/api/auth/me`, { credentials: 'include' })
@@ -26,12 +28,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         if (!ct.includes('application/json')) return null;
         return res.json();
       })
-      .then(data => {
+      .then((data: { success?: boolean; user?: AuthUser } | null) => {
         if (data?.success && data.user?.username) {
           setUser(data.user as AuthUser);
         }
       })
-      .catch(e => console.error('Failed to load session user', e));
+      .catch(e => console.error('Failed to load session user', e))
+      .finally(() => setLoading(false));
   }, []);
 
   const login = async (username: string, password: string) => {
@@ -41,7 +44,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       body: JSON.stringify({ username, password }),
       credentials: 'include',
     });
-    const data = await res.json();
+    const data = await res.json() as { success?: boolean; message?: string; user?: AuthUser };
     if (!res.ok || !data.success) {
       return { success: false, message: data?.message || '用户名或密码错误' };
     }
@@ -62,7 +65,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       body: JSON.stringify({ username, password }),
       credentials: 'include',
     });
-    const data = await res.json();
+    const data = await res.json() as { success?: boolean; message?: string; user?: AuthUser };
     if (!res.ok || !data.success) {
       return { success: false, message: data?.message || '注册失败' };
     }
@@ -83,7 +86,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       body: JSON.stringify({ credential }),
       credentials: 'include',
     });
-    const data = await res.json();
+    const data = await res.json() as { success?: boolean; message?: string; user?: AuthUser };
     if (!res.ok || !data.success) {
       return { success: false, message: data?.message || 'Google 登录失败' };
     }
@@ -108,7 +111,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, loginWithGoogle, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, register, loginWithGoogle, logout }}>
       {children}
     </AuthContext.Provider>
   );

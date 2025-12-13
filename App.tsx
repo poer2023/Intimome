@@ -856,6 +856,23 @@ const RequireAuth = () => {
   return <Outlet />;
 };
 
+// Redirect away from auth pages if already logged in
+const RedirectIfAuth = () => {
+  const { user, loading } = useAuth();
+
+  // Wait for auth check to complete
+  if (loading) {
+    return null;
+  }
+
+  // If logged in, redirect to home
+  if (user) {
+    return <Navigate to="/" replace />;
+  }
+
+  return <Outlet />;
+};
+
 const AppShell = () => {
   const { t, language, setLanguage } = useLanguage();
   const [logs, setLogs] = useState<SessionLog[]>([]);
@@ -941,8 +958,11 @@ const AppShell = () => {
     <div className="min-h-screen bg-[#fafafa] text-slate-900 selection:bg-brand-100 selection:text-brand-900 pb-32">
       <main className="max-w-lg mx-auto px-5 pt-6 pb-8 no-scrollbar h-full overflow-y-auto">
         <Routes>
-          <Route path="/auth/login" element={<AuthPage mode="login" />} />
-          <Route path="/auth/register" element={<AuthPage mode="register" />} />
+          {/* Auth routes - redirect away if already logged in */}
+          <Route element={<RedirectIfAuth />}>
+            <Route path="/auth/login" element={<AuthPage mode="login" />} />
+            <Route path="/auth/register" element={<AuthPage mode="register" />} />
+          </Route>
 
           <Route element={<RequireAuth />}>
             <Route
