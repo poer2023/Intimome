@@ -54,7 +54,7 @@ function rowToLog(row: SessionLogRow): SessionLog {
     };
 }
 
-// GET: Fetch all logs for authenticated user
+// GET: Fetch paginated logs for authenticated user
 export const onRequestGet: PagesFunction<Env> = async (context) => {
     const { env, request } = context;
     const auth = await requireAuth(env, request);
@@ -63,15 +63,38 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
 
     try {
         await ensureSchema(env.DB);
-        // Get all logs for this user
+
+        // Parse pagination params from URL
+        const url = new URL(request.url);
+        const page = Math.max(1, parseInt(url.searchParams.get('page') || '1', 10));
+        const limit = Math.min(50, Math.max(1, parseInt(url.searchParams.get('limit') || '15', 10)));
+        const offset = (page - 1) * limit;
+
+        // Get total count for this user
+        const countResult = await env.DB.prepare(
+            'SELECT COUNT(*) as total FROM session_logs WHERE user_id = ?'
+        ).bind(userId).first<{ total: number }>();
+        const total = countResult?.total || 0;
+
+        // Get paginated logs for this user
         const result = await env.DB.prepare(
-            'SELECT * FROM session_logs WHERE user_id = ? ORDER BY date DESC'
-        ).bind(userId).all<SessionLogRow>();
+            'SELECT * FROM session_logs WHERE user_id = ? ORDER BY date DESC LIMIT ? OFFSET ?'
+        ).bind(userId, limit, offset).all<SessionLogRow>();
 
         const logs = (result.results || []).map(rowToLog);
 
         return new Response(
-            JSON.stringify({ success: true, data: logs }),
+            JSON.stringify({
+                success: true,
+                data: logs,
+                pagination: {
+                    page,
+                    limit,
+                    total,
+                    totalPages: Math.ceil(total / limit),
+                    hasMore: offset + logs.length < total
+                }
+            }),
             { status: 200, headers: { 'Content-Type': 'application/json' } }
         );
     } catch (error) {

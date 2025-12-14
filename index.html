@@ -5,6 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>IntimDiary</title>
+  <link rel="icon" type="image/png" href="/favicon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -139,6 +140,44 @@
     /* Tap highlight color removal for mobile feel */
     * {
       -webkit-tap-highlight-color: transparent;
+    }
+
+    /* AI Insights Loading Animations */
+    @keyframes orbit {
+
+      0%,
+      100% {
+        transform: translate(-50%, -50%) translate(20px, 0);
+      }
+
+      25% {
+        transform: translate(-50%, -50%) translate(0, 20px);
+      }
+
+      50% {
+        transform: translate(-50%, -50%) translate(-20px, 0);
+      }
+
+      75% {
+        transform: translate(-50%, -50%) translate(0, -20px);
+      }
+    }
+
+    @keyframes pulse-ring {
+      0% {
+        transform: scale(0.8);
+        opacity: 0.8;
+      }
+
+      50% {
+        transform: scale(1.2);
+        opacity: 0.3;
+      }
+
+      100% {
+        transform: scale(0.8);
+        opacity: 0.8;
+      }
     }
   </style>
   <script type="importmap">

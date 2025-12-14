@@ -59,9 +59,11 @@ export interface SessionLog {
 }
 
 export interface AnalysisResponse {
-  summary: string;
-  wellnessTip: string;
-  trendInsight: string;
+  frequencyInsight: string;
+  satisfactionInsight: string;
+  diversityTip: string;
+  personalizedTip: string;
+  encouragement: string;
 }
 
 export type Language = 'en' | 'zh';

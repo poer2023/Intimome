@@ -5,7 +5,7 @@ import { LogEntryForm } from './components/LogEntryForm';
 import { StatsChart } from './components/StatsChart';
 import { PositionIcon } from './components/PositionIcons';
 import { generateInsights } from './services/geminiService';
-import { fetchLogs, saveLog, deleteLog } from './services/logsService';
+import { fetchLogs, saveLog, deleteLog, fetchCountdownTarget, saveCountdownTarget } from './services/logsService';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { BottomNav } from './components/BottomNav';
@@ -370,22 +370,88 @@ const DashboardView = ({
               <h3>{t.aiTitle}</h3>
             </div>
           </div>
-          {insight ? (
-            <div className="space-y-3">
-              <p className="text-slate-600 text-sm leading-relaxed">{insight.summary}</p>
-              <div className="flex gap-3 items-start">
-                <Zap size={16} className="text-amber-500 shrink-0 mt-0.5" />
-                <p className="text-xs font-semibold text-slate-600 italic">"{insight.wellnessTip}"</p>
+
+          {loadingInsight ? (
+            /* Loading Animation - Intimate Fusion */
+            <div className="flex flex-col items-center justify-center py-8">
+              {/* Animated Orbs */}
+              <div className="relative w-24 h-24 mb-4">
+                {/* Central glow */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-full bg-brand-200/50 animate-breathe" />
+                </div>
+                {/* Orbiting element 1 */}
+                <div
+                  className="absolute w-5 h-5 rounded-full bg-gradient-to-br from-brand-300 to-brand-500 shadow-lg shadow-brand-300/50"
+                  style={{
+                    animation: 'orbit 2s ease-in-out infinite',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                  }}
+                />
+                {/* Orbiting element 2 */}
+                <div
+                  className="absolute w-4 h-4 rounded-full bg-gradient-to-br from-pink-300 to-brand-400 shadow-lg shadow-pink-300/50"
+                  style={{
+                    animation: 'orbit 2s ease-in-out infinite reverse',
+                    animationDelay: '0.5s',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                  }}
+                />
+                {/* Pulse rings */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div
+                    className="w-16 h-16 rounded-full border border-brand-200/50"
+                    style={{ animation: 'pulse-ring 2s ease-out infinite' }}
+                  />
+                </div>
               </div>
+              {/* Loading text */}
+              <p className="text-sm text-slate-500 font-medium animate-pulse">
+                {language === 'zh' ? '正在感知你们的默契...' : 'Sensing your connection...'}
+              </p>
+            </div>
+          ) : insight ? (
+            <div className="space-y-3">
+              {/* Frequency Insight */}
+              <div className="flex gap-2 items-start">
+                <TrendingUp size={14} className="text-blue-500 shrink-0 mt-1" />
+                <p className="text-slate-600 text-sm leading-relaxed">{insight.frequencyInsight}</p>
+              </div>
+              {/* Satisfaction Insight */}
+              <div className="flex gap-2 items-start">
+                <Star size={14} className="text-amber-500 shrink-0 mt-1" />
+                <p className="text-slate-600 text-sm leading-relaxed">{insight.satisfactionInsight}</p>
+              </div>
+              {/* Diversity Tip */}
+              <div className="flex gap-2 items-start">
+                <Zap size={14} className="text-purple-500 shrink-0 mt-1" />
+                <p className="text-slate-600 text-sm leading-relaxed">{insight.diversityTip}</p>
+              </div>
+              {/* Personalized Tip */}
+              <div className="bg-brand-50/50 rounded-xl p-3 mt-2">
+                <div className="flex gap-2 items-start">
+                  <Heart size={14} className="text-brand-500 shrink-0 mt-0.5" />
+                  <p className="text-sm font-medium text-brand-700">{insight.personalizedTip}</p>
+                </div>
+              </div>
+              {/* Encouragement */}
+              <p className="text-xs text-center font-medium text-slate-400 italic pt-2">"{insight.encouragement}"</p>
             </div>
           ) : (
             <p className="text-slate-500 text-sm leading-relaxed">{t.aiDesc}</p>
           )}
-          <div className="flex justify-end mt-4">
-            <button onClick={handleGenerateInsight} disabled={loadingInsight} className="text-xs flex items-center gap-1 text-slate-400 hover:text-brand-600 font-medium transition-colors active:scale-95">
-              {loadingInsight ? t.analyzing : t.updateAnalysis} <ArrowRight className="w-3 h-3" />
-            </button>
-          </div>
+
+          {!loadingInsight && (
+            <div className="flex justify-end mt-4">
+              <button onClick={handleGenerateInsight} disabled={loadingInsight} className="text-xs flex items-center gap-1 text-slate-400 hover:text-brand-600 font-medium transition-colors active:scale-95">
+                {t.updateAnalysis} <ArrowRight className="w-3 h-3" />
+              </button>
+            </div>
+          )}
         </Card>
       </div>
 
@@ -408,19 +474,50 @@ const DashboardView = ({
 
 
 const HistoryView = ({
-  logs,
   t,
   onCreateFirst,
   onDeleteLog
 }: {
-  logs: SessionLog[];
   t: ReturnType<typeof useLanguage>['t'];
   onCreateFirst: () => void;
   onDeleteLog: (logId: string) => Promise<boolean>;
 }) => {
+  const [logs, setLogs] = useState<SessionLog[]>([]);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
+  const [total, setTotal] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [selectedLog, setSelectedLog] = useState<SessionLog | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  const ITEMS_PER_PAGE = 15;
+
+  // Load initial page
+  useEffect(() => {
+    setIsLoading(true);
+    fetchLogs(1, ITEMS_PER_PAGE)
+      .then(({ logs: data, pagination }) => {
+        setLogs(data);
+        setPage(1);
+        setHasMore(pagination.hasMore);
+        setTotal(pagination.total);
+      })
+      .finally(() => setIsLoading(false));
+  }, []);
+
+  // Load more handler
+  const handleLoadMore = async () => {
+    if (isLoadingMore || !hasMore) return;
+    setIsLoadingMore(true);
+    const nextPage = page + 1;
+    const { logs: newLogs, pagination } = await fetchLogs(nextPage, ITEMS_PER_PAGE);
+    setLogs(prev => [...prev, ...newLogs]);
+    setPage(nextPage);
+    setHasMore(pagination.hasMore);
+    setIsLoadingMore(false);
+  };
 
   const handleDelete = async () => {
     if (!selectedLog) return;
@@ -428,6 +525,9 @@ const HistoryView = ({
     const success = await onDeleteLog(selectedLog.id);
     setIsDeleting(false);
     if (success) {
+      // Remove from local state
+      setLogs(prev => prev.filter(log => log.id !== selectedLog.id));
+      setTotal(prev => prev - 1);
       setSelectedLog(null);
       setShowDeleteConfirm(false);
     }
@@ -460,11 +560,27 @@ const HistoryView = ({
     return 'text-indigo-500 bg-indigo-50';
   };
 
+  if (isLoading) {
+    return (
+      <div className="space-y-6 animate-fade-in pb-40 px-1">
+        <header className="flex justify-between items-center py-4 px-1 animate-slide-up relative z-30">
+          <h1 className="text-2xl font-semibold text-slate-900 tracking-tight">History</h1>
+        </header>
+        <div className="flex items-center justify-center py-20">
+          <div className="animate-spin w-8 h-8 border-2 border-brand-500 border-t-transparent rounded-full"></div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 animate-fade-in pb-40 px-1">
       {/* Header */}
       <header className="flex justify-between items-center py-4 px-1 animate-slide-up relative z-30">
         <h1 className="text-2xl font-semibold text-slate-900 tracking-tight">History</h1>
+        {total > 0 && (
+          <span className="text-sm font-medium text-slate-400">{total} {t.entries}</span>
+        )}
       </header>
 
       {logs.length === 0 ? (
@@ -510,6 +626,24 @@ const HistoryView = ({
               <ChevronRight className="w-5 h-5 text-slate-300 group-hover:text-slate-400 group-hover:translate-x-1 transition-all" />
             </div>
           ))}
+
+          {/* Load More Button */}
+          {hasMore && (
+            <button
+              onClick={handleLoadMore}
+              disabled={isLoadingMore}
+              className="w-full py-4 bg-slate-50 hover:bg-slate-100 text-slate-600 font-semibold rounded-2xl transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+            >
+              {isLoadingMore ? (
+                <>
+                  <div className="animate-spin w-4 h-4 border-2 border-slate-400 border-t-transparent rounded-full"></div>
+                  加载中...
+                </>
+              ) : (
+                <>加载更多</>
+              )}
+            </button>
+          )}
         </div>
       )}
 
@@ -540,20 +674,12 @@ const HistoryView = ({
               <X size={18} className="text-slate-500" />
             </button>
 
-            <div className="pt-10 pb-8 px-6 text-center overflow-y-auto flex-1">
-              {/* Header Icon */}
-              <div
-                className={`w-16 h-16 rounded-[20px] flex items-center justify-center mx-auto mb-4 bg-white shadow-elevation border border-slate-100 ${getLogColor(selectedLog).replace('bg-', 'text-').replace('text-', 'text-')} animate-slide-up delay-100 opacity-0`}
-                style={{ animationFillMode: 'forwards' }}
-              >
-                {getLogIcon(selectedLog)}
-              </div>
-
-              {/* Title & Date */}
-              <h2 className="text-2xl font-bold text-slate-900 mb-1 font-serif tracking-tight">
-                {selectedLog.type === ActivityType.SOLO ? t.solo : t.partner}
+            <div className="pt-12 pb-8 px-6 text-center overflow-y-auto flex-1">
+              {/* Title & Date - No header icon */}
+              <h2 className="text-2xl font-bold text-slate-900 mb-1 font-serif tracking-tight animate-slide-up delay-100 opacity-0" style={{ animationFillMode: 'forwards' }}>
+                {selectedLog.type === ActivityType.SOLO ? t.solo : (selectedLog.partnerName || t.partner)}
               </h2>
-              <p className="text-sm font-medium text-slate-500 mb-8">
+              <p className="text-sm font-medium text-slate-500 mb-8 animate-slide-up delay-100 opacity-0" style={{ animationFillMode: 'forwards' }}>
                 {formatDate(selectedLog.date)}
               </p>
 
@@ -888,14 +1014,29 @@ const AppShell = () => {
   useEffect(() => {
     if (!user) {
       setLogs([]);
+      setTargetDate(null);
       return;
     }
     setLoadingLogs(true);
-    fetchLogs()
-      .then(data => setLogs(data))
-      .catch(e => console.error('Failed to load logs', e))
+    Promise.all([
+      fetchLogs(1, 15),
+      fetchCountdownTarget()
+    ])
+      .then(([logsResponse, countdownData]) => {
+        setLogs(logsResponse.logs);
+        setTargetDate(countdownData);
+      })
+      .catch(e => console.error('Failed to load data', e))
       .finally(() => setLoadingLogs(false));
   }, [user]);
+
+  // Save countdown target to database when changed
+  const handleSetTargetDate = async (date: string | null) => {
+    setTargetDate(date);
+    if (user) {
+      await saveCountdownTarget(date);
+    }
+  };
 
   // Save log to D1 database
   const handleSaveLog = async (newLog: SessionLog) => {
@@ -919,11 +1060,11 @@ const AppShell = () => {
 
   const handleGenerateInsight = async () => {
     if (logs.length < 3) {
-      alert("Please log at least 3 sessions to generate insights.");
+      alert(language === 'zh' ? "请至少记录3次活动后再生成分析。" : "Please log at least 3 sessions to generate insights.");
       return;
     }
     setLoadingInsight(true);
-    const result = await generateInsights(logs, language);
+    const result = await generateInsights(language);
     setInsight(result);
     setLoadingInsight(false);
   };
@@ -978,7 +1119,7 @@ const AppShell = () => {
                   onLogClick={() => navigate('/log')}
                   onHistoryClick={() => navigate('/history')}
                   targetDate={targetDate}
-                  setTargetDate={setTargetDate}
+                  setTargetDate={handleSetTargetDate}
                   user={user}
                   onLogout={handleLogout}
                   language={language}
@@ -992,7 +1133,7 @@ const AppShell = () => {
             />
             <Route
               path="/history"
-              element={<HistoryView logs={logs} t={t} onCreateFirst={() => navigate('/log')} onDeleteLog={handleDeleteLog} />}
+              element={<HistoryView t={t} onCreateFirst={() => navigate('/log')} onDeleteLog={handleDeleteLog} />}
             />
           </Route>
         </Routes>

@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS users (
     email TEXT,
     picture_url TEXT,
     provider TEXT DEFAULT 'local',
+    countdown_target TEXT, -- Countdown timer target datetime
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
