@@ -1019,7 +1019,7 @@ const AppShell = () => {
     }
     setLoadingLogs(true);
     Promise.all([
-      fetchLogs(1, 15),
+      fetchLogs(1, 31), // Get more data for stats chart (up to 1 month)
       fetchCountdownTarget()
     ])
       .then(([logsResponse, countdownData]) => {

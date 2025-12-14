@@ -46,8 +46,8 @@ export const StatsChart: React.FC<StatsChartProps> = ({ data }) => {
     value: positionCounts[key]
   }));
 
-  // Process Data for Duration Trend
-  const trendData = data.slice(-7).map(log => ({
+  // Process Data for Duration Trend (take latest 7, reverse for chronological order left-to-right)
+  const trendData = data.slice(0, 7).reverse().map(log => ({
     date: new Date(log.date).toLocaleDateString(undefined, { month: 'numeric', day: 'numeric' }),
     duration: log.durationMinutes
   }));
