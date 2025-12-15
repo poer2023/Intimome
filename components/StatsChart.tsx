@@ -46,11 +46,15 @@ export const StatsChart: React.FC<StatsChartProps> = ({ data }) => {
     value: positionCounts[key]
   }));
 
-  // Process Data for Duration Trend (take latest 7, reverse for chronological order left-to-right)
-  const trendData = data.slice(0, 7).reverse().map(log => ({
-    date: new Date(log.date).toLocaleDateString(undefined, { month: 'numeric', day: 'numeric' }),
-    duration: log.durationMinutes
-  }));
+  // Process Data for Duration Trend - sort by date desc, take latest 7, then reverse for chronological display
+  const trendData = [...data]
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    .slice(0, 7)
+    .reverse()
+    .map(log => ({
+      date: new Date(log.date).toLocaleDateString(undefined, { month: 'numeric', day: 'numeric' }),
+      duration: log.durationMinutes
+    }));
 
   return (
     <div className="space-y-6">
