@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { SessionLog, ActivityType } from '../shared/types';
+import React, { useState, useEffect, useCallback } from 'react';
+import { SessionLog, ActivityType, MoodType } from '../shared/types';
 import { useLanguage } from '../contexts/LanguageContext';
 import { fetchLogs } from '../services/logsService';
 import { PositionIcon } from '../components/PositionIcons';
@@ -11,7 +11,9 @@ import {
     MapPin,
     ChevronRight,
     X,
-    Trash2
+    Trash2,
+    Filter,
+    Search
 } from 'lucide-react';
 
 interface HistoryPageProps {
@@ -19,11 +21,16 @@ interface HistoryPageProps {
     onDeleteLog: (logId: string) => Promise<boolean>;
 }
 
+interface Filters {
+    mood?: string;
+    search?: string;
+}
+
 export const HistoryPage: React.FC<HistoryPageProps> = ({
     onCreateFirst,
     onDeleteLog
 }) => {
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
     const [logs, setLogs] = useState<SessionLog[]>([]);
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(false);
@@ -34,30 +41,68 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
 
+    // Filter state
+    const [showFilters, setShowFilters] = useState(false);
+    const [filters, setFilters] = useState<Filters>({});
+    const [searchInput, setSearchInput] = useState('');
+
     const ITEMS_PER_PAGE = 15;
 
-    useEffect(() => {
-        setIsLoading(true);
-        fetchLogs(1, ITEMS_PER_PAGE)
-            .then(({ logs: data, pagination }) => {
-                setLogs(data);
-                setPage(1);
-                setHasMore(pagination.hasMore);
-                setTotal(pagination.total);
-            })
-            .finally(() => setIsLoading(false));
-    }, []);
+    // Fetch logs with filters
+    const loadLogs = useCallback(async (pageNum: number, append = false) => {
+        if (append) {
+            setIsLoadingMore(true);
+        } else {
+            setIsLoading(true);
+        }
 
-    const handleLoadMore = async () => {
+        try {
+            const { logs: data, pagination } = await fetchLogs(pageNum, ITEMS_PER_PAGE, filters);
+            if (append) {
+                setLogs(prev => [...prev, ...data]);
+            } else {
+                setLogs(data);
+            }
+            setPage(pageNum);
+            setHasMore(pagination.hasMore);
+            setTotal(pagination.total);
+        } finally {
+            setIsLoading(false);
+            setIsLoadingMore(false);
+        }
+    }, [filters]);
+
+    useEffect(() => {
+        loadLogs(1);
+    }, [loadLogs]);
+
+    const handleLoadMore = () => {
         if (isLoadingMore || !hasMore) return;
-        setIsLoadingMore(true);
-        const nextPage = page + 1;
-        const { logs: newLogs, pagination } = await fetchLogs(nextPage, ITEMS_PER_PAGE);
-        setLogs(prev => [...prev, ...newLogs]);
-        setPage(nextPage);
-        setHasMore(pagination.hasMore);
-        setIsLoadingMore(false);
+        loadLogs(page + 1, true);
     };
+
+    const handleApplyFilters = () => {
+        setFilters(prev => ({
+            ...prev,
+            search: searchInput.trim() || undefined
+        }));
+        setShowFilters(false);
+    };
+
+    const handleClearFilters = () => {
+        setFilters({});
+        setSearchInput('');
+        setShowFilters(false);
+    };
+
+    const handleMoodFilter = (mood: string) => {
+        setFilters(prev => ({
+            ...prev,
+            mood: prev.mood === mood ? undefined : mood
+        }));
+    };
+
+    const hasActiveFilters = Object.values(filters).some(v => v !== undefined);
 
     const handleDelete = async () => {
         if (!selectedLog) return;
@@ -99,6 +144,8 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({
         return 'text-indigo-500 bg-indigo-50';
     };
 
+    const moodOptions = Object.values(MoodType);
+
     if (isLoading) {
         return (
             <div className="space-y-6 animate-fade-in pb-40 px-1">
@@ -116,23 +163,96 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({
         <div className="space-y-6 animate-fade-in pb-40 px-1">
             <header className="flex justify-between items-center py-4 px-1 animate-slide-up relative z-30">
                 <h1 className="text-2xl font-semibold text-slate-900 tracking-tight">History</h1>
-                {total > 0 && (
-                    <span className="text-sm font-medium text-slate-400">{total} {t.entries}</span>
-                )}
+                <div className="flex items-center gap-2">
+                    {total > 0 && (
+                        <span className="text-sm font-medium text-slate-400">{total} {t.entries}</span>
+                    )}
+                    <button
+                        onClick={() => setShowFilters(!showFilters)}
+                        className={`p-2 rounded-xl transition-all ${hasActiveFilters ? 'bg-brand-50 text-brand-600' : 'bg-slate-50 text-slate-500 hover:bg-slate-100'}`}
+                    >
+                        <Filter size={18} />
+                    </button>
+                </div>
             </header>
+
+            {/* Filter Panel */}
+            {showFilters && (
+                <div className="bg-white rounded-2xl p-4 shadow-subtle border border-slate-100 space-y-4 animate-slide-up">
+                    {/* Search */}
+                    <div className="relative">
+                        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                        <input
+                            type="text"
+                            value={searchInput}
+                            onChange={(e) => setSearchInput(e.target.value)}
+                            placeholder={language === 'zh' ? '搜索备注或伴侣名...' : 'Search notes or partner...'}
+                            className="w-full pl-9 pr-4 py-2 bg-slate-50 rounded-xl text-sm border border-transparent focus:border-brand-500 focus:bg-white outline-none transition-all"
+                        />
+                    </div>
+
+                    {/* Mood Filter */}
+                    <div>
+                        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+                            {language === 'zh' ? '心情' : 'Mood'}
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                            {moodOptions.map(mood => (
+                                <button
+                                    key={mood}
+                                    onClick={() => handleMoodFilter(mood)}
+                                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${filters.mood === mood
+                                            ? 'bg-brand-500 text-white'
+                                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                        }`}
+                                >
+                                    {t.mood[mood]}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex gap-2 pt-2">
+                        <button
+                            onClick={handleClearFilters}
+                            className="flex-1 py-2 bg-slate-100 text-slate-600 rounded-xl text-sm font-semibold hover:bg-slate-200 transition-colors"
+                        >
+                            {language === 'zh' ? '清除' : 'Clear'}
+                        </button>
+                        <button
+                            onClick={handleApplyFilters}
+                            className="flex-1 py-2 bg-brand-500 text-white rounded-xl text-sm font-semibold hover:bg-brand-600 transition-colors"
+                        >
+                            {language === 'zh' ? '应用' : 'Apply'}
+                        </button>
+                    </div>
+                </div>
+            )}
 
             {logs.length === 0 ? (
                 <div className="text-slate-400 text-center py-20 bg-white rounded-[24px] border border-slate-100 border-dashed">
                     <div className="bg-slate-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                         <Calendar size={24} className="text-slate-300" />
                     </div>
-                    <p className="text-base font-medium text-slate-600">{t.noLogs}</p>
-                    <button
-                        onClick={onCreateFirst}
-                        className="mt-6 text-brand-600 font-bold hover:text-brand-700 text-sm"
-                    >
-                        {t.createFirst} &rarr;
-                    </button>
+                    <p className="text-base font-medium text-slate-600">
+                        {hasActiveFilters ? (language === 'zh' ? '没有匹配的记录' : 'No matching records') : t.noLogs}
+                    </p>
+                    {hasActiveFilters ? (
+                        <button
+                            onClick={handleClearFilters}
+                            className="mt-6 text-brand-600 font-bold hover:text-brand-700 text-sm"
+                        >
+                            {language === 'zh' ? '清除筛选' : 'Clear Filters'}
+                        </button>
+                    ) : (
+                        <button
+                            onClick={onCreateFirst}
+                            className="mt-6 text-brand-600 font-bold hover:text-brand-700 text-sm"
+                        >
+                            {t.createFirst} &rarr;
+                        </button>
+                    )}
                 </div>
             ) : (
                 <div className="space-y-3">

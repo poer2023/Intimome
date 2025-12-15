@@ -112,3 +112,106 @@ export async function requireAuth(env: { SESSIONS?: KVNamespace }, request: Requ
 export async function destroySession(env: { SESSIONS?: KVNamespace }, sessionId: string): Promise<void> {
   await sessionsDelete(env, sessionId);
 }
+
+// CSRF Token Management
+const CSRF_TOKEN_LENGTH = 32;
+
+/**
+ * Generate a cryptographically secure CSRF token
+ */
+export function generateCsrfToken(): string {
+  const bytes = new Uint8Array(CSRF_TOKEN_LENGTH);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+/**
+ * Store CSRF token in session
+ */
+export async function setCsrfToken(env: { SESSIONS?: KVNamespace }, sessionId: string): Promise<string> {
+  const token = generateCsrfToken();
+  const csrfKey = `csrf:${sessionId}`;
+  await sessionsPut(env, csrfKey, token, SESSION_TTL_SECONDS);
+  return token;
+}
+
+/**
+ * Get CSRF token from session
+ */
+export async function getCsrfToken(env: { SESSIONS?: KVNamespace }, sessionId: string): Promise<string | null> {
+  const csrfKey = `csrf:${sessionId}`;
+  return sessionsGet(env, csrfKey);
+}
+
+/**
+ * Validate CSRF token from request header
+ * Returns true if valid, false otherwise
+ */
+export async function validateCsrf(
+  env: { SESSIONS?: KVNamespace },
+  request: Request,
+  sessionId: string
+): Promise<boolean> {
+  // Skip CSRF check for safe methods
+  const method = request.method.toUpperCase();
+  if (['GET', 'HEAD', 'OPTIONS'].includes(method)) {
+    return true;
+  }
+
+  const requestToken = request.headers.get('X-CSRF-Token');
+  if (!requestToken) {
+    return false;
+  }
+
+  const storedToken = await getCsrfToken(env, sessionId);
+  if (!storedToken) {
+    return false;
+  }
+
+  // Constant-time comparison
+  if (requestToken.length !== storedToken.length) {
+    return false;
+  }
+  let result = 0;
+  for (let i = 0; i < requestToken.length; i++) {
+    result |= requestToken.charCodeAt(i) ^ storedToken.charCodeAt(i);
+  }
+  return result === 0;
+}
+
+/**
+ * Require authentication with CSRF validation
+ */
+export async function requireAuthWithCsrf(
+  env: { SESSIONS?: KVNamespace },
+  request: Request
+): Promise<{ session: SessionData & { sessionId: string }; csrfToken: string } | { response: Response }> {
+  const session = await getSession(env, request);
+  if (!session) {
+    return {
+      response: new Response(
+        JSON.stringify({ success: false, message: '未登录' }),
+        { status: 401, headers: { 'Content-Type': 'application/json' } }
+      )
+    };
+  }
+
+  const csrfValid = await validateCsrf(env, request, session.sessionId);
+  if (!csrfValid) {
+    return {
+      response: new Response(
+        JSON.stringify({ success: false, message: 'CSRF token 无效' }),
+        { status: 403, headers: { 'Content-Type': 'application/json' } }
+      )
+    };
+  }
+
+  // Get or generate CSRF token for response
+  let csrfToken = await getCsrfToken(env, session.sessionId);
+  if (!csrfToken) {
+    csrfToken = await setCsrfToken(env, session.sessionId);
+  }
+
+  return { session, csrfToken };
+}
+

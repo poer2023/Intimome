@@ -23,9 +23,37 @@ export interface PaginatedLogsResponse {
     pagination: PaginationInfo;
 }
 
-export const fetchLogs = async (page: number = 1, limit: number = 15): Promise<PaginatedLogsResponse> => {
+export interface LogFilters {
+    from?: string;
+    to?: string;
+    mood?: string;
+    location?: string;
+    type?: string;
+    search?: string;
+}
+
+export const fetchLogs = async (
+    page: number = 1,
+    limit: number = 15,
+    filters?: LogFilters
+): Promise<PaginatedLogsResponse> => {
     try {
-        const res = await fetch(`${API_BASE}/api/logs?page=${page}&limit=${limit}`, { credentials: 'include' });
+        const params = new URLSearchParams({
+            page: String(page),
+            limit: String(limit)
+        });
+
+        // Add filter params if provided
+        if (filters) {
+            if (filters.from) params.append('from', filters.from);
+            if (filters.to) params.append('to', filters.to);
+            if (filters.mood) params.append('mood', filters.mood);
+            if (filters.location) params.append('location', filters.location);
+            if (filters.type) params.append('type', filters.type);
+            if (filters.search) params.append('search', filters.search);
+        }
+
+        const res = await fetch(`${API_BASE}/api/logs?${params.toString()}`, { credentials: 'include' });
         if (!res.ok) {
             console.error('Failed to fetch logs:', res.status);
             return { logs: [], pagination: { page: 1, limit, total: 0, totalPages: 0, hasMore: false } };

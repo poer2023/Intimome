@@ -54,7 +54,7 @@ function rowToLog(row: SessionLogRow): SessionLog {
     };
 }
 
-// GET: Fetch paginated logs for authenticated user
+// GET: Fetch paginated logs for authenticated user with optional filters
 export const onRequestGet: PagesFunction<Env> = async (context) => {
     const { env, request } = context;
     const auth = await requireAuth(env, request);
@@ -70,16 +70,55 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
         const limit = Math.min(50, Math.max(1, parseInt(url.searchParams.get('limit') || '15', 10)));
         const offset = (page - 1) * limit;
 
-        // Get total count for this user
+        // Parse filter params
+        const fromDate = url.searchParams.get('from'); // YYYY-MM-DD
+        const toDate = url.searchParams.get('to');     // YYYY-MM-DD
+        const mood = url.searchParams.get('mood');
+        const location = url.searchParams.get('location');
+        const type = url.searchParams.get('type');
+        const search = url.searchParams.get('search');
+
+        // Build WHERE clause with filters
+        const conditions: string[] = ['user_id = ?'];
+        const params: (string | number)[] = [userId];
+
+        if (fromDate) {
+            conditions.push('date >= ?');
+            params.push(fromDate);
+        }
+        if (toDate) {
+            conditions.push('date <= ?');
+            params.push(toDate + 'T23:59:59');
+        }
+        if (mood) {
+            conditions.push('mood = ?');
+            params.push(mood);
+        }
+        if (location) {
+            conditions.push('location = ?');
+            params.push(location);
+        }
+        if (type) {
+            conditions.push('type = ?');
+            params.push(type);
+        }
+        if (search) {
+            conditions.push('(notes LIKE ? OR partner_name LIKE ?)');
+            params.push(`%${search}%`, `%${search}%`);
+        }
+
+        const whereClause = conditions.join(' AND ');
+
+        // Get total count with filters
         const countResult = await env.DB.prepare(
-            'SELECT COUNT(*) as total FROM session_logs WHERE user_id = ?'
-        ).bind(userId).first<{ total: number }>();
+            `SELECT COUNT(*) as total FROM session_logs WHERE ${whereClause}`
+        ).bind(...params).first<{ total: number }>();
         const total = countResult?.total || 0;
 
-        // Get paginated logs for this user
+        // Get paginated logs with filters
         const result = await env.DB.prepare(
-            'SELECT * FROM session_logs WHERE user_id = ? ORDER BY date DESC LIMIT ? OFFSET ?'
-        ).bind(userId, limit, offset).all<SessionLogRow>();
+            `SELECT * FROM session_logs WHERE ${whereClause} ORDER BY date DESC LIMIT ? OFFSET ?`
+        ).bind(...params, limit, offset).all<SessionLogRow>();
 
         const logs = (result.results || []).map(rowToLog);
 
@@ -93,7 +132,8 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
                     total,
                     totalPages: Math.ceil(total / limit),
                     hasMore: offset + logs.length < total
-                }
+                },
+                filters: { from: fromDate, to: toDate, mood, location, type, search }
             }),
             { status: 200, headers: { 'Content-Type': 'application/json' } }
         );

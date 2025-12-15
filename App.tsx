@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, useNavigate, useLocation, Navigate, Outlet } from 'react-router-dom';
 import { SessionLog, AnalysisResponse } from './shared/types';
 import { generateInsights } from './services/geminiService';
@@ -7,13 +7,20 @@ import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { BottomNav } from './components/BottomNav';
 
-// Page imports
-import { DashboardPage } from './pages/DashboardPage';
-import { HistoryPage } from './pages/HistoryPage';
-import { LogPage } from './pages/LogPage';
-import { AuthPage } from './pages/AuthPage';
+// Lazy load page components for better initial load performance
+const DashboardPage = lazy(() => import('./pages/DashboardPage').then(m => ({ default: m.DashboardPage })));
+const HistoryPage = lazy(() => import('./pages/HistoryPage').then(m => ({ default: m.HistoryPage })));
+const LogPage = lazy(() => import('./pages/LogPage').then(m => ({ default: m.LogPage })));
+const AuthPage = lazy(() => import('./pages/AuthPage').then(m => ({ default: m.AuthPage })));
 
 type NavTarget = 'dashboard' | 'log' | 'history';
+
+// Loading spinner component
+const PageLoading = () => (
+  <div className="flex items-center justify-center py-20">
+    <div className="animate-spin w-8 h-8 border-2 border-brand-500 border-t-transparent rounded-full"></div>
+  </div>
+);
 
 const RequireAuth = () => {
   const { user } = useAuth();
@@ -134,40 +141,42 @@ const AppShell = () => {
   return (
     <div className="min-h-screen bg-[#fafafa] text-slate-900 selection:bg-brand-100 selection:text-brand-900 pb-32">
       <main className="max-w-lg mx-auto px-5 pt-6 pb-8 no-scrollbar h-full overflow-y-auto">
-        <Routes>
-          {/* Auth routes - redirect away if already logged in */}
-          <Route element={<RedirectIfAuth />}>
-            <Route path="/auth/login" element={<AuthPage mode="login" />} />
-            <Route path="/auth/register" element={<AuthPage mode="register" />} />
-          </Route>
+        <Suspense fallback={<PageLoading />}>
+          <Routes>
+            {/* Auth routes - redirect away if already logged in */}
+            <Route element={<RedirectIfAuth />}>
+              <Route path="/auth/login" element={<AuthPage mode="login" />} />
+              <Route path="/auth/register" element={<AuthPage mode="register" />} />
+            </Route>
 
-          <Route element={<RequireAuth />}>
-            <Route
-              path="/"
-              element={
-                <DashboardPage
-                  logs={logs}
-                  getFavoritePosition={getFavoritePosition}
-                  handleGenerateInsight={handleGenerateInsight}
-                  loadingInsight={loadingInsight}
-                  insight={insight}
-                  targetDate={targetDate}
-                  setTargetDate={handleSetTargetDate}
-                  user={user}
-                  onLogout={handleLogout}
-                />
-              }
-            />
-            <Route
-              path="/log"
-              element={<LogPage onSave={handleSaveLog} onCancel={() => navigate('/')} />}
-            />
-            <Route
-              path="/history"
-              element={<HistoryPage onCreateFirst={() => navigate('/log')} onDeleteLog={handleDeleteLog} />}
-            />
-          </Route>
-        </Routes>
+            <Route element={<RequireAuth />}>
+              <Route
+                path="/"
+                element={
+                  <DashboardPage
+                    logs={logs}
+                    getFavoritePosition={getFavoritePosition}
+                    handleGenerateInsight={handleGenerateInsight}
+                    loadingInsight={loadingInsight}
+                    insight={insight}
+                    targetDate={targetDate}
+                    setTargetDate={handleSetTargetDate}
+                    user={user}
+                    onLogout={handleLogout}
+                  />
+                }
+              />
+              <Route
+                path="/log"
+                element={<LogPage onSave={handleSaveLog} onCancel={() => navigate('/')} />}
+              />
+              <Route
+                path="/history"
+                element={<HistoryPage onCreateFirst={() => navigate('/log')} onDeleteLog={handleDeleteLog} />}
+              />
+            </Route>
+          </Routes>
+        </Suspense>
       </main>
 
       {user && <BottomNav />}

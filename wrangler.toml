@@ -26,3 +26,10 @@ bucket_name = "intimome-backups"
 # OPENROUTER_MODEL = "openai/gpt-4o-mini"
 # GOOGLE_CLIENT_ID = "your-google-client-id"
 # BACKUP_SECRET = "your-backup-secret"
+
+# Scheduled cron triggers for automatic backups
+# Note: Cron triggers are only supported for Workers, not Pages Functions
+# To enable, deploy as a Worker or use external cron service to call /api/backup
+# [triggers]
+# crons = ["0 0 * * *"] # Daily at midnight UTC
+
