@@ -5,23 +5,21 @@ interface Env {
 
 import { buildSessionCookie, createSession } from '../_auth';
 import { ensureSchema } from '../_schema';
-
-// Hash password using Web Crypto API
-async function hashPassword(password: string): Promise<string> {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(password);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-}
-
-async function verifyPassword(password: string, hash: string): Promise<boolean> {
-    const inputHash = await hashPassword(password);
-    return inputHash === hash;
-}
+import { verifyPasswordSecure, isLegacyHash, hashPasswordSecure } from '../_crypto';
+import { checkRateLimit, getClientIP, RATE_LIMITS } from '../_rateLimit';
 
 export const onRequestPost: PagesFunction<Env> = async (context) => {
     const { env, request } = context;
+
+    // Rate limiting
+    const clientIP = getClientIP(request);
+    const rateCheck = await checkRateLimit(env, `login:${clientIP}`, RATE_LIMITS.login);
+    if (!rateCheck.allowed) {
+        return new Response(
+            JSON.stringify({ success: false, message: '登录尝试过于频繁，请稍后再试' }),
+            { status: 429, headers: { 'Content-Type': 'application/json', 'Retry-After': String(rateCheck.resetAt - Math.floor(Date.now() / 1000)) } }
+        );
+    }
 
     try {
         await ensureSchema(env.DB);
@@ -46,12 +44,27 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
             );
         }
 
-        const valid = await verifyPassword(password, user.password);
+        // Verify password (supports both legacy SHA-256 and new PBKDF2 format)
+        const valid = await verifyPasswordSecure(password, user.password);
         if (!valid) {
             return new Response(
                 JSON.stringify({ success: false, message: '用户名或密码错误' }),
                 { status: 401, headers: { 'Content-Type': 'application/json' } }
             );
+        }
+
+        // Upgrade legacy password hash to new format on successful login
+        if (isLegacyHash(user.password)) {
+            try {
+                const newHash = await hashPasswordSecure(password);
+                await env.DB.prepare(
+                    'UPDATE users SET password = ? WHERE id = ?'
+                ).bind(newHash, user.id).run();
+                console.log(`Upgraded password hash for user ${user.id}`);
+            } catch (upgradeError) {
+                // Don't fail login if upgrade fails, just log it
+                console.error('Password hash upgrade failed:', upgradeError);
+            }
         }
 
         const sessionId = await createSession(env, {

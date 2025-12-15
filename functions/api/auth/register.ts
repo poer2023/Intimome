@@ -5,18 +5,21 @@ interface Env {
 
 import { buildSessionCookie, createSession } from '../_auth';
 import { ensureSchema } from '../_schema';
-
-// Hash password using Web Crypto API
-async function hashPassword(password: string): Promise<string> {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(password);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-}
+import { hashPasswordSecure } from '../_crypto';
+import { checkRateLimit, getClientIP, RATE_LIMITS } from '../_rateLimit';
 
 export const onRequestPost: PagesFunction<Env> = async (context) => {
     const { env, request } = context;
+
+    // Rate limiting
+    const clientIP = getClientIP(request);
+    const rateCheck = await checkRateLimit(env, `register:${clientIP}`, RATE_LIMITS.register);
+    if (!rateCheck.allowed) {
+        return new Response(
+            JSON.stringify({ success: false, message: '注册请求过于频繁，请稍后再试' }),
+            { status: 429, headers: { 'Content-Type': 'application/json', 'Retry-After': String(rateCheck.resetAt - Math.floor(Date.now() / 1000)) } }
+        );
+    }
 
     try {
         await ensureSchema(env.DB);
@@ -26,6 +29,21 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
         if (!username || !password) {
             return new Response(
                 JSON.stringify({ success: false, message: '用户名和密码必填' }),
+                { status: 400, headers: { 'Content-Type': 'application/json' } }
+            );
+        }
+
+        // Input validation
+        if (username.length < 3 || username.length > 32) {
+            return new Response(
+                JSON.stringify({ success: false, message: '用户名长度需在 3-32 字符之间' }),
+                { status: 400, headers: { 'Content-Type': 'application/json' } }
+            );
+        }
+
+        if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+            return new Response(
+                JSON.stringify({ success: false, message: '用户名只能包含字母、数字和下划线' }),
                 { status: 400, headers: { 'Content-Type': 'application/json' } }
             );
         }
@@ -49,8 +67,8 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
             );
         }
 
-        // Hash password and insert user
-        const hashedPassword = await hashPassword(password);
+        // Hash password securely with PBKDF2
+        const hashedPassword = await hashPasswordSecure(password);
         await env.DB.prepare(
             'INSERT INTO users (username, password) VALUES (?, ?)'
         ).bind(username, hashedPassword).run();

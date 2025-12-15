@@ -7,6 +7,7 @@ interface Env {
 
 import { requireAuth } from './_auth';
 import { ensureSchema } from './_schema';
+import { checkRateLimit, RATE_LIMITS } from './_rateLimit';
 
 interface SessionLogRow {
     id: string;
@@ -26,6 +27,7 @@ interface SessionLogRow {
 
 interface InsightsRequest {
     language: 'en' | 'zh';
+    force?: boolean; // Force refresh, bypass cache
 }
 
 // Helper to count occurrences and get top N
@@ -40,12 +42,26 @@ function getTopN(items: string[], n: number): string[] {
         .map(([key]) => key);
 }
 
+// Get today's date as YYYY-MM-DD
+function getTodayKey(): string {
+    return new Date().toISOString().split('T')[0];
+}
+
 export const onRequestPost: PagesFunction<Env> = async (context) => {
     const { env, request } = context;
 
     const auth = await requireAuth(env, request);
     if ('response' in auth) return auth.response;
     const { userId } = auth.session;
+
+    // Rate limiting
+    const rateCheck = await checkRateLimit(env, `insights:${userId}`, RATE_LIMITS.insights);
+    if (!rateCheck.allowed) {
+        return new Response(
+            JSON.stringify({ success: false, message: 'AI 分析请求过于频繁，请稍后再试' }),
+            { status: 429, headers: { 'Content-Type': 'application/json', 'Retry-After': String(rateCheck.resetAt - Math.floor(Date.now() / 1000)) } }
+        );
+    }
 
     if (!env.OPENROUTER_API_KEY) {
         return new Response(
@@ -57,7 +73,24 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     try {
         await ensureSchema(env.DB);
         const body = await request.json() as InsightsRequest;
-        const { language } = body;
+        const { language, force } = body;
+
+        // Check cache first (unless force refresh)
+        const cacheKey = `insights:${userId}:${getTodayKey()}:${language}`;
+        if (!force) {
+            const cached = await env.SESSIONS.get(cacheKey);
+            if (cached) {
+                try {
+                    const cachedData = JSON.parse(cached);
+                    return new Response(
+                        JSON.stringify({ success: true, data: cachedData, cached: true }),
+                        { status: 200, headers: { 'Content-Type': 'application/json' } }
+                    );
+                } catch {
+                    // Invalid cache, continue to generate
+                }
+            }
+        }
 
         // Fetch user's logs from database
         const result = await env.DB.prepare(
@@ -211,6 +244,15 @@ ${JSON.stringify(recentLogs, null, 2)}
         // Clean potential markdown code blocks
         const cleanedText = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
         const parsed = JSON.parse(cleanedText);
+
+        // Cache the result for 24 hours
+        try {
+            await env.SESSIONS.put(cacheKey, JSON.stringify(parsed), {
+                expirationTtl: 86400 // 24 hours
+            });
+        } catch (cacheError) {
+            console.error('Failed to cache insights:', cacheError);
+        }
 
         return new Response(
             JSON.stringify({ success: true, data: parsed }),

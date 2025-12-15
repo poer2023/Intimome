@@ -27,6 +27,8 @@ export default defineConfig(({ mode }) => {
         '@': path.resolve(__dirname, '.'),
       }
     },
+    // Copy public folder contents to dist
+    publicDir: 'public',
     build: {
       rollupOptions: {
         output: {
