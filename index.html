@@ -1,112 +1,305 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>IntimDiary</title>
-  <meta name="description" content="Private intimacy wellness tracker" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <title>IntimDiary - 私密亲密健康追踪</title>
+  <meta name="description" content="私密亲密健康追踪应用，帮助您记录和分析亲密生活" />
   <meta name="theme-color" content="#f43f5e" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="IntimDiary" />
+
+  <!-- Preconnect for faster font loading -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <!-- Preload critical resources -->
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap"
+    as="style">
+
+  <!-- Icons -->
   <link rel="icon" type="image/png" href="/favicon.png" />
   <link rel="apple-touch-icon" href="/favicon.png" />
   <link rel="manifest" href="/manifest.json" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            brand: {
-              50: '#fff1f2',
-              100: '#ffe4e6',
-              200: '#fecdd3',
-              300: '#fda4af',
-              400: '#fb7185',
-              500: '#f43f5e',
-              600: '#e11d48',
-              700: '#be123c',
-              900: '#881337',
-            },
-            slate: {
-              850: '#1e293b',
-            }
-          },
-          fontFamily: {
-            sans: ['Outfit', 'sans-serif'],
-          },
-          boxShadow: {
-            'subtle': '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
-            'elevation': '0 10px 40px -10px rgba(0, 0, 0, 0.05)',
-            'glow-sm': '0 0 10px rgba(244, 63, 94, 0.15)',
-          },
-          animation: {
-            'fade-in': 'fadeIn 0.5s ease-out forwards',
-            'slide-up': 'slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-            'scale-in': 'scaleIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-            'pop': 'pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards',
-            'breathe': 'breathe 3s ease-in-out infinite',
-            'thrust-y': 'thrustY 1s ease-in-out infinite',
-            'thrust-x': 'thrustX 1s ease-in-out infinite',
-            'bob': 'bob 2s ease-in-out infinite',
-            'rock': 'rock 2s ease-in-out infinite',
-            'modal-slide-up': 'modalSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-          },
-          keyframes: {
-            fadeIn: {
-              'from': { opacity: '0' },
-              'to': { opacity: '1' },
-            },
-            slideUpFade: {
-              'from': { transform: 'translateY(10px)', opacity: '0' },
-              'to': { transform: 'translateY(0)', opacity: '1' },
-            },
-            scaleIn: {
-              'from': { transform: 'scale(0.95)', opacity: '0' },
-              'to': { transform: 'scale(1)', opacity: '1' },
-            },
-            modalSlideUp: {
-              'from': { transform: 'translateY(20px) scale(0.95)', opacity: '0' },
-              'to': { transform: 'translateY(0) scale(1)', opacity: '1' },
-            },
-            pop: {
-              '0%': { transform: 'scale(0.95)' },
-              '40%': { transform: 'scale(1.02)' },
-              '100%': { transform: 'scale(1)' },
-            },
-            breathe: {
-              '0%, 100%': { transform: 'scale(1)' },
-              '50%': { transform: 'scale(1.05)' },
-            },
-            thrustY: {
-              '0%, 100%': { transform: 'translateY(0)' },
-              '50%': { transform: 'translateY(-6px)' },
-            },
-            thrustX: {
-              '0%, 100%': { transform: 'translateX(0)' },
-              '50%': { transform: 'translateX(6px)' },
-            },
-            bob: {
-              '0%, 100%': { transform: 'translateY(0)' },
-              '50%': { transform: 'translateY(-3px)' },
-            },
-            rock: {
-              '0%, 100%': { transform: 'rotate(-5deg)' },
-              '50%': { transform: 'rotate(5deg)' },
-            }
-          }
-        }
+
+  <!-- Non-blocking font loading -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet"
+    media="print" onload="this.media='all'">
+  <noscript>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  </noscript>
+
+  <!-- Critical inline CSS for fast FCP -->
+  <style>
+    /* Critical CSS - inlined for fast FCP */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --brand-50: #fff1f2;
+      --brand-100: #ffe4e6;
+      --brand-500: #f43f5e;
+      --brand-600: #e11d48;
+      --slate-50: #f8fafc;
+      --slate-100: #f1f5f9;
+      --slate-200: #e2e8f0;
+      --slate-300: #cbd5e1;
+      --slate-400: #94a3b8;
+      --slate-500: #64748b;
+      --slate-600: #475569;
+      --slate-700: #334155;
+      --slate-800: #1e293b;
+      --slate-900: #0f172a;
+    }
+
+    html {
+      font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      background-color: #fafafa;
+      color: var(--slate-900);
+      min-height: 100vh;
+      overscroll-behavior-y: none;
+    }
+
+    /* Loading skeleton */
+    .loading-skeleton {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 1.5rem;
+    }
+
+    .loading-logo {
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(135deg, var(--brand-500), var(--brand-600));
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1rem;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    .loading-logo svg {
+      width: 32px;
+      height: 32px;
+      color: white;
+    }
+
+    .loading-text {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--slate-700);
+    }
+
+    .loading-dots {
+      display: flex;
+      gap: 4px;
+      margin-top: 0.75rem;
+    }
+
+    .loading-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--brand-500);
+      border-radius: 50%;
+      animation: bounce 1.4s infinite ease-in-out both;
+    }
+
+    .loading-dot:nth-child(1) {
+      animation-delay: -0.32s;
+    }
+
+    .loading-dot:nth-child(2) {
+      animation-delay: -0.16s;
+    }
+
+    .loading-dot:nth-child(3) {
+      animation-delay: 0s;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+
+      50% {
+        transform: scale(1.05);
+        opacity: 0.9;
       }
     }
-  </script>
-  <style>
-    /* Custom scrollbar hiding for clean UI */
+
+    @keyframes bounce {
+
+      0%,
+      80%,
+      100% {
+        transform: scale(0);
+      }
+
+      40% {
+        transform: scale(1);
+      }
+    }
+
+    /* Utility classes used by React app */
+    .min-h-screen {
+      min-height: 100vh;
+    }
+
+    .bg-\[\#fafafa\] {
+      background-color: #fafafa;
+    }
+
+    .text-slate-900 {
+      color: var(--slate-900);
+    }
+
+    .pb-32 {
+      padding-bottom: 8rem;
+    }
+
+    .max-w-lg {
+      max-width: 32rem;
+    }
+
+    .mx-auto {
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .px-5 {
+      padding-left: 1.25rem;
+      padding-right: 1.25rem;
+    }
+
+    .pt-6 {
+      padding-top: 1.5rem;
+    }
+
+    .pb-8 {
+      padding-bottom: 2rem;
+    }
+
+    .space-y-6>*+* {
+      margin-top: 1.5rem;
+    }
+
+    .rounded-\[24px\] {
+      border-radius: 24px;
+    }
+
+    .bg-white {
+      background-color: white;
+    }
+
+    .p-6 {
+      padding: 1.5rem;
+    }
+
+    .shadow-subtle {
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    }
+
+    .border {
+      border-width: 1px;
+    }
+
+    .border-slate-100 {
+      border-color: var(--slate-100);
+    }
+
+    .text-2xl {
+      font-size: 1.5rem;
+      line-height: 2rem;
+    }
+
+    .font-semibold {
+      font-weight: 600;
+    }
+
+    .font-bold {
+      font-weight: 700;
+    }
+
+    .tracking-tight {
+      letter-spacing: -0.025em;
+    }
+
+    .text-brand-500 {
+      color: var(--brand-500);
+    }
+
+    .bg-brand-500 {
+      background-color: var(--brand-500);
+    }
+
+    .bg-brand-50 {
+      background-color: var(--brand-50);
+    }
+
+    .animate-fade-in {
+      animation: fadeIn 0.5s ease-out forwards;
+    }
+
+    .animate-slide-up {
+      animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .animate-spin {
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes slideUpFade {
+      from {
+        transform: translateY(10px);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes spin {
+      from {
+        transform: rotate(0deg);
+      }
+
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* Hide scrollbar for clean UI */
     .no-scrollbar::-webkit-scrollbar {
       display: none;
     }
@@ -116,18 +309,12 @@
       scrollbar-width: none;
     }
 
-    body {
-      background-color: #fafafa;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-      overscroll-behavior-y: none;
-      /* Prevent elastic scrolling on body */
+    /* Remove tap highlight on mobile */
+    * {
+      -webkit-tap-highlight-color: transparent;
     }
 
-    .delay-75 {
-      animation-delay: 75ms;
-    }
-
+    /* Animations */
     .delay-100 {
       animation-delay: 100ms;
     }
@@ -143,57 +330,77 @@
     .delay-300 {
       animation-delay: 300ms;
     }
-
-    /* Tap highlight color removal for mobile feel */
-    * {
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    /* AI Insights Loading Animations */
-    @keyframes orbit {
-
-      0%,
-      100% {
-        transform: translate(-50%, -50%) translate(20px, 0);
-      }
-
-      25% {
-        transform: translate(-50%, -50%) translate(0, 20px);
-      }
-
-      50% {
-        transform: translate(-50%, -50%) translate(-20px, 0);
-      }
-
-      75% {
-        transform: translate(-50%, -50%) translate(0, -20px);
-      }
-    }
-
-    @keyframes pulse-ring {
-      0% {
-        transform: scale(0.8);
-        opacity: 0.8;
-      }
-
-      50% {
-        transform: scale(1.2);
-        opacity: 0.3;
-      }
-
-      100% {
-        transform: scale(0.8);
-        opacity: 0.8;
-      }
-    }
   </style>
 </head>
 
 <body>
-  <div id="root"></div>
+  <!-- Loading skeleton for fast FCP/LCP -->
+  <div id="root" role="main" aria-label="应用主内容">
+    <div class="loading-skeleton" aria-busy="true" aria-live="polite">
+      <div class="loading-logo" aria-hidden="true">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+          <path
+            d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
+        </svg>
+      </div>
+      <div class="loading-text">IntimDiary</div>
+      <div class="loading-dots" aria-label="加载中">
+        <div class="loading-dot"></div>
+        <div class="loading-dot"></div>
+        <div class="loading-dot"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main app bundle -->
   <script type="module" src="/index.tsx"></script>
+
+  <!-- Non-critical: Tailwind CDN loaded async (for dev, production uses compiled CSS) -->
   <script>
-    // Register Service Worker for PWA
+    // Only load Tailwind CDN in development
+    if (import.meta?.env?.DEV !== false) {
+      const tw = document.createElement('script');
+      tw.src = 'https://cdn.tailwindcss.com';
+      tw.onload = function () {
+        tailwind.config = {
+          theme: {
+            extend: {
+              colors: {
+                brand: {
+                  50: '#fff1f2', 100: '#ffe4e6', 200: '#fecdd3', 300: '#fda4af',
+                  400: '#fb7185', 500: '#f43f5e', 600: '#e11d48', 700: '#be123c', 900: '#881337',
+                },
+              },
+              fontFamily: { sans: ['Outfit', 'sans-serif'] },
+              boxShadow: {
+                'subtle': '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+                'elevation': '0 10px 40px -10px rgba(0, 0, 0, 0.05)',
+              },
+              animation: {
+                'fade-in': 'fadeIn 0.5s ease-out forwards',
+                'slide-up': 'slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                'scale-in': 'scaleIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                'modal-slide-up': 'modalSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+              },
+              keyframes: {
+                fadeIn: { 'from': { opacity: '0' }, 'to': { opacity: '1' } },
+                slideUpFade: { 'from': { transform: 'translateY(10px)', opacity: '0' }, 'to': { transform: 'translateY(0)', opacity: '1' } },
+                scaleIn: { 'from': { transform: 'scale(0.95)', opacity: '0' }, 'to': { transform: 'scale(1)', opacity: '1' } },
+                modalSlideUp: { 'from': { transform: 'translateY(20px) scale(0.95)', opacity: '0' }, 'to': { transform: 'translateY(0) scale(1)', opacity: '1' } },
+              }
+            }
+          }
+        };
+      };
+      document.head.appendChild(tw);
+    }
+  </script>
+
+  <!-- Google Sign-In: loaded async, non-blocking -->
+  <script async defer src="https://accounts.google.com/gsi/client"></script>
+
+  <!-- Service Worker registration -->
+  <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js')
