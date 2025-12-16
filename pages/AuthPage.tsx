@@ -4,6 +4,35 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
 import { GoogleSVG } from '../components/SharedComponents';
 
+let gsiLoadPromise: Promise<void> | null = null;
+
+function loadGoogleIdentityServices(): Promise<void> {
+    const w = window as any;
+    if (w.google?.accounts?.id) return Promise.resolve();
+
+    if (gsiLoadPromise) return gsiLoadPromise;
+
+    gsiLoadPromise = new Promise((resolve, reject) => {
+        const existing = document.querySelector<HTMLScriptElement>('script[data-google-gsi="true"]');
+        if (existing) {
+            existing.addEventListener('load', () => resolve(), { once: true });
+            existing.addEventListener('error', () => reject(new Error('Failed to load Google Identity Services')), { once: true });
+            return;
+        }
+
+        const script = document.createElement('script');
+        script.src = 'https://accounts.google.com/gsi/client';
+        script.async = true;
+        script.defer = true;
+        script.dataset.googleGsi = 'true';
+        script.onload = () => resolve();
+        script.onerror = () => reject(new Error('Failed to load Google Identity Services'));
+        document.head.appendChild(script);
+    });
+
+    return gsiLoadPromise;
+}
+
 interface AuthPageProps {
     mode: 'login' | 'register';
 }
@@ -23,53 +52,52 @@ export const AuthPage: React.FC<AuthPageProps> = ({ mode }) => {
 
     useEffect(() => {
         if (!googleClientId) return;
+        let cancelled = false;
+        setGoogleReady(false);
 
-        const initGoogle = () => {
-            const w = window as any;
-            if (!w.google?.accounts?.id || !googleBtnRef.current) return false;
+        loadGoogleIdentityServices()
+            .then(() => {
+                if (cancelled) return;
 
-            w.google.accounts.id.initialize({
-                client_id: googleClientId,
-                callback: async (resp: { credential?: string }) => {
-                    if (!resp.credential) {
-                        setMessage('Google 登录失败');
-                        return;
-                    }
-                    const result = await loginWithGoogle(resp.credential);
-                    if (!result.success) {
-                        setMessage(result.message || 'Google 登录失败');
-                        return;
-                    }
-                    setMessage(null);
-                    navigate(from, { replace: true });
-                },
-                ux_mode: 'popup',
+                const w = window as any;
+                if (!w.google?.accounts?.id || !googleBtnRef.current) return;
+
+                w.google.accounts.id.initialize({
+                    client_id: googleClientId,
+                    callback: async (resp: { credential?: string }) => {
+                        if (!resp.credential) {
+                            setMessage('Google 登录失败');
+                            return;
+                        }
+                        const result = await loginWithGoogle(resp.credential);
+                        if (!result.success) {
+                            setMessage(result.message || 'Google 登录失败');
+                            return;
+                        }
+                        setMessage(null);
+                        navigate(from, { replace: true });
+                    },
+                    ux_mode: 'popup',
+                });
+
+                w.google.accounts.id.renderButton(googleBtnRef.current, {
+                    type: 'standard',
+                    theme: 'outline',
+                    size: 'large',
+                    text: 'continue_with',
+                    width: 400,
+                });
+
+                setGoogleReady(true);
+            })
+            .catch(() => {
+                if (cancelled) return;
+                setMessage('Google 登录加载失败');
             });
 
-            w.google.accounts.id.renderButton(googleBtnRef.current, {
-                type: 'standard',
-                theme: 'outline',
-                size: 'large',
-                text: 'continue_with',
-                width: 400,
-            });
-
-            setGoogleReady(true);
-            return true;
+        return () => {
+            cancelled = true;
         };
-
-        if (initGoogle()) return;
-
-        let attempts = 0;
-        const maxAttempts = 30;
-        const interval = setInterval(() => {
-            attempts++;
-            if (initGoogle() || attempts >= maxAttempts) {
-                clearInterval(interval);
-            }
-        }, 200);
-
-        return () => clearInterval(interval);
     }, [googleClientId, loginWithGoogle, navigate, from]);
 
     const handleSubmit = async (e: React.FormEvent) => {

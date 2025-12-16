@@ -111,12 +111,12 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
             {/* AI Insights Card */}
             <div className="animate-slide-up delay-300">
                 <Card className="bg-gradient-to-br from-brand-50/50 via-white to-white">
-                    <div className="flex justify-between items-start mb-3">
-                        <div className="flex items-center gap-2 text-brand-700 font-semibold text-sm">
-                            <Sparkles className="w-4 h-4" />
-                            <h3>{t.aiTitle}</h3>
+                        <div className="flex justify-between items-start mb-3">
+                            <div className="flex items-center gap-2 text-brand-700 font-semibold text-sm">
+                                <Sparkles className="w-4 h-4" />
+                                <h2>{t.aiTitle}</h2>
+                            </div>
                         </div>
-                    </div>
 
                     {loadingInsight ? (
                         <div className="flex flex-col items-center justify-center py-8">
