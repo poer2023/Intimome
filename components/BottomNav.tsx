@@ -16,17 +16,32 @@ export function BottomNav() {
       : 'dashboard';
 
   const itemBase =
-    'w-12 h-12 flex items-center justify-center rounded-full transition-all duration-200 ease-out';
-  const itemActive = 'bg-slate-900 text-white shadow-lg shadow-slate-900/20';
+    'w-12 h-12 flex items-center justify-center rounded-full transition-all duration-300 ease-out';
+  const itemActive = 'bg-slate-900 text-white shadow-lg shadow-slate-900/25';
   const itemInactive =
-    'bg-white text-slate-500 border border-slate-200 hover:border-slate-300 hover:text-slate-700 active:scale-95 shadow-subtle';
+    'bg-white/60 text-slate-500 border border-white/50 hover:bg-white/80 hover:text-slate-700 active:scale-95';
 
   return (
     <nav
       className="fixed bottom-6 left-0 right-0 z-50 flex justify-center pointer-events-none"
       aria-label="底部导航"
     >
-      <div className="pointer-events-auto flex items-center gap-3 bg-white/80 backdrop-blur-xl border border-slate-200 rounded-full px-3 py-2 shadow-elevation">
+      {/* Liquid Glass Container */}
+      <div
+        className="pointer-events-auto flex items-center gap-3 px-3 py-2 rounded-full"
+        style={{
+          // Higher transparency glass effect
+          background: 'linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.08) 100%)',
+          backdropFilter: 'blur(16px) saturate(120%)',
+          WebkitBackdropFilter: 'blur(16px) saturate(120%)',
+          border: '1px solid rgba(255,255,255,0.2)',
+          boxShadow: `
+            0 8px 32px rgba(0,0,0,0.04),
+            0 2px 8px rgba(0,0,0,0.02),
+            inset 0 1px 1px rgba(255,255,255,0.3)
+          `,
+        }}
+      >
         <Link
           to="/"
           aria-label={t.dashboard}
@@ -37,11 +52,15 @@ export function BottomNav() {
           <span className="sr-only">{t.dashboard}</span>
         </Link>
 
+        {/* Center button with enhanced style */}
         <Link
           to="/log"
           aria-label={t.newLog}
           aria-current={active === 'log' ? 'page' : undefined}
-          className="relative w-14 h-14 bg-slate-900 rounded-full shadow-lg shadow-slate-900/20 flex items-center justify-center text-white transition-all duration-200 ease-out active:scale-95"
+          className="relative w-14 h-14 bg-slate-900 rounded-full flex items-center justify-center text-white transition-all duration-300 ease-out active:scale-95"
+          style={{
+            boxShadow: '0 4px 20px rgba(15,23,42,0.3), 0 2px 8px rgba(15,23,42,0.2)',
+          }}
         >
           <Plus className="w-6 h-6" aria-hidden="true" />
           <span className="sr-only">{t.newLog}</span>
@@ -60,4 +79,3 @@ export function BottomNav() {
     </nav>
   );
 }
-
