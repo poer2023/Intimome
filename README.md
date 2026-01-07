@@ -6,8 +6,10 @@
 
 ```bash
 npm install
-npm run dev
+npm run dev:cf
 ```
+
+访问 http://localhost:8788（不是 3000）
 
 ## 部署
 
