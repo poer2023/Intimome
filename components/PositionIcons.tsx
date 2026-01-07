@@ -240,23 +240,156 @@ const ScissorsSVG = () => (
     </svg>
 );
 
+// Blowjob - Person kneeling before standing/sitting partner
+const BlowjobSVG = () => (
+    <svg viewBox="0 0 100 100" className="w-full h-full">
+        {/* Standing Partner - Slate */}
+        <g transform="translate(10,0)">
+            <circle cx="25" cy="30" r="8" fill="#94a3b8" />
+            <path d="M25 38 L25 75" stroke="#94a3b8" strokeWidth="6" strokeLinecap="round" />
+            <path d="M25 75 L15 95" stroke="#94a3b8" strokeWidth="4" strokeLinecap="round" />
+            <path d="M25 75 L35 95" stroke="#94a3b8" strokeWidth="4" strokeLinecap="round" />
+        </g>
+
+        {/* Kneeling Partner - Emerald */}
+        <g className="animate-bob origin-center">
+            <circle cx="65" cy="60" r="8" fill="#f43f5e" />
+            <path d="M65 68 L50 90" stroke="#f43f5e" strokeWidth="6" strokeLinecap="round" />
+            <path d="M50 90 L35 90" stroke="#f43f5e" strokeWidth="4" strokeLinecap="round" />
+            {/* Reaching arm */}
+            <path d="M65 75 L40 60" stroke="#f43f5e" strokeWidth="3" strokeLinecap="round" />
+        </g>
+    </svg>
+);
+
+// Cunnilingus - One lying back, other head between legs
+const CunnilingusVG = () => (
+    <svg viewBox="0 0 100 100" className="w-full h-full">
+        {/* Lying Partner - Slate */}
+        <circle cx="50" cy="30" r="7" fill="#94a3b8" />
+        <path d="M50 38 L50 60" stroke="#94a3b8" strokeWidth="6" strokeLinecap="round" />
+        {/* Open Legs */}
+        <path d="M50 60 L25 85" stroke="#94a3b8" strokeWidth="4" strokeLinecap="round" />
+        <path d="M50 60 L75 85" stroke="#94a3b8" strokeWidth="4" strokeLinecap="round" />
+
+        {/* Performing Partner - Emerald */}
+        <g className="animate-bob">
+            <circle cx="50" cy="75" r="8" fill="#f43f5e" />
+            <path d="M50 83 L50 95" stroke="#f43f5e" strokeWidth="6" strokeLinecap="round" />
+            {/* Arms holding legs */}
+            <path d="M50 85 L30 80" stroke="#f43f5e" strokeWidth="3" strokeLinecap="round" />
+            <path d="M50 85 L70 80" stroke="#f43f5e" strokeWidth="3" strokeLinecap="round" />
+        </g>
+    </svg>
+);
+
+// Handjob - Hand interaction focus
+const HandjobSVG = () => (
+    <svg viewBox="0 0 100 100" className="w-full h-full">
+        {/* Receiver - Slate */}
+        <circle cx="50" cy="35" r="8" fill="#94a3b8" />
+        <path d="M50 43 L50 80" stroke="#94a3b8" strokeWidth="6" strokeLinecap="round" />
+        <path d="M50 80 L35 95" stroke="#94a3b8" strokeWidth="4" strokeLinecap="round" />
+        <path d="M50 80 L65 95" stroke="#94a3b8" strokeWidth="4" strokeLinecap="round" />
+
+        {/* Hand/Arm - Emerald */}
+        <g className="animate-thrust-y origin-center">
+            <path d="M80 80 L60 60" stroke="#f43f5e" strokeWidth="5" strokeLinecap="round" />
+            <circle cx="50" cy="65" r="6" stroke="#f43f5e" strokeWidth="3" fill="none" />
+        </g>
+    </svg>
+);
+
+// Fingering - Hand interaction focus (female context)
+const FingeringSVG = () => (
+    <svg viewBox="0 0 100 100" className="w-full h-full">
+        {/* Receiver Lying - Slate */}
+        <path d="M20 75 Q 50 85 80 75" stroke="#94a3b8" strokeWidth="6" strokeLinecap="round" fill="none" />
+        <circle cx="50" cy="30" r="7" fill="#94a3b8" />
+        <path d="M50 37 L50 60" stroke="#94a3b8" strokeWidth="6" strokeLinecap="round" />
+        <path d="M50 60 L30 75" stroke="#94a3b8" strokeWidth="4" strokeLinecap="round" />
+        <path d="M50 60 L70 75" stroke="#94a3b8" strokeWidth="4" strokeLinecap="round" />
+
+        {/* Hand/Arm - Emerald */}
+        <g className="animate-rock origin-bottom">
+            <path d="M50 90 L50 78" stroke="#f43f5e" strokeWidth="5" strokeLinecap="round" />
+            <circle cx="50" cy="75" r="4" fill="#f43f5e" />
+        </g>
+    </svg>
+);
+
+// Facesitting - One lying, other sitting on face
+const FacesittingSVG = () => (
+    <svg viewBox="0 0 100 100" className="w-full h-full">
+        {/* Bottom Partner - Slate */}
+        <circle cx="50" cy="70" r="7" fill="#94a3b8" />
+        <path d="M20 75 L80 75" stroke="#94a3b8" strokeWidth="6" strokeLinecap="round" />
+
+        {/* Top Partner Sitting - Emerald */}
+        <g className="animate-bounce origin-bottom">
+            <path d="M50 40 L50 60" stroke="#f43f5e" strokeWidth="6" strokeLinecap="round" />
+            {/* Buttocks area roughly */}
+            <circle cx="45" cy="55" r="6" fill="#f43f5e" />
+            <circle cx="55" cy="55" r="6" fill="#f43f5e" />
+
+            {/* Legs */}
+            <path d="M50 60 L30 75" stroke="#f43f5e" strokeWidth="4" strokeLinecap="round" />
+            <path d="M50 60 L70 75" stroke="#f43f5e" strokeWidth="4" strokeLinecap="round" />
+            <circle cx="50" cy="35" r="8" fill="#f43f5e" />
+        </g>
+    </svg>
+);
+
+// Anal - Doggy variants with specific focus/angle
+const AnalSVG = () => (
+    <svg viewBox="0 0 100 100" className="w-full h-full">
+        {/* Bottom Partner (High hips) - Slate */}
+        <g transform="translate(0,5)">
+            <circle cx="70" cy="70" r="7" fill="#94a3b8" />
+            <path d="M70 77 L55 77" stroke="#94a3b8" strokeWidth="6" strokeLinecap="round" />
+            <path d="M55 77 L55 95" stroke="#94a3b8" strokeWidth="4" strokeLinecap="round" />
+            <path d="M70 77 L70 95" stroke="#94a3b8" strokeWidth="4" strokeLinecap="round" />
+        </g>
+
+        {/* Top Partner (Behind) - Emerald */}
+        <g className="animate-thrust-x origin-bottom-left">
+            <circle cx="30" cy="50" r="8" fill="#f43f5e" />
+            <path d="M30 58 L45 70" stroke="#f43f5e" strokeWidth="6" strokeLinecap="round" />
+            <path d="M25 70 L25 90" stroke="#f43f5e" strokeWidth="4" strokeLinecap="round" />
+            <path d="M45 70 L50 70" stroke="#f43f5e" strokeWidth="4" strokeLinecap="round" />
+        </g>
+
+        {/* Explicit point of contact hint */}
+        <circle cx="55" cy="72" r="3" fill="#f43f5e" className="animate-pulse" />
+    </svg>
+);
+
 export const POSITION_CONFIG: Record<PositionType, { icon: React.FC; color: string }> = {
+    // 传统体位
     [PositionType.MISSIONARY]: { icon: MissionarySVG, color: 'bg-indigo-50/50' },
     [PositionType.DOGGY_STYLE]: { icon: DoggySVG, color: 'bg-slate-50' },
     [PositionType.COWGIRL]: { icon: CowgirlSVG, color: 'bg-indigo-50/50' },
-    [PositionType.SPOONING]: { icon: SpooningSVG, color: 'bg-slate-50' },
     [PositionType.REVERSE_COWGIRL]: { icon: RevCowgirlSVG, color: 'bg-indigo-50/50' },
-    [PositionType.ORAL]: { icon: OralSVG, color: 'bg-slate-50' },
+    [PositionType.SPOONING]: { icon: SpooningSVG, color: 'bg-slate-50' },
+    [PositionType.PRONE_BONE]: { icon: ProneBoneSVG, color: 'bg-slate-50' },
     [PositionType.LEGS_UP]: { icon: LegsUpSVG, color: 'bg-indigo-50/50' },
     [PositionType.STANDING]: { icon: StandingSVG, color: 'bg-slate-50' },
-    [PositionType.SIXTY_NINE]: { icon: SixtyNineSVG, color: 'bg-indigo-50/50' },
     [PositionType.LOTUS]: { icon: LotusSVG, color: 'bg-slate-50' },
     [PositionType.SEATED]: { icon: SeatedSVG, color: 'bg-indigo-50/50' },
-    [PositionType.PRONE_BONE]: { icon: ProneBoneSVG, color: 'bg-slate-50' },
     [PositionType.SIDEWAYS]: { icon: SidewaysSVG, color: 'bg-indigo-50/50' },
     [PositionType.TABLETOP]: { icon: TabletopSVG, color: 'bg-slate-50' },
     [PositionType.SCISSORS]: { icon: ScissorsSVG, color: 'bg-indigo-50/50' },
     [PositionType.SUSPENDED]: { icon: SuspendedSVG, color: 'bg-slate-50' },
+    // 口交 - 使用专用图标
+    [PositionType.BLOWJOB]: { icon: BlowjobSVG, color: 'bg-slate-50' },
+    [PositionType.CUNNILINGUS]: { icon: CunnilingusVG, color: 'bg-indigo-50/50' },
+    [PositionType.SIXTY_NINE]: { icon: SixtyNineSVG, color: 'bg-indigo-50/50' },
+    // 手动刺激 - 使用专用图标
+    [PositionType.HANDJOB]: { icon: HandjobSVG, color: 'bg-slate-50' },
+    [PositionType.FINGERING]: { icon: FingeringSVG, color: 'bg-indigo-50/50' },
+    // 其他
+    [PositionType.FACESITTING]: { icon: FacesittingSVG, color: 'bg-slate-50' },
+    [PositionType.ANAL]: { icon: AnalSVG, color: 'bg-indigo-50/50' },
 };
 
 export const PositionIcon: React.FC<{ position: PositionType; className?: string }> = ({ position, className = 'w-10 h-10' }) => {

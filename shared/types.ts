@@ -9,39 +9,49 @@ export enum ActivityType {
 export enum LocationType {
     BEDROOM = 'Bedroom',
     LIVING_ROOM = 'Living Room',
-    SHOWER = 'Shower/Bath',
     KITCHEN = 'Kitchen',
-    STUDY = 'Study',
-    BALCONY = 'Balcony',
+    BATHROOM = 'Bathroom', // Replaces SHOWER
+    OFFICE = 'Office',     // Replaces STUDY
+    OUTDOORS = 'Outdoors', // Replaces BALCONY
     HOTEL = 'Hotel',
     CAR = 'Car',
 }
 
 export enum PositionType {
+    // 传统体位
     MISSIONARY = 'Missionary',
     DOGGY_STYLE = 'Doggy Style',
     COWGIRL = 'Cowgirl',
-    SPOONING = 'Spooning',
     REVERSE_COWGIRL = 'Reverse Cowgirl',
-    ORAL = 'Oral',
+    SPOONING = 'Spooning',
+    PRONE_BONE = 'Prone Bone',
     LEGS_UP = 'Legs Up',
     STANDING = 'Standing',
-    SIXTY_NINE = '69',
     LOTUS = 'Lotus',
     SEATED = 'Seated',
-    PRONE_BONE = 'Prone Bone',
     SIDEWAYS = 'Sideways',
     TABLETOP = 'Tabletop',
     SCISSORS = 'Scissors',
     SUSPENDED = 'Suspended',
+    // 口交
+    BLOWJOB = 'Blowjob',
+    CUNNILINGUS = 'Cunnilingus',
+    SIXTY_NINE = '69',
+    // 手动刺激
+    HANDJOB = 'Handjob',
+    FINGERING = 'Fingering',
+    // 其他
+    FACESITTING = 'Facesitting',
+    ANAL = 'Anal',
 }
 
 export enum MoodType {
     PASSIONATE = 'Passionate',
     TENDER = 'Tender',
-    ROUGH = 'Rough',
+    KINKY = 'Kinky',     // Replaces ROUGH
     PLAYFUL = 'Playful',
-    TIRED = 'Tired',
+    LAZY = 'Lazy',       // Replaces TIRED
+    MAKEUP = 'Makeup',   // New
     QUICKIE = 'Quickie',
 }
 

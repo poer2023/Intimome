@@ -77,47 +77,63 @@ export const translations = {
     location: {
       [LocationType.BEDROOM]: "Bedroom",
       [LocationType.LIVING_ROOM]: "Living Room",
-      [LocationType.SHOWER]: "Shower/Bath",
       [LocationType.KITCHEN]: "Kitchen",
-      [LocationType.STUDY]: "Study",
-      [LocationType.BALCONY]: "Balcony",
+      [LocationType.BATHROOM]: "Bathroom",
+      [LocationType.OFFICE]: "Office",
+      [LocationType.OUTDOORS]: "Outdoors",
       [LocationType.HOTEL]: "Hotel",
       [LocationType.CAR]: "Car"
     },
     mood: {
       [MoodType.PASSIONATE]: "Passionate",
       [MoodType.TENDER]: "Tender",
-      [MoodType.ROUGH]: "Rough",
+      [MoodType.KINKY]: "Kinky",
       [MoodType.PLAYFUL]: "Playful",
-      [MoodType.TIRED]: "Tired",
+      [MoodType.LAZY]: "Lazy",
+      [MoodType.MAKEUP]: "Make-up",
       [MoodType.QUICKIE]: "Quickie"
     },
     position: {
       [PositionType.MISSIONARY]: "Missionary",
       [PositionType.DOGGY_STYLE]: "Doggy Style",
       [PositionType.COWGIRL]: "Cowgirl",
-      [PositionType.SPOONING]: "Spooning",
       [PositionType.REVERSE_COWGIRL]: "Reverse Cowgirl",
-      [PositionType.ORAL]: "Oral",
+      [PositionType.SPOONING]: "Spooning",
+      [PositionType.PRONE_BONE]: "Prone Bone",
       [PositionType.LEGS_UP]: "Legs Up",
       [PositionType.STANDING]: "Standing",
-      [PositionType.SIXTY_NINE]: "69",
       [PositionType.LOTUS]: "Lotus",
       [PositionType.SEATED]: "Seated",
-      [PositionType.PRONE_BONE]: "Prone Bone",
       [PositionType.SIDEWAYS]: "Sideways",
       [PositionType.TABLETOP]: "Tabletop",
       [PositionType.SCISSORS]: "Scissors",
-      [PositionType.SUSPENDED]: "Suspended"
+      [PositionType.SUSPENDED]: "Suspended",
+      [PositionType.BLOWJOB]: "Blowjob",
+      [PositionType.CUNNILINGUS]: "Cunnilingus",
+      [PositionType.SIXTY_NINE]: "69",
+      [PositionType.HANDJOB]: "Handjob",
+      [PositionType.FINGERING]: "Fingering",
+      [PositionType.FACESITTING]: "Facesitting",
+      [PositionType.ANAL]: "Anal"
+    },
+    posCats: {
+      all: "All",
+      classics: "Classics",
+      oralManual: "Oral & Manual",
+      adventure: "Adventure",
+      intimate: "Intimate"
     },
     tags: {
       'Music': 'Music',
       'Toys': 'Toys',
       'Lube': 'Lube',
       'Massage': 'Massage',
-      'Candles': 'Candles',
-      'Blindfold': 'Blindfold',
-      'Spontaneous': 'Spontaneous'
+      'Safe Sex': 'Safe Sex',
+      'Costume': 'Costume',
+      'Mirror': 'Mirror',
+      'Outdoor': 'Outdoor',
+      'Period': 'Period',
+      'Drunk': 'Drunk'
     },
 
     // DateTimePicker
@@ -255,47 +271,63 @@ export const translations = {
     location: {
       [LocationType.BEDROOM]: "卧室",
       [LocationType.LIVING_ROOM]: "客厅",
-      [LocationType.SHOWER]: "浴室/淋浴",
       [LocationType.KITCHEN]: "厨房",
-      [LocationType.STUDY]: "书房",
-      [LocationType.BALCONY]: "阳台",
+      [LocationType.BATHROOM]: "浴室",
+      [LocationType.OFFICE]: "办公室",
+      [LocationType.OUTDOORS]: "户外",
       [LocationType.HOTEL]: "酒店",
       [LocationType.CAR]: "车内"
     },
     mood: {
       [MoodType.PASSIONATE]: "激情",
       [MoodType.TENDER]: "温柔",
-      [MoodType.ROUGH]: "粗暴",
       [MoodType.PLAYFUL]: "顽皮",
-      [MoodType.TIRED]: "疲惫",
+      [MoodType.KINKY]: "情趣",
+      [MoodType.LAZY]: "慵懒",
+      [MoodType.MAKEUP]: "和好",
       [MoodType.QUICKIE]: "速战速决"
     },
     position: {
       [PositionType.MISSIONARY]: "传教士",
       [PositionType.DOGGY_STYLE]: "后入式",
       [PositionType.COWGIRL]: "女上位",
-      [PositionType.SPOONING]: "侧卧/勺子",
       [PositionType.REVERSE_COWGIRL]: "反向女上位",
-      [PositionType.ORAL]: "口交",
+      [PositionType.SPOONING]: "侧卧/勺子",
+      [PositionType.PRONE_BONE]: "俯卧式",
       [PositionType.LEGS_UP]: "抬腿式",
       [PositionType.STANDING]: "站立",
-      [PositionType.SIXTY_NINE]: "69式",
       [PositionType.LOTUS]: "莲花式",
       [PositionType.SEATED]: "椅子式",
-      [PositionType.PRONE_BONE]: "俯卧式",
       [PositionType.SIDEWAYS]: "侧入式",
       [PositionType.TABLETOP]: "桌面式",
       [PositionType.SCISSORS]: "剪刀式",
-      [PositionType.SUSPENDED]: "悬空式"
+      [PositionType.SUSPENDED]: "悬空式",
+      [PositionType.BLOWJOB]: "口交(男)",
+      [PositionType.CUNNILINGUS]: "口交(女)",
+      [PositionType.SIXTY_NINE]: "69式",
+      [PositionType.HANDJOB]: "手交(男)",
+      [PositionType.FINGERING]: "指交(女)",
+      [PositionType.FACESITTING]: "坐脸",
+      [PositionType.ANAL]: "后庭"
+    },
+    posCats: {
+      all: "全部",
+      classics: "经典",
+      oralManual: "口手",
+      adventure: "进阶",
+      intimate: "亲密"
     },
     tags: {
       'Music': '音乐',
       'Toys': '玩具',
       'Lube': '润滑液',
       'Massage': '按摩',
-      'Candles': '蜡烛',
-      'Blindfold': '眼罩',
-      'Spontaneous': '即兴'
+      'Safe Sex': '安全措施',
+      'Costume': '制服/情趣',
+      'Mirror': '镜子',
+      'Outdoor': '户外/野战',
+      'Period': '经期',
+      'Drunk': '微醺/醉酒'
     },
 
     // DateTimePicker

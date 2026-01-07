@@ -1,7 +1,7 @@
 import React from 'react';
 import { LocationType } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
-import { Home, Bath, Utensils, BedDouble, BookOpen, Sun, Building, Car, Armchair } from 'lucide-react';
+import { Home, Bath, Utensils, BedDouble, Briefcase, Mountain, Building, Car, Armchair } from 'lucide-react';
 
 interface ApartmentSelectorProps {
   selectedLocation: LocationType;
@@ -14,10 +14,10 @@ export const ApartmentSelector: React.FC<ApartmentSelectorProps> = ({ selectedLo
   const LOCATION_ICONS: Record<LocationType, React.ElementType> = {
     [LocationType.BEDROOM]: BedDouble,
     [LocationType.LIVING_ROOM]: Armchair,
-    [LocationType.SHOWER]: Bath,
     [LocationType.KITCHEN]: Utensils,
-    [LocationType.STUDY]: BookOpen,
-    [LocationType.BALCONY]: Sun,
+    [LocationType.BATHROOM]: Bath,
+    [LocationType.OFFICE]: Briefcase,
+    [LocationType.OUTDOORS]: Mountain,
     [LocationType.HOTEL]: Building,
     [LocationType.CAR]: Car,
   };

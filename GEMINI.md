@@ -16,11 +16,17 @@
 ### 常用命令
 
 ```bash
-npm run dev        # 启动 Vite 开发服务器 (localhost:3000)
+# ⚠️ 重启开发服务器时，默认使用这个命令（前端+后端完整环境）
+npm run build && npm run pages:dev  # 完整环境 (localhost:8788)
+
+# 其他命令
+npm run dev        # 仅前端热重载 (localhost:3000)，需配合 pages:dev 使用
 npm run build      # 构建生产版本
-npm run pages:dev  # 启动完整 Cloudflare 本地环境 (localhost:8788)
+npm run pages:dev  # 启动后端 Workers (localhost:8788)
 npm run deploy     # 部署到 Cloudflare Pages (需用户确认)
 ```
+
+> **🔄 重启开发服务器**: 当用户说"重启开发服务器"时，执行 `npm run build && npm run pages:dev`
 
 ### 类型检查
 
