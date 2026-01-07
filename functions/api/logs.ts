@@ -234,3 +234,66 @@ export const onRequestDelete: PagesFunction<Env> = async (context) => {
         );
     }
 };
+
+// PUT: Update an existing log
+export const onRequestPut: PagesFunction<Env> = async (context) => {
+    const { env, request } = context;
+    const auth = await requireAuth(env, request);
+    if ('response' in auth) return auth.response;
+    const { userId } = auth.session;
+
+    try {
+        await ensureSchema(env.DB);
+        const body = await request.json() as { log: SessionLog };
+        const { log } = body;
+
+        if (!log || !log.id) {
+            return new Response(
+                JSON.stringify({ success: false, message: '缺少必要参数' }),
+                { status: 400, headers: { 'Content-Type': 'application/json' } }
+            );
+        }
+
+        // Update log (only if it belongs to this user)
+        const result = await env.DB.prepare(`
+            UPDATE session_logs 
+            SET date = ?, duration_minutes = ?, type = ?, partner_name = ?, 
+                location = ?, positions = ?, rating = ?, mood = ?, 
+                tags = ?, notes = ?, orgasm_reached = ?
+            WHERE id = ? AND user_id = ?
+        `).bind(
+            log.date,
+            log.durationMinutes,
+            log.type,
+            log.partnerName || null,
+            log.location,
+            JSON.stringify(log.positions),
+            log.rating,
+            log.mood,
+            log.tags ? JSON.stringify(log.tags) : null,
+            log.notes || null,
+            log.orgasmReached ? 1 : 0,
+            log.id,
+            userId
+        ).run();
+
+        if (result.meta.changes === 0) {
+            return new Response(
+                JSON.stringify({ success: false, message: '日志不存在或无权限修改' }),
+                { status: 404, headers: { 'Content-Type': 'application/json' } }
+            );
+        }
+
+        return new Response(
+            JSON.stringify({ success: true, data: log }),
+            { status: 200, headers: { 'Content-Type': 'application/json' } }
+        );
+    } catch (error) {
+        console.error('Update log error:', error);
+        return new Response(
+            JSON.stringify({ success: false, message: '更新日志失败' }),
+            { status: 500, headers: { 'Content-Type': 'application/json' } }
+        );
+    }
+};
+

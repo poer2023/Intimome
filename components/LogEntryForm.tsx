@@ -8,6 +8,7 @@ import { DateTimePickerModal } from './DateTimePicker';
 interface LogEntryFormProps {
   onSave: (log: SessionLog) => void;
   onCancel: () => void;
+  initialData?: SessionLog;
 }
 
 // --- SVG COMPONENTS (Updated Colors: Emerald #10b981 for Active, Slate #94a3b8 for Passive) ---
@@ -344,19 +345,32 @@ const TAGS = [
   { id: 'Spontaneous', icon: Sparkles },
 ];
 
-export const LogEntryForm: React.FC<LogEntryFormProps> = ({ onSave, onCancel }) => {
+export const LogEntryForm: React.FC<LogEntryFormProps> = ({ onSave, onCancel, initialData }) => {
   const { t } = useLanguage();
-  const [date, setDate] = useState(new Date().toISOString().slice(0, 16));
+  const isEditMode = !!initialData;
+
+  // Helper to format date for input
+  const formatDateForInput = (dateStr?: string) => {
+    if (!dateStr) return new Date().toISOString().slice(0, 16);
+    const d = new Date(dateStr);
+    const offset = d.getTimezoneOffset() * 60000;
+    return new Date(d.getTime() - offset).toISOString().slice(0, 16);
+  };
+
+  const [date, setDate] = useState(formatDateForInput(initialData?.date));
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [duration, setDuration] = useState(20);
-  const [type, setType] = useState(ActivityType.PARTNER);
-  const [location, setLocation] = useState(LocationType.BEDROOM);
-  const [positions, setPositions] = useState<PositionType[]>([PositionType.MISSIONARY]);
-  const [mood, setMood] = useState(MoodType.PASSIONATE);
-  const [rating, setRating] = useState(4);
-  const [orgasmReached, setOrgasmReached] = useState(true);
-  const [notes, setNotes] = useState('');
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [duration, setDuration] = useState(initialData?.durationMinutes ?? 20);
+  const [type, setType] = useState(initialData?.type ?? ActivityType.PARTNER);
+  const [location, setLocation] = useState(initialData?.location ?? LocationType.BEDROOM);
+  const [positions, setPositions] = useState<PositionType[]>(initialData?.positions ?? [PositionType.MISSIONARY]);
+  const [mood, setMood] = useState(initialData?.mood ?? MoodType.PASSIONATE);
+  const [rating, setRating] = useState(initialData?.rating ?? 4);
+  const [orgasmReached, setOrgasmReached] = useState(initialData?.orgasmReached ?? true);
+  const [notes, setNotes] = useState(initialData?.notes ?? '');
+  // Remove QuickCapture tag when editing
+  const [selectedTags, setSelectedTags] = useState<string[]>(
+    (initialData?.tags ?? []).filter(tag => tag !== 'QuickCapture')
+  );
 
   const togglePosition = (pos: PositionType) => {
     if (positions.includes(pos)) {
@@ -377,7 +391,7 @@ export const LogEntryForm: React.FC<LogEntryFormProps> = ({ onSave, onCancel }) 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const newLog: SessionLog = {
-      id: crypto.randomUUID(),
+      id: initialData?.id ?? crypto.randomUUID(),
       date: new Date(date).toISOString(),
       durationMinutes: Number(duration),
       type,

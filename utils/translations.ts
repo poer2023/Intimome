@@ -172,7 +172,12 @@ export const translations = {
     needMoreLogs: "Please log at least 3 sessions to generate insights.",
     logout: "Logout",
     or: "OR",
-    loadingGoogleBtn: "Loading..."
+    loadingGoogleBtn: "Loading...",
+
+    // Quick Capture
+    quickCapture: "Quick Capture",
+    quickLogged: "Quick logged!",
+    pendingDetails: "Pending"
   },
   zh: {
     appTitle: "IntimDiary",
@@ -345,6 +350,11 @@ export const translations = {
     needMoreLogs: "请至少记录3次活动后再生成分析。",
     logout: "退出登录",
     or: "或",
-    loadingGoogleBtn: "加载中..."
+    loadingGoogleBtn: "加载中...",
+
+    // Quick Capture
+    quickCapture: "快捷记录",
+    quickLogged: "已快捷记录",
+    pendingDetails: "待完善"
   }
 };

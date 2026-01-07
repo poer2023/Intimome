@@ -13,12 +13,14 @@ import {
     X,
     Trash2,
     Filter,
-    Search
+    Search,
+    Pencil
 } from 'lucide-react';
 
 interface HistoryPageProps {
     onCreateFirst: () => void;
     onDeleteLog: (logId: string) => Promise<boolean>;
+    onEditLog?: (log: SessionLog) => void;
 }
 
 interface Filters {
@@ -28,7 +30,8 @@ interface Filters {
 
 export const HistoryPage: React.FC<HistoryPageProps> = ({
     onCreateFirst,
-    onDeleteLog
+    onDeleteLog,
+    onEditLog
 }) => {
     const { t, language } = useLanguage();
     const [logs, setLogs] = useState<SessionLog[]>([]);
@@ -202,8 +205,8 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({
                                     key={mood}
                                     onClick={() => handleMoodFilter(mood)}
                                     className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${filters.mood === mood
-                                            ? 'bg-brand-500 text-white'
-                                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                        ? 'bg-brand-500 text-white'
+                                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                                         }`}
                                 >
                                     {t.mood[mood]}
@@ -269,6 +272,12 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({
                                 <div className="flex items-baseline gap-2 mb-1">
                                     <span className="text-lg font-bold text-slate-800 tracking-tight">{formatShortDate(log.date)}</span>
                                     <span className="text-sm font-medium text-slate-400">at {formatTime(log.date)}</span>
+                                    {log.tags?.includes('QuickCapture') && (
+                                        <span className="text-[10px] font-bold bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
+                                            <Zap size={10} />
+                                            {t.pendingDetails}
+                                        </span>
+                                    )}
                                 </div>
                                 <div className="flex items-center gap-2 text-sm text-slate-500 font-medium">
                                     <span className="text-slate-700">{t.mood[log.mood]}</span>
@@ -316,6 +325,19 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({
                         >
                             <Trash2 size={16} className="text-slate-400 group-hover:text-red-500 transition-colors" />
                         </button>
+
+                        {onEditLog && (
+                            <button
+                                onClick={() => {
+                                    setSelectedLog(null);
+                                    onEditLog(selectedLog);
+                                }}
+                                className="absolute top-4 left-14 bg-slate-50 hover:bg-brand-50 p-2 rounded-full transition-colors active:scale-90 z-10 group"
+                                title={language === 'zh' ? '编辑' : 'Edit'}
+                            >
+                                <Pencil size={16} className="text-slate-400 group-hover:text-brand-500 transition-colors" />
+                            </button>
+                        )}
 
                         <button
                             onClick={() => setSelectedLog(null)}

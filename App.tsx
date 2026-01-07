@@ -1,8 +1,8 @@
 import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, useNavigate, useLocation, Navigate, Outlet } from 'react-router-dom';
-import { SessionLog, AnalysisResponse } from './shared/types';
+import { SessionLog, AnalysisResponse, ActivityType, LocationType, MoodType, PositionType } from './shared/types';
 import { generateInsights } from './services/geminiService';
-import { fetchLogs, saveLog, deleteLog, fetchCountdownTarget, saveCountdownTarget } from './services/logsService';
+import { fetchLogs, saveLog, deleteLog, updateLog, fetchCountdownTarget, saveCountdownTarget } from './services/logsService';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { BottomNav } from './components/BottomNav';
@@ -52,6 +52,8 @@ const AppShell = () => {
   const [loadingInsight, setLoadingInsight] = useState(false);
   const [loadingLogs, setLoadingLogs] = useState(false);
   const [targetDate, setTargetDate] = useState<string | null>(null);
+  const [showQuickToast, setShowQuickToast] = useState(false);
+  const [editingLog, setEditingLog] = useState<SessionLog | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuth();
@@ -101,6 +103,21 @@ const AppShell = () => {
     return success;
   };
 
+  const handleUpdateLog = async (updatedLog: SessionLog) => {
+    if (!user) return;
+    const success = await updateLog(updatedLog);
+    if (success) {
+      setLogs(logs.map(log => log.id === updatedLog.id ? updatedLog : log));
+    }
+    setEditingLog(null);
+    navigate('/history');
+  };
+
+  const handleEditLog = (log: SessionLog) => {
+    setEditingLog(log);
+    navigate('/edit');
+  };
+
   const handleGenerateInsight = async () => {
     if (logs.length < 3) {
       alert(language === 'zh' ? "请至少记录3次活动后再生成分析。" : "Please log at least 3 sessions to generate insights.");
@@ -128,6 +145,28 @@ const AppShell = () => {
     setInsight(null);
     logout();
     navigate('/auth/login');
+  };
+
+  const handleQuickCapture = async () => {
+    if (!user) return;
+    const quickLog: SessionLog = {
+      id: crypto.randomUUID(),
+      date: new Date().toISOString(),
+      durationMinutes: 15,
+      type: ActivityType.PARTNER,
+      location: LocationType.BEDROOM,
+      positions: [PositionType.MISSIONARY],
+      rating: 4,
+      mood: MoodType.PASSIONATE,
+      orgasmReached: true,
+      tags: ['QuickCapture'],
+    };
+    const success = await saveLog(quickLog);
+    if (success) {
+      setLogs([quickLog, ...logs]);
+      setShowQuickToast(true);
+      setTimeout(() => setShowQuickToast(false), 2000);
+    }
   };
 
   const activeNav = (path: string): NavTarget => {
@@ -171,15 +210,46 @@ const AppShell = () => {
                 element={<LogPage onSave={handleSaveLog} onCancel={() => navigate('/')} />}
               />
               <Route
+                path="/edit"
+                element={
+                  editingLog ? (
+                    <LogPage
+                      onSave={handleUpdateLog}
+                      onCancel={() => { setEditingLog(null); navigate('/history'); }}
+                      initialData={editingLog}
+                    />
+                  ) : (
+                    <Navigate to="/history" replace />
+                  )
+                }
+              />
+              <Route
                 path="/history"
-                element={<HistoryPage onCreateFirst={() => navigate('/log')} onDeleteLog={handleDeleteLog} />}
+                element={
+                  <HistoryPage
+                    onCreateFirst={() => navigate('/log')}
+                    onDeleteLog={handleDeleteLog}
+                    onEditLog={handleEditLog}
+                  />
+                }
               />
             </Route>
           </Routes>
         </Suspense>
       </main>
 
-      {user && <BottomNav />}
+      {/* Quick Capture Toast */}
+      {showQuickToast && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center pointer-events-none animate-fade-in">
+          <div className="bg-slate-900 text-white px-8 py-5 rounded-3xl text-lg font-bold shadow-2xl border-2 border-slate-700 flex items-center gap-3 animate-bounce-in pointer-events-auto">
+            <span className="text-2xl">⚡</span>
+            <span>{t.quickLogged}</span>
+            <span className="text-2xl">✓</span>
+          </div>
+        </div>
+      )}
+
+      {user && <BottomNav onQuickCapture={handleQuickCapture} />}
     </div>
   );
 };

@@ -112,6 +112,26 @@ export const deleteLog = async (logId: string): Promise<boolean> => {
     }
 };
 
+export const updateLog = async (log: SessionLog): Promise<boolean> => {
+    try {
+        const res = await fetch(`${API_BASE}/api/logs`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ log }),
+            credentials: 'include',
+        });
+        if (!res.ok) {
+            console.error('Failed to update log:', res.status);
+            return false;
+        }
+        const data = await res.json() as ApiResponse;
+        return data.success === true;
+    } catch (error) {
+        console.error('Error updating log:', error);
+        return false;
+    }
+};
+
 // Countdown timer functions
 export const fetchCountdownTarget = async (): Promise<string | null> => {
     try {
