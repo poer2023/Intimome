@@ -1,13 +1,29 @@
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useRef, useState, useCallback } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Home, Plus, History } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import confetti from 'canvas-confetti';
 
 type NavKey = 'dashboard' | 'log' | 'history';
 
-export function BottomNav() {
+interface BottomNavProps {
+  onQuickCapture?: () => Promise<void> | void;
+}
+
+// Long press duration in ms
+const LONG_PRESS_DURATION = 600;
+
+export function BottomNav({ onQuickCapture }: BottomNavProps) {
   const { t } = useLanguage();
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const [isCharging, setIsCharging] = useState(false);
+  const [chargeProgress, setChargeProgress] = useState(0);
+  const pressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const progressIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const startTimeRef = useRef<number>(0);
+  const isLongPressRef = useRef(false);
 
   const active: NavKey = location.pathname.startsWith('/history')
     ? 'history'
@@ -21,6 +37,133 @@ export function BottomNav() {
   const itemInactive =
     'bg-white/60 text-slate-500 border border-white/50 hover:bg-white/80 hover:text-slate-700 active:scale-95';
 
+  // Trigger haptic feedback if available
+  const triggerHaptic = useCallback((pattern: 'light' | 'heavy' = 'light') => {
+    if ('vibrate' in navigator) {
+      if (pattern === 'light') {
+        navigator.vibrate(10);
+      } else {
+        navigator.vibrate([50, 30, 100]);
+      }
+    }
+  }, []);
+
+  // Fire confetti celebration
+  const fireConfetti = useCallback(() => {
+    const colors = ['#f43f5e', '#8b5cf6', '#06b6d4', '#f59e0b', '#10b981'];
+
+    // First burst
+    confetti({
+      particleCount: 80,
+      spread: 70,
+      origin: { y: 0.85, x: 0.5 },
+      colors,
+      startVelocity: 45,
+      gravity: 1.2,
+      scalar: 1.1,
+    });
+
+    // Second burst with delay
+    setTimeout(() => {
+      confetti({
+        particleCount: 50,
+        angle: 60,
+        spread: 55,
+        origin: { x: 0.3, y: 0.85 },
+        colors,
+        startVelocity: 35,
+      });
+      confetti({
+        particleCount: 50,
+        angle: 120,
+        spread: 55,
+        origin: { x: 0.7, y: 0.85 },
+        colors,
+        startVelocity: 35,
+      });
+    }, 150);
+  }, []);
+
+  // Clear all timers
+  const clearTimers = useCallback(() => {
+    if (pressTimerRef.current) {
+      clearTimeout(pressTimerRef.current);
+      pressTimerRef.current = null;
+    }
+    if (progressIntervalRef.current) {
+      clearInterval(progressIntervalRef.current);
+      progressIntervalRef.current = null;
+    }
+  }, []);
+
+  // Handle long press success
+  const handleLongPressSuccess = useCallback(async () => {
+    clearTimers();
+    setIsCharging(false);
+    setChargeProgress(0);
+    isLongPressRef.current = true;
+
+    // Heavy haptic feedback
+    triggerHaptic('heavy');
+
+    // Fire confetti
+    fireConfetti();
+
+    // Call the quick capture callback
+    if (onQuickCapture) {
+      await onQuickCapture();
+    }
+  }, [clearTimers, triggerHaptic, fireConfetti, onQuickCapture]);
+
+  // Start press
+  const handlePressStart = useCallback((e: React.TouchEvent | React.MouseEvent) => {
+    e.preventDefault();
+    isLongPressRef.current = false;
+    startTimeRef.current = Date.now();
+    setIsCharging(true);
+    setChargeProgress(0);
+
+    // Light haptic on start
+    triggerHaptic('light');
+
+    // Progress animation
+    progressIntervalRef.current = setInterval(() => {
+      const elapsed = Date.now() - startTimeRef.current;
+      const progress = Math.min((elapsed / LONG_PRESS_DURATION) * 100, 100);
+      setChargeProgress(progress);
+    }, 16);
+
+    // Long press timer
+    pressTimerRef.current = setTimeout(() => {
+      handleLongPressSuccess();
+    }, LONG_PRESS_DURATION);
+  }, [triggerHaptic, handleLongPressSuccess]);
+
+  // End press
+  const handlePressEnd = useCallback((e: React.TouchEvent | React.MouseEvent) => {
+    e.preventDefault();
+    clearTimers();
+
+    const wasCharging = isCharging;
+    setIsCharging(false);
+    setChargeProgress(0);
+
+    // If it was a short press (not long press), navigate to /log
+    if (!isLongPressRef.current && wasCharging) {
+      const elapsed = Date.now() - startTimeRef.current;
+      if (elapsed < LONG_PRESS_DURATION) {
+        navigate('/log');
+      }
+    }
+  }, [clearTimers, isCharging, navigate]);
+
+  // Cancel press (e.g., when finger moves away)
+  const handlePressCancel = useCallback(() => {
+    clearTimers();
+    setIsCharging(false);
+    setChargeProgress(0);
+  }, [clearTimers]);
+
   return (
     <nav
       className="fixed bottom-6 left-0 right-0 z-50 flex justify-center pointer-events-none"
@@ -30,7 +173,6 @@ export function BottomNav() {
       <div
         className="pointer-events-auto flex items-center gap-3 px-3 py-2 rounded-full"
         style={{
-          // Higher transparency glass effect
           background: 'linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.08) 100%)',
           backdropFilter: 'blur(16px) saturate(120%)',
           WebkitBackdropFilter: 'blur(16px) saturate(120%)',
@@ -52,19 +194,58 @@ export function BottomNav() {
           <span className="sr-only">{t.dashboard}</span>
         </Link>
 
-        {/* Center button with enhanced style */}
-        <Link
-          to="/log"
+        {/* Center button with long press support */}
+        <button
+          type="button"
           aria-label={t.newLog}
-          aria-current={active === 'log' ? 'page' : undefined}
-          className="relative w-14 h-14 bg-slate-900 rounded-full flex items-center justify-center text-white transition-all duration-300 ease-out active:scale-95"
+          onTouchStart={handlePressStart}
+          onTouchEnd={handlePressEnd}
+          onTouchCancel={handlePressCancel}
+          onMouseDown={handlePressStart}
+          onMouseUp={handlePressEnd}
+          onMouseLeave={handlePressCancel}
+          className={`
+            relative w-14 h-14 bg-slate-900 rounded-full flex items-center justify-center text-white 
+            transition-all duration-150 ease-out select-none touch-none
+            ${isCharging ? 'scale-110 animate-charging-shake' : 'active:scale-95'}
+          `}
           style={{
-            boxShadow: '0 4px 20px rgba(15,23,42,0.3), 0 2px 8px rgba(15,23,42,0.2)',
+            boxShadow: isCharging
+              ? `0 0 ${20 + chargeProgress * 0.3}px rgba(244, 63, 94, ${0.3 + chargeProgress * 0.005}), 0 4px 20px rgba(15,23,42,0.3)`
+              : '0 4px 20px rgba(15,23,42,0.3), 0 2px 8px rgba(15,23,42,0.2)',
           }}
         >
-          <Plus className="w-6 h-6" aria-hidden="true" />
+          {/* Progress ring */}
+          {isCharging && (
+            <svg
+              className="absolute inset-0 w-full h-full -rotate-90"
+              viewBox="0 0 56 56"
+            >
+              <circle
+                cx="28"
+                cy="28"
+                r="26"
+                fill="none"
+                stroke="rgba(244, 63, 94, 0.3)"
+                strokeWidth="3"
+              />
+              <circle
+                cx="28"
+                cy="28"
+                r="26"
+                fill="none"
+                stroke="#f43f5e"
+                strokeWidth="3"
+                strokeLinecap="round"
+                strokeDasharray={`${2 * Math.PI * 26}`}
+                strokeDashoffset={`${2 * Math.PI * 26 * (1 - chargeProgress / 100)}`}
+                className="transition-all duration-75 ease-linear"
+              />
+            </svg>
+          )}
+          <Plus className={`w-6 h-6 transition-transform ${isCharging ? 'scale-110' : ''}`} aria-hidden="true" />
           <span className="sr-only">{t.newLog}</span>
-        </Link>
+        </button>
 
         <Link
           to="/history"
@@ -76,6 +257,25 @@ export function BottomNav() {
           <span className="sr-only">{t.history}</span>
         </Link>
       </div>
+
+      {/* CSS for charging shake animation */}
+      <style>{`
+        @keyframes charging-shake {
+          0%, 100% { transform: scale(1.1) translateX(0); }
+          10% { transform: scale(1.1) translateX(-1px) rotate(-1deg); }
+          20% { transform: scale(1.12) translateX(1px) rotate(1deg); }
+          30% { transform: scale(1.1) translateX(-1.5px) rotate(-0.5deg); }
+          40% { transform: scale(1.13) translateX(1.5px) rotate(0.5deg); }
+          50% { transform: scale(1.1) translateX(-1px) rotate(-1deg); }
+          60% { transform: scale(1.14) translateX(1px) rotate(1deg); }
+          70% { transform: scale(1.1) translateX(-1.5px) rotate(-0.5deg); }
+          80% { transform: scale(1.15) translateX(1.5px) rotate(0.5deg); }
+          90% { transform: scale(1.1) translateX(-1px) rotate(-1deg); }
+        }
+        .animate-charging-shake {
+          animation: charging-shake 0.15s ease-in-out infinite;
+        }
+      `}</style>
     </nav>
   );
 }
