@@ -178,7 +178,7 @@ const AppShell = () => {
   const current = activeNav(location.pathname);
 
   return (
-    <div className="min-h-screen bg-[#fafafa] text-slate-900 selection:bg-brand-100 selection:text-brand-900 pb-32">
+    <div className="min-h-screen bg-slate-50 text-slate-900 selection:bg-brand-100 selection:text-brand-900 pb-32">
       <main className="max-w-lg mx-auto px-5 pt-6 pb-8 no-scrollbar h-full overflow-y-auto">
         <Suspense fallback={<PageLoading />}>
           <Routes>
@@ -241,7 +241,7 @@ const AppShell = () => {
       {/* Quick Capture Toast */}
       {showQuickToast && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center pointer-events-none animate-fade-in">
-          <div className="bg-slate-900 text-white px-8 py-5 rounded-3xl text-lg font-bold shadow-2xl border-2 border-slate-700 flex items-center gap-3 animate-bounce-in pointer-events-auto">
+          <div className="bg-slate-900 text-white px-8 py-5 rounded-[var(--radius-modal)] text-lg font-bold shadow-elevation border-2 border-slate-700 flex items-center gap-3 animate-bounce-in pointer-events-auto">
             <span className="text-2xl">⚡</span>
             <span>{t.quickLogged}</span>
             <span className="text-2xl">✓</span>

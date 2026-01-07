@@ -77,13 +77,13 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                                     className="fixed inset-0 z-40"
                                     onClick={() => setShowUserMenu(false)}
                                 />
-                                <div className="absolute top-12 right-0 bg-white rounded-2xl shadow-elevation border border-slate-100 p-2 min-w-[160px] animate-scale-in z-50">
+                                <div className="absolute top-12 right-0 bg-white rounded-[var(--radius-card)] shadow-elevation border border-slate-100 p-2 min-w-[160px] animate-scale-in z-50">
                                     <div className="px-3 py-2 text-xs text-slate-400 font-medium border-b border-slate-100 mb-1">
                                         @{user?.displayName || user?.username}
                                     </div>
                                     <button
                                         onClick={() => { setShowUserMenu(false); onLogout(); }}
-                                        className="w-full text-left px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-xl transition-colors font-medium"
+                                        className="w-full text-left px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-[var(--radius-input)] transition-colors font-medium"
                                     >
                                         退出登录
                                     </button>
@@ -174,7 +174,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                                 <Zap size={14} className="text-purple-500 shrink-0 mt-1" />
                                 <p className="text-slate-600 text-sm leading-relaxed">{insight.diversityTip}</p>
                             </div>
-                            <div className="bg-brand-50/50 rounded-xl p-3 mt-2">
+                            <div className="bg-brand-50/50 rounded-[var(--radius-input)] p-3 mt-2">
                                 <div className="flex gap-2 items-start">
                                     <Heart size={14} className="text-brand-500 shrink-0 mt-0.5" />
                                     <p className="text-sm font-medium text-brand-700">{insight.personalizedTip}</p>

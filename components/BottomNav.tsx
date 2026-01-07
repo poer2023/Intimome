@@ -228,18 +228,7 @@ export function BottomNav({ onQuickCapture }: BottomNavProps) {
     >
       {/* Liquid Glass Container */}
       <div
-        className="pointer-events-auto flex items-center gap-3 px-3 py-2 rounded-full"
-        style={{
-          background: 'linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.08) 100%)',
-          backdropFilter: 'blur(16px) saturate(120%)',
-          WebkitBackdropFilter: 'blur(16px) saturate(120%)',
-          border: '1px solid rgba(255,255,255,0.2)',
-          boxShadow: `
-            0 8px 32px rgba(0,0,0,0.04),
-            0 2px 8px rgba(0,0,0,0.02),
-            inset 0 1px 1px rgba(255,255,255,0.3)
-          `,
-        }}
+        className="pointer-events-auto flex items-center gap-3 px-3 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 shadow-elevation"
       >
         <Link
           to="/"

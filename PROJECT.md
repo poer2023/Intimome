@@ -30,6 +30,26 @@ IntimDiary 是一个基于 React + Cloudflare 全栈的私密日记应用。
 
 ## 技术架构
 
+### UI 设计标准 (UI Design Standards)
+
+> **设计准则**：所有 UI 组件必须遵循以下 Token，禁止使用魔术数值。
+
+**1. 圆角系统 (Border Radius)**
+- `rounded-[24px]` (Tailwind: `rounded-[24px]`): 用于卡片、容器、大图
+- `rounded-[32px]` (Tailwind: `rounded-[32px]`): 用于模态框、大面板 (Main Cards)
+- `rounded-[20px]` (Tailwind: `rounded-[20px]`): 用于主要按钮 (Primary Buttons)
+- `rounded-[16px]` (Tailwind: `rounded-[16px]`): 用于输入框、次要按钮 (Secondary Buttons)
+
+**2. 阴影系统 (Shadows)**
+- `shadow-subtle`: `0 1px 2px 0 rgba(0, 0, 0, 0.05)` (用于列表项、轻微浮起)
+- `shadow-elevation`: `0 10px 40px -10px rgba(0, 0, 0, 0.05)` (用于卡片、主要容器)
+- `shadow-glow`: `0 0 20px rgba(244, 63, 94, 0.3)` (用于高亮元素)
+
+**3. 颜色系统 (Colors)**
+- 页面背景: `#fafafa` (Tailwind: `bg-slate-50`)
+- 品牌色: `rose-500` (Tailwind: `text-brand-500`)
+- 文本色: `slate-900` (主要), `slate-500` (次要), `slate-400` (辅助)
+
 ### 前端技术栈
 
 | 技术 | 版本 | 用途 |
@@ -162,22 +182,38 @@ BACKUP_SECRET=your-backup-secret
 
 ### 2. 本地开发
 
-#### 方式一：Vite 开发服务器（推荐）
+#### 🚀 快速启动（推荐）
 
 ```bash
-# 终端 1：启动前端开发服务器
-npm run dev
-# 访问 http://localhost:3000
+# 1. 构建前端
+npm run build
 
-# 终端 2：启动 Cloudflare Workers 本地服务器
+# 2. 启动开发服务器（前端 + 后端）
 npm run pages:dev
-# Workers API 运行在 http://localhost:8788
+# 访问 http://localhost:8788
 ```
 
 **工作原理：**
-- Vite 在 `localhost:3000` 提供前端热重载
-- Vite 代理 `/api/*` 请求到 `localhost:8788`（Cloudflare Workers）
-- Workers 连接本地 D1 数据库
+- Wrangler 在 `localhost:8788` 提供完整的 Pages + Workers 环境
+- 自动连接本地 D1 数据库、KV、R2（模拟）
+- 后端代码 (`functions/`) 修改后自动热重载
+- **前端修改** 需要重新 `npm run build` 后刷新
+
+#### 📝 前端热重载开发（可选）
+
+如果频繁修改前端代码，可使用双终端模式：
+
+```bash
+# 终端 1：启动前端开发服务器（热重载）
+npm run dev
+# → http://localhost:3000
+
+# 终端 2：启动后端 Workers
+npm run pages:dev
+# → http://localhost:8788
+```
+
+此模式下 Vite 会代理 `/api/*` 到 Workers，前端改动自动刷新。
 
 #### 初始化本地数据库
 

@@ -42,7 +42,7 @@ export const Card: React.FC<{
 }> = ({ children, className = '', title, action, onClick }) => (
     <div
         onClick={onClick}
-        className={`bg-white rounded-[24px] p-6 shadow-subtle border border-slate-100 ${className} ${onClick ? 'cursor-pointer active:scale-[0.98] active:bg-slate-50 hover:border-brand-100 hover:shadow-elevation transition-all duration-200 ease-out' : ''}`}
+        className={`bg-white rounded-[var(--radius-card)] p-6 shadow-subtle border border-slate-100 ${className} ${onClick ? 'cursor-pointer active:scale-[0.98] active:bg-slate-50 hover:border-brand-100 hover:shadow-elevation transition-all duration-200 ease-out' : ''}`}
     >
         {(title || action) && (
             <div className="flex justify-between items-center mb-6">
@@ -168,7 +168,7 @@ export const TimerWidget: React.FC<{
     }, [logs, targetDate, now, t]);
 
     return (
-        <div onClick={onEdit} className="relative w-full rounded-[28px] p-6 mb-6 cursor-pointer group transition-all duration-300 bg-white border border-slate-100 shadow-elevation hover:border-brand-200 active:scale-[0.98]">
+        <div onClick={onEdit} className="relative w-full rounded-[var(--radius-card)] p-6 mb-6 cursor-pointer group transition-all duration-300 bg-white border border-slate-100 shadow-elevation hover:border-brand-200 active:scale-[0.98]">
             <div className="flex items-center justify-between">
                 <div className="flex flex-col">
                     <span className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">{displayData.label}</span>

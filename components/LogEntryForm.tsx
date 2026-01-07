@@ -22,19 +22,19 @@ const MissionarySVG = () => (
       </linearGradient>
     </defs>
     {/* Bed/Base */}
-    <path d="M10 85 L90 85" stroke="#cbd5e1" strokeWidth="4" strokeLinecap="round" />
+    <path d="M10 85 L90 85" className="stroke-slate-300" strokeWidth="4" strokeLinecap="round" />
 
     {/* Bottom Partner (Passive - Slate) */}
-    <circle cx="25" cy="75" r="8" fill="#94a3b8" />
-    <path d="M25 85 L75 85" stroke="#94a3b8" strokeWidth="6" strokeLinecap="round" />
-    <path d="M55 85 L65 70" stroke="#94a3b8" strokeWidth="4" strokeLinecap="round" />
+    <circle cx="25" cy="75" r="8" className="fill-slate-400" />
+    <path d="M25 85 L75 85" className="stroke-slate-400" strokeWidth="6" strokeLinecap="round" />
+    <path d="M55 85 L65 70" className="stroke-slate-400" strokeWidth="4" strokeLinecap="round" />
 
     {/* Top Partner (Active - Emerald) */}
     <g className="animate-thrust-y origin-center">
-      <circle cx="30" cy="60" r="8" fill="#f43f5e" />
-      <path d="M30 68 L75 68" stroke="#f43f5e" strokeWidth="6" strokeLinecap="round" />
-      <path d="M35 68 L35 85" stroke="#f43f5e" strokeWidth="4" strokeLinecap="round" />
-      <path d="M70 68 L70 85" stroke="#f43f5e" strokeWidth="4" strokeLinecap="round" />
+      <circle cx="30" cy="60" r="8" className="fill-brand-500" />
+      <path d="M30 68 L75 68" className="stroke-brand-500" strokeWidth="6" strokeLinecap="round" />
+      <path d="M35 68 L35 85" className="stroke-brand-500" strokeWidth="4" strokeLinecap="round" />
+      <path d="M70 68 L70 85" className="stroke-brand-500" strokeWidth="4" strokeLinecap="round" />
     </g>
   </svg>
 );
@@ -420,7 +420,7 @@ export const LogEntryForm: React.FC<LogEntryFormProps> = ({ onSave, onCancel, in
     <form onSubmit={handleSubmit} className="space-y-6 animate-slide-up pb-32">
 
       {/* Main Info Card */}
-      <div className="bg-white p-6 rounded-[32px] shadow-subtle border border-slate-100 space-y-8">
+      <div className="bg-white p-6 rounded-[var(--radius-modal)] shadow-subtle border border-slate-100 space-y-8">
 
         {/* Type Toggle (Segmented Control) */}
         <div className="bg-slate-50 p-1.5 rounded-2xl flex relative">
@@ -449,7 +449,7 @@ export const LogEntryForm: React.FC<LogEntryFormProps> = ({ onSave, onCancel, in
           <button
             type="button"
             onClick={() => setShowDatePicker(true)}
-            className="bg-slate-50 border border-slate-100 rounded-[20px] p-4 text-left hover:bg-slate-100 transition-colors group"
+            className="bg-slate-50 border border-slate-100 rounded-[var(--radius-button)] p-4 text-left hover:bg-slate-100 transition-colors group"
           >
             <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1.5">
               <Calendar size={12} /> Date
@@ -476,7 +476,7 @@ export const LogEntryForm: React.FC<LogEntryFormProps> = ({ onSave, onCancel, in
           />
 
           {/* Duration Slider Compact */}
-          <div className="bg-slate-50 border border-slate-100 rounded-[20px] p-4 flex flex-col justify-between">
+          <div className="bg-slate-50 border border-slate-100 rounded-[var(--radius-button)] p-4 flex flex-col justify-between">
             <div className="flex justify-between items-center mb-2">
               <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
                 <Clock size={12} /> Duration
@@ -571,7 +571,7 @@ export const LogEntryForm: React.FC<LogEntryFormProps> = ({ onSave, onCancel, in
       </div>
 
       {/* Highlights & Outcome */}
-      <div className="bg-white p-6 rounded-[32px] shadow-subtle border border-slate-100 space-y-8">
+      <div className="bg-white p-6 rounded-[var(--radius-modal)] shadow-subtle border border-slate-100 space-y-8">
         {/* Tags */}
         <div>
           <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">{t.highlights}</h3>
@@ -599,7 +599,7 @@ export const LogEntryForm: React.FC<LogEntryFormProps> = ({ onSave, onCancel, in
         {/* Rating & Orgasm Grid */}
         <div className="grid grid-cols-2 gap-4">
           {/* Rating */}
-          <div className="bg-slate-50 rounded-[20px] p-4 flex flex-col items-center justify-center gap-2">
+          <div className="bg-slate-50 rounded-[var(--radius-button)] p-4 flex flex-col items-center justify-center gap-2">
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t.satisfaction}</span>
             <div className="flex gap-1">
               {[1, 2, 3, 4, 5].map((r) => (
@@ -614,7 +614,7 @@ export const LogEntryForm: React.FC<LogEntryFormProps> = ({ onSave, onCancel, in
           <button
             type="button"
             onClick={() => setOrgasmReached(!orgasmReached)}
-            className={`rounded-[20px] p-4 flex flex-col items-center justify-center gap-2 border transition-all ${orgasmReached
+            className={`rounded-[var(--radius-button)] p-4 flex flex-col items-center justify-center gap-2 border transition-all ${orgasmReached
               ? 'bg-rose-50 border-rose-100 text-rose-600'
               : 'bg-white border-slate-200 text-slate-400 hover:border-slate-300'
               }`}
@@ -632,7 +632,7 @@ export const LogEntryForm: React.FC<LogEntryFormProps> = ({ onSave, onCancel, in
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             rows={3}
-            className="w-full bg-slate-50 border border-slate-100 rounded-2xl p-4 text-sm text-slate-800 placeholder:text-slate-400 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all resize-none"
+            className="w-full bg-slate-50 border border-slate-100 rounded-[var(--radius-input)] p-4 text-sm text-slate-800 placeholder:text-slate-400 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all resize-none"
             placeholder={t.notesPlaceholder}
           />
         </div>
@@ -644,13 +644,13 @@ export const LogEntryForm: React.FC<LogEntryFormProps> = ({ onSave, onCancel, in
         <button
           type="button"
           onClick={onCancel}
-          className="flex-1 py-4 bg-slate-100 text-slate-600 rounded-[20px] font-bold text-sm transition-colors hover:bg-slate-200"
+          className="flex-1 py-4 bg-slate-100 text-slate-600 rounded-[var(--radius-button)] font-bold text-sm transition-colors hover:bg-slate-200"
         >
           {t.cancel}
         </button>
         <button
           type="submit"
-          className="flex-[2] py-4 bg-slate-900 text-white rounded-[20px] font-bold text-sm shadow-xl shadow-slate-900/20 transition-all transform active:scale-[0.98] hover:bg-black"
+          className="flex-[2] py-4 bg-slate-900 text-white rounded-[var(--radius-button)] font-bold text-sm shadow-elevation shadow-slate-900/20 transition-all transform active:scale-[0.98] hover:bg-black"
         >
           {t.saveLog}
         </button>

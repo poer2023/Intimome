@@ -172,7 +172,7 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({
                     )}
                     <button
                         onClick={() => setShowFilters(!showFilters)}
-                        className={`p-2 rounded-xl transition-all ${hasActiveFilters ? 'bg-brand-50 text-brand-600' : 'bg-slate-50 text-slate-500 hover:bg-slate-100'}`}
+                        className={`p-2 rounded-[var(--radius-input)] transition-all ${hasActiveFilters ? 'bg-brand-50 text-brand-600' : 'bg-slate-50 text-slate-500 hover:bg-slate-100'}`}
                     >
                         <Filter size={18} />
                     </button>
@@ -181,7 +181,7 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({
 
             {/* Filter Panel */}
             {showFilters && (
-                <div className="bg-white rounded-2xl p-4 shadow-subtle border border-slate-100 space-y-4 animate-slide-up">
+                <div className="bg-white rounded-[var(--radius-card)] p-4 shadow-subtle border border-slate-100 space-y-4 animate-slide-up">
                     {/* Search */}
                     <div className="relative">
                         <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -190,7 +190,7 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({
                             value={searchInput}
                             onChange={(e) => setSearchInput(e.target.value)}
                             placeholder={language === 'zh' ? '搜索备注或伴侣名...' : 'Search notes or partner...'}
-                            className="w-full pl-9 pr-4 py-2 bg-slate-50 rounded-xl text-sm border border-transparent focus:border-brand-500 focus:bg-white outline-none transition-all"
+                            className="w-full pl-9 pr-4 py-2 bg-slate-50 rounded-[var(--radius-input)] text-sm border border-transparent focus:border-brand-500 focus:bg-white outline-none transition-all"
                         />
                     </div>
 
@@ -204,7 +204,7 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({
                                 <button
                                     key={mood}
                                     onClick={() => handleMoodFilter(mood)}
-                                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${filters.mood === mood
+                                    className={`px-3 py-1.5 rounded-[var(--radius-input)] text-xs font-semibold transition-all ${filters.mood === mood
                                         ? 'bg-brand-500 text-white'
                                         : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                                         }`}
@@ -234,7 +234,7 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({
             )}
 
             {logs.length === 0 ? (
-                <div className="text-slate-400 text-center py-20 bg-white rounded-[24px] border border-slate-100 border-dashed">
+                <div className="text-slate-400 text-center py-20 bg-white rounded-[var(--radius-card)] border border-slate-100 border-dashed">
                     <div className="bg-slate-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                         <Calendar size={24} className="text-slate-300" />
                     </div>
@@ -263,9 +263,9 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({
                         <div
                             key={log.id}
                             onClick={() => setSelectedLog(log)}
-                            className="bg-white p-4 rounded-[20px] shadow-subtle border border-slate-100 hover:shadow-elevation hover:border-brand-100 transition-all cursor-pointer flex items-center gap-4 group"
+                            className="bg-white p-4 rounded-[var(--radius-card)] shadow-subtle border border-slate-100 hover:shadow-elevation hover:border-brand-100 transition-all cursor-pointer flex items-center gap-4 group"
                         >
-                            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 ${getLogColor(log)} transition-transform group-hover:scale-105`}>
+                            <div className={`w-14 h-14 rounded-[var(--radius-input)] flex items-center justify-center shrink-0 ${getLogColor(log)} transition-transform group-hover:scale-105`}>
                                 {getLogIcon(log)}
                             </div>
                             <div className="flex-1 min-w-0">
@@ -293,7 +293,7 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({
                         <button
                             onClick={handleLoadMore}
                             disabled={isLoadingMore}
-                            className="w-full py-4 bg-slate-50 hover:bg-slate-100 text-slate-600 font-semibold rounded-2xl transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                            className="w-full py-4 bg-slate-50 hover:bg-slate-100 text-slate-600 font-semibold rounded-[var(--radius-button)] transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
                         >
                             {isLoadingMore ? (
                                 <>
@@ -315,7 +315,7 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({
                     onClick={() => setSelectedLog(null)}
                 >
                     <div
-                        className="bg-white rounded-[32px] w-full max-w-[360px] max-h-[85vh] shadow-2xl animate-modal-slide-up relative overflow-hidden flex flex-col"
+                        className="bg-white rounded-[var(--radius-modal)] w-full max-w-[360px] max-h-[85vh] shadow-elevation animate-modal-slide-up relative overflow-hidden flex flex-col"
                         onClick={(e) => e.stopPropagation()}
                     >
                         <button
@@ -370,8 +370,8 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({
                             </div>
 
                             <div className="space-y-4 text-left animate-slide-up delay-300 opacity-0" style={{ animationFillMode: 'forwards' }}>
-                                <div className="bg-slate-50 rounded-[20px] p-4 flex items-center gap-4">
-                                    <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-slate-400 shadow-sm">
+                                <div className="bg-slate-50 rounded-[var(--radius-button)] p-4 flex items-center gap-4">
+                                    <div className="w-10 h-10 rounded-[var(--radius-input)] bg-white flex items-center justify-center text-slate-400 shadow-sm">
                                         <MapPin size={18} />
                                     </div>
                                     <div>
@@ -384,7 +384,7 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({
                                     <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3 px-1">{t.positions}</h4>
                                     <div className="grid grid-cols-3 gap-3">
                                         {selectedLog.positions.map(p => (
-                                            <div key={p} className="flex flex-col items-center justify-center p-3 rounded-2xl bg-slate-50 border border-slate-100/50">
+                                            <div key={p} className="flex flex-col items-center justify-center p-3 rounded-[var(--radius-input)] bg-slate-50 border border-slate-100/50">
                                                 <div className="w-12 h-12 mb-2">
                                                     <PositionIcon position={p} className="w-full h-full" />
                                                 </div>
@@ -408,7 +408,7 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({
                     onClick={() => setShowDeleteConfirm(false)}
                 >
                     <div
-                        className="bg-white rounded-[24px] w-full max-w-[320px] p-6 shadow-2xl animate-scale-in"
+                        className="bg-white rounded-[var(--radius-modal)] w-full max-w-[320px] p-6 shadow-elevation animate-scale-in"
                         onClick={(e) => e.stopPropagation()}
                     >
                         <h3 className="text-lg font-bold text-slate-900 mb-2 text-center">{t.deleteConfirmTitle}</h3>
@@ -417,14 +417,14 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({
                             <button
                                 onClick={() => setShowDeleteConfirm(false)}
                                 disabled={isDeleting}
-                                className="flex-1 py-3 bg-slate-100 text-slate-600 rounded-xl font-semibold hover:bg-slate-200 transition-colors disabled:opacity-50"
+                                className="flex-1 py-3 bg-slate-100 text-slate-600 rounded-[var(--radius-input)] font-semibold hover:bg-slate-200 transition-colors disabled:opacity-50"
                             >
                                 {t.deleteNo}
                             </button>
                             <button
                                 onClick={handleDelete}
                                 disabled={isDeleting}
-                                className="flex-1 py-3 bg-red-500 text-white rounded-xl font-semibold hover:bg-red-600 transition-colors disabled:opacity-50"
+                                className="flex-1 py-3 bg-red-500 text-white rounded-[var(--radius-input)] font-semibold hover:bg-red-600 transition-colors disabled:opacity-50"
                             >
                                 {isDeleting ? t.deleting : t.deleteYes}
                             </button>

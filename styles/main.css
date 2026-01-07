@@ -24,8 +24,15 @@
 
   --font-family-sans: "Outfit", system-ui, -apple-system, sans-serif;
 
+  /* Design Tokens from PROJECT.md */
+  --radius-card: 24px;
+  --radius-modal: 32px;
+  --radius-button: 20px;
+  --radius-input: 16px;
+
   --shadow-subtle: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-elevation: 0 10px 40px -10px rgba(0, 0, 0, 0.05);
+  --shadow-glow: 0 0 20px rgba(244, 63, 94, 0.3);
   --shadow-glow-sm: 0 0 10px rgba(244, 63, 94, 0.15);
 
   --animate-fade-in: fadeIn 0.5s ease-out forwards;
