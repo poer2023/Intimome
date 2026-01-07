@@ -3,6 +3,7 @@ import { SessionLog, AnalysisResponse } from '../shared/types';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Card, StatCard, TimerWidget, TargetDateModal } from '../components/SharedComponents';
 import { StatsChart } from '../components/StatsChart';
+import { FluidHeatmap } from '../components/FluidHeatmap';
 import {
     Activity,
     Clock,
@@ -203,6 +204,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                     <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Analytics</h2>
                 </div>
                 <StatsChart data={logs} />
+                <FluidHeatmap logs={logs} />
             </div>
 
             {/* Timer Modal */}
