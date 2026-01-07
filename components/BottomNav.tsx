@@ -41,9 +41,9 @@ export function BottomNav({ onQuickCapture }: BottomNavProps) {
   const itemInactive =
     'bg-white/60 text-slate-500 border border-white/50 hover:bg-white/80 hover:text-slate-700 active:scale-95';
 
-  // Refs for iOS haptic feedback workaround
-  const lightHapticRef = useRef<HTMLInputElement>(null);
-  const heavyHapticRef = useRef<HTMLInputElement>(null);
+  // Refs for iOS haptic feedback workaround - MUST use label refs!
+  const lightHapticLabelRef = useRef<HTMLLabelElement>(null);
+  const heavyHapticLabelRef = useRef<HTMLLabelElement>(null);
 
   // Trigger haptic feedback (iOS 18+ compatible)
   const triggerHaptic = useCallback((pattern: 'light' | 'heavy' = 'light') => {
@@ -56,15 +56,15 @@ export function BottomNav({ onQuickCapture }: BottomNavProps) {
       }
     }
 
-    // iOS 18+ workaround: trigger switch input for haptic feedback
+    // iOS 18+ workaround: click the LABEL (not input) to trigger haptic
     try {
-      if (pattern === 'light' && lightHapticRef.current) {
-        lightHapticRef.current.click();
-      } else if (pattern === 'heavy' && heavyHapticRef.current) {
+      if (pattern === 'light' && lightHapticLabelRef.current) {
+        lightHapticLabelRef.current.click();
+      } else if (pattern === 'heavy' && heavyHapticLabelRef.current) {
         // Trigger multiple times for "heavy" effect
-        heavyHapticRef.current.click();
-        setTimeout(() => heavyHapticRef.current?.click(), 80);
-        setTimeout(() => heavyHapticRef.current?.click(), 180);
+        heavyHapticLabelRef.current.click();
+        setTimeout(() => heavyHapticLabelRef.current?.click(), 80);
+        setTimeout(() => heavyHapticLabelRef.current?.click(), 180);
       }
     } catch (e) {
       // Silently fail if haptic not supported
@@ -318,22 +318,34 @@ export function BottomNav({ onQuickCapture }: BottomNavProps) {
       </div>
 
       {/* Hidden switch inputs for iOS 18+ haptic feedback */}
-      <input
-        ref={lightHapticRef}
-        type="checkbox"
-        className="sr-only"
-        aria-hidden="true"
-        tabIndex={-1}
+      {/* IMPORTANT: Must click the LABEL, not the input, to trigger haptic */}
+      <label
+        ref={lightHapticLabelRef}
         style={{ position: 'absolute', opacity: 0, pointerEvents: 'none' }}
-      />
-      <input
-        ref={heavyHapticRef}
-        type="checkbox"
-        className="sr-only"
         aria-hidden="true"
-        tabIndex={-1}
+      >
+        <input
+          type="checkbox"
+          // @ts-ignore - switch is a non-standard attribute for iOS
+          switch="true"
+          tabIndex={-1}
+          aria-hidden="true"
+        />
+      </label>
+      <label
+        ref={heavyHapticLabelRef}
         style={{ position: 'absolute', opacity: 0, pointerEvents: 'none' }}
-      />
+        aria-hidden="true"
+      >
+        <input
+          type="checkbox"
+          // @ts-ignore - switch is a non-standard attribute for iOS
+          switch="true"
+          tabIndex={-1}
+          aria-hidden="true"
+        />
+      </label>
+
 
       {/* CSS for charging shake animation */}
       <style>{`
