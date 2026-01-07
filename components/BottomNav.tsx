@@ -25,6 +25,10 @@ export function BottomNav({ onQuickCapture }: BottomNavProps) {
   const startTimeRef = useRef<number>(0);
   const isLongPressRef = useRef(false);
 
+  // Track initial touch position for movement tolerance
+  const startPositionRef = useRef<{ x: number; y: number } | null>(null);
+  const MAX_MOVEMENT_DISTANCE = 10; // pixels
+
   const active: NavKey = location.pathname.startsWith('/history')
     ? 'history'
     : location.pathname.startsWith('/log')
@@ -37,14 +41,33 @@ export function BottomNav({ onQuickCapture }: BottomNavProps) {
   const itemInactive =
     'bg-white/60 text-slate-500 border border-white/50 hover:bg-white/80 hover:text-slate-700 active:scale-95';
 
-  // Trigger haptic feedback if available
+  // Refs for iOS haptic feedback workaround
+  const lightHapticRef = useRef<HTMLInputElement>(null);
+  const heavyHapticRef = useRef<HTMLInputElement>(null);
+
+  // Trigger haptic feedback (iOS 18+ compatible)
   const triggerHaptic = useCallback((pattern: 'light' | 'heavy' = 'light') => {
+    // Try standard Vibration API first (Android, some browsers)
     if ('vibrate' in navigator) {
       if (pattern === 'light') {
         navigator.vibrate(10);
       } else {
         navigator.vibrate([50, 30, 100]);
       }
+    }
+
+    // iOS 18+ workaround: trigger switch input for haptic feedback
+    try {
+      if (pattern === 'light' && lightHapticRef.current) {
+        lightHapticRef.current.click();
+      } else if (pattern === 'heavy' && heavyHapticRef.current) {
+        // Trigger multiple times for "heavy" effect
+        heavyHapticRef.current.click();
+        setTimeout(() => heavyHapticRef.current?.click(), 80);
+        setTimeout(() => heavyHapticRef.current?.click(), 180);
+      }
+    } catch (e) {
+      // Silently fail if haptic not supported
     }
   }, []);
 
@@ -123,6 +146,11 @@ export function BottomNav({ onQuickCapture }: BottomNavProps) {
     setIsCharging(true);
     setChargeProgress(0);
 
+    // Record initial touch position
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    startPositionRef.current = { x: clientX, y: clientY };
+
     // Light haptic on start
     triggerHaptic('light');
 
@@ -139,29 +167,58 @@ export function BottomNav({ onQuickCapture }: BottomNavProps) {
     }, LONG_PRESS_DURATION);
   }, [triggerHaptic, handleLongPressSuccess]);
 
+
   // End press
   const handlePressEnd = useCallback((e: React.TouchEvent | React.MouseEvent) => {
     e.preventDefault();
-    clearTimers();
 
-    const wasCharging = isCharging;
+    const wasLongPress = isLongPressRef.current;
+    const elapsed = Date.now() - startTimeRef.current;
+
+    clearTimers();
     setIsCharging(false);
     setChargeProgress(0);
 
-    // If it was a short press (not long press), navigate to /log
-    if (!isLongPressRef.current && wasCharging) {
-      const elapsed = Date.now() - startTimeRef.current;
-      if (elapsed < LONG_PRESS_DURATION) {
-        navigate('/log');
-      }
+    // If long press was triggered, do NOT navigate
+    // This prevents accidental tap after long press completion
+    if (wasLongPress) {
+      return;
     }
-  }, [clearTimers, isCharging, navigate]);
+
+    // Only navigate if it was a genuine short press
+    // Use a stricter threshold (e.g., 80% of long press duration) to avoid edge cases
+    const SHORT_PRESS_MAX = LONG_PRESS_DURATION * 0.8;
+    if (elapsed < SHORT_PRESS_MAX) {
+      navigate('/log');
+    }
+  }, [clearTimers, navigate]);
+
+  // Handle movement during press
+  const handlePressMove = useCallback((e: React.TouchEvent | React.MouseEvent) => {
+    if (!startPositionRef.current || !isCharging) return;
+
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+
+    const deltaX = clientX - startPositionRef.current.x;
+    const deltaY = clientY - startPositionRef.current.y;
+    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+    // Cancel if moved beyond threshold
+    if (distance > MAX_MOVEMENT_DISTANCE) {
+      clearTimers();
+      setIsCharging(false);
+      setChargeProgress(0);
+      startPositionRef.current = null;
+    }
+  }, [isCharging, clearTimers, MAX_MOVEMENT_DISTANCE]);
 
   // Cancel press (e.g., when finger moves away)
   const handlePressCancel = useCallback(() => {
     clearTimers();
     setIsCharging(false);
     setChargeProgress(0);
+    startPositionRef.current = null;
   }, [clearTimers]);
 
   return (
@@ -199,9 +256,11 @@ export function BottomNav({ onQuickCapture }: BottomNavProps) {
           type="button"
           aria-label={t.newLog}
           onTouchStart={handlePressStart}
+          onTouchMove={handlePressMove}
           onTouchEnd={handlePressEnd}
           onTouchCancel={handlePressCancel}
           onMouseDown={handlePressStart}
+          onMouseMove={handlePressMove}
           onMouseUp={handlePressEnd}
           onMouseLeave={handlePressCancel}
           className={`
@@ -257,6 +316,24 @@ export function BottomNav({ onQuickCapture }: BottomNavProps) {
           <span className="sr-only">{t.history}</span>
         </Link>
       </div>
+
+      {/* Hidden switch inputs for iOS 18+ haptic feedback */}
+      <input
+        ref={lightHapticRef}
+        type="checkbox"
+        className="sr-only"
+        aria-hidden="true"
+        tabIndex={-1}
+        style={{ position: 'absolute', opacity: 0, pointerEvents: 'none' }}
+      />
+      <input
+        ref={heavyHapticRef}
+        type="checkbox"
+        className="sr-only"
+        aria-hidden="true"
+        tabIndex={-1}
+        style={{ position: 'absolute', opacity: 0, pointerEvents: 'none' }}
+      />
 
       {/* CSS for charging shake animation */}
       <style>{`
