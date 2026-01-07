@@ -80,14 +80,32 @@ export const TimerWidget: React.FC<{
     logs: SessionLog[];
     targetDate: string | null;
     onEdit: () => void;
+    onClearTarget?: () => void;
     t: ReturnType<typeof useLanguage>['t'];
-}> = ({ logs, targetDate, onEdit, t }) => {
+}> = ({ logs, targetDate, onEdit, onClearTarget, t }) => {
     const [now, setNow] = useState(Date.now());
 
     useEffect(() => {
         const interval = setInterval(() => setNow(Date.now()), targetDate ? 1000 : 60000);
         return () => clearInterval(interval);
     }, [targetDate]);
+
+    // Auto-clear expired countdown after 2 hours
+    useEffect(() => {
+        if (!targetDate || !onClearTarget) return;
+
+        const target = new Date(targetDate).getTime();
+        const diff = target - now;
+
+        if (diff <= 0) {
+            // Countdown has expired, clear it after 2 hours
+            const timeout = setTimeout(() => {
+                onClearTarget();
+            }, 7200000); // 2 hours = 7200000ms
+
+            return () => clearTimeout(timeout);
+        }
+    }, [targetDate, now, onClearTarget]);
 
     const displayData = useMemo(() => {
         if (targetDate) {
